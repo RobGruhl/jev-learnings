@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The cascade · Decision Tier</title>
+<meta name="description" content="Code, decision model, LLM, human: what each tier does, what escalates and how fixes flow down.">
+<meta property="og:title" content="The cascade · Decision Tier">
+<meta property="og:description" content="Code, decision model, LLM, human: what each tier does, what escalates and how fixes flow down.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/cascade.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html" aria-current="page">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge arch">Architecture</span> The core pattern</p>
+    <h1>The cascade</h1>
+    <p class="lede">Put each kind of decision in the cheapest tier that can make it correctly. Let each tier pass up what it can't handle. Then, every time an expensive tier resolves something, make a change in a cheaper tier so it never has to again.</p>
+
+    <div class="diagram" role="img" aria-label="Diagram of the cascade. Five stacked tiers, bottom to top: guards, code, decision model, LLM, human. Solid arrows on the left carry escalations upward with their triggers. A dashed arrow on the right carries fixes back down: playbook lines, code policies and planner rules.">
+      <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+          <marker id="aht" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-teal"/></marker>
+        </defs>
+        <rect x="190" y="20" width="380" height="64" rx="12" class="box-navy"/>
+        <text x="380" y="47" text-anchor="middle" font-size="18" font-weight="700">Human</text>
+        <text x="380" y="69" text-anchor="middle" font-size="13" class="muted">preferences · approvals · gray-zone rulings · hours</text>
+
+        <rect x="190" y="120" width="380" height="64" rx="12" class="box-coral"/>
+        <text x="380" y="147" text-anchor="middle" font-size="18" font-weight="700">LLM (Claude)</text>
+        <text x="380" y="169" text-anchor="middle" font-size="13" class="muted">inspects · decides · fixes the cause below · minutes</text>
+
+        <rect x="190" y="220" width="380" height="64" rx="12" class="box-amber"/>
+        <text x="380" y="247" text-anchor="middle" font-size="18" font-weight="700">Decision model</text>
+        <text x="380" y="269" text-anchor="middle" font-size="13" class="muted">bounded judgments · novelty + doubt checks · ~0.5 s</text>
+
+        <rect x="190" y="320" width="380" height="64" rx="12" class="box-teal"/>
+        <text x="380" y="347" text-anchor="middle" font-size="18" font-weight="700">Code</text>
+        <text x="380" y="369" text-anchor="middle" font-size="13" class="muted">extract state · legal options · plan · verify outcomes</text>
+
+        <rect x="190" y="420" width="380" height="64" rx="12" class="box"/>
+        <text x="380" y="447" text-anchor="middle" font-size="18" font-weight="700">Guards</text>
+        <text x="380" y="469" text-anchor="middle" font-size="13" class="muted">safety reflexes only · act and log · ~1 s</text>
+
+        <path d="M170 352 C 120 352, 120 252, 182 252" class="arrow" marker-end="url(#ah)"/>
+        <text x="20" y="300" font-size="12.5">no computable</text><text x="20" y="316" font-size="12.5">answer</text>
+        <path d="M170 252 C 120 252, 120 152, 182 152" class="arrow" marker-end="url(#ah)"/>
+        <text x="20" y="196" font-size="12.5">doubt or</text><text x="20" y="212" font-size="12.5">novelty &gt; 0.7</text>
+        <path d="M170 152 C 120 152, 120 52, 182 52" class="arrow" marker-end="url(#ah)"/>
+        <text x="20" y="96" font-size="12.5">money, accounts,</text><text x="20" y="112" font-size="12.5">irreversible</text>
+
+        <path d="M590 152 C 740 160, 740 340, 578 352" class="arrow-down" marker-end="url(#aht)"/>
+        <path d="M590 152 C 650 160, 650 245, 578 252" class="arrow-down" marker-end="url(#aht)"/>
+        <text x="646" y="206" font-size="12.5">playbook</text><text x="646" y="222" font-size="12.5">lines</text>
+        <text x="736" y="290" font-size="12.5">code</text><text x="736" y="306" font-size="12.5">policies,</text><text x="736" y="322" font-size="12.5">planner</text><text x="736" y="338" font-size="12.5">rules</text>
+        <text x="400" y="510" text-anchor="middle" font-size="13" class="muted">Solid: escalation goes up. Dashed: every resolution leaves a fix in a cheaper tier.</text>
+      </svg>
+    </div>
+
+    <h2>What each tier does</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tier</th><th>Owns</th><th>Never does</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Guards</strong></td><td>Safety reflexes in the fastest loop: eat below an HP floor, flee on an empty quiver, stop at target counts</td><td>Decide anything. They act and log</td></tr>
+        <tr><td><strong>Code</strong></td><td>Anything computable: extracting state, listing legal options, planning from data, verifying outcomes, policies with a right answer</td><td>Guess at judgment calls</td></tr>
+        <tr><td><strong>Decision model</strong></td><td>Priorities among options and worth-it calls, phrased narrowly and scored per option; code combines scores with explicit weights</td><td>Plan a chain, do arithmetic, audit its own options</td></tr>
+        <tr><td><strong>LLM</strong></td><td>Audits plans as well as doubt; writes milestones and playbook (the context the decision model judges against); turns each escalation into a lower-tier change</td><td>Sit in the hot path for routine decisions</td></tr>
+        <tr><td><strong>Human</strong></td><td>Preferences, rulings, approvals, environment failures automation can't reach</td><td>Get asked what a rule could answer</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Every escalation ends with a lower-tier change</h2>
+    <p>This is what makes a cascade get cheaper over time instead of just routing. When the LLM resolves an escalation, the resolution is a change that stops the same escalation from recurring:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Escalation</th><th>Push-down</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>Selling XP-crafted gear (doubt 0.74)</td><td>Playbook: "gear crafted only for XP is surplus"</td><td>Next time 0.35</td></tr>
+        <tr><td>Selling an obsolete ammo tier (novelty 0.71)</td><td>Playbook: "older tiers are surplus once the better one is worn and the standing goal names it"</td><td>Selling old armor next time: novelty 0.35, no escalation</td></tr>
+        <tr><td>Doubt 0.63 on the same safe pick, three times</td><td>Playbook safety condition</td><td>0.51, then 0.46</td></tr>
+        <tr><td>Rare-drop training plan (doubt 0.84)</td><td>Code: training never relies on rare drops</td><td>Next pick 0.41 doubt, no escalation</td></tr>
+      </tbody>
+    </table></div>
+    <p>Concrete milestones are a strong lever too. Against a paragraph-long goal, the decision model's picks scored 0.3–0.5. Along a named milestone's recipe chain, they scored 0.85–0.96.</p>
+
+    <h2>Promote questions to code when the answer is computable</h2>
+    <ul>
+      <li>The model rated "equip a free upgrade into an empty slot" under 0.7 every time. The answer is never worse than nothing, so it became a code policy.</li>
+      <li>It rated spare copies of worn gear as "possibly useful", so the bank filled up. "Surplus gear under bank pressure" became a code policy.</li>
+      <li>Picking the training monster is arithmetic once you can compute damage per arrow against monster HP, with a safety cutoff. It moved to code.</li>
+    </ul>
+    <div class="big-rule">Decision model for judgments without a computable answer. Code the moment a question has one, or the model's error has a fixed sign.</div>
+    <p>Code policies ended up running roughly a fifth of ticks.</p>
+
+    <h2>What the decision model can't see: planner gaps</h2>
+    <p>The biggest single lesson from the fourth session: <strong>most bad plans reached the LLM with the decision model at low doubt (0.27–0.35).</strong> It judges the options it is given. When the planner offers only bad options, it confidently picks the best bad one. Each of these was fixed in code:</p>
+    <ul>
+      <li><strong>Checked one craft, not the whole run.</strong> 36 Feathers passed a "can craft at least once" test, so the restock rule never ran, and the plan made 30 arrows instead of 300.</li>
+      <li><strong>Off-by-one threshold.</strong> 51 Feathers sat one above a restock threshold of 50.</li>
+      <li><strong>Fixed buy size.</strong> Restocks bought 300 when the run needed 1,000: buy → craft → buy cycles.</li>
+      <li><strong>Wrong metric.</strong> Ranking recipes by XP per material ignored gathering time: about 100 minutes of mining when 30,000 ore for an almost-as-good recipe sat in the bank.</li>
+      <li><strong>Wasted damage.</strong> A hardcoded training target lost most of each hit to overkill: 41 damage per arrow against 51 on a bigger monster at the same safety level.</li>
+    </ul>
+    <p>So the LLM tier has to <strong>audit the plans, not only the doubt scores.</strong> Each finding goes into the planner as a rule, with a comment naming the case that motivated it.</p>
+
+    <h2>Rules interact; state invariants per goal</h2>
+    <ul>
+      <li>Independent policies, each correct alone, formed loops: buying feathers when arrows ran low (the real block was arrowtips); selling surplus chaps while crafting chaps. Each fix narrowed a precondition.</li>
+      <li>A global gate written for one goal ("a banked melee weapon counts as armed") later sent a ranged character into a fight with zero arrows. The invariant moved to the goal that needs it.</li>
+    </ul>
+
+    <h2>LLM wakes are the scarce resource</h2>
+    <p>In a long-running loop the expensive thing is the LLM waking up, not the decision model or wall time. Each "do a small thing, then stop" cycle costs a tick and a wake. What reduced wakes:</p>
+    <ul>
+      <li><strong>Size batches to the remaining need.</strong> A fixed batch of 120 meant about 12 rounds for one level; sizing to the remaining XP (capped at 400) cut it to about 4.</li>
+      <li><strong>Size restocks to the whole run.</strong> One purchase of 800 instead of three of 300.</li>
+      <li><strong>Size standing stock to the grind.</strong> Raising standing ammo from 300 to 1,000 cut about 16 cycles to about 5.</li>
+      <li><strong>Don't make trips for nothing.</strong> Selling 1–2 gold of junk after every round cost a full trip. Junk now waits until the bank is nearly full.</li>
+      <li><strong>Wake on events, not timers.</strong></li>
+    </ul>
+
+    <h2>Safety goes in the fastest tier, and it needs its own audit</h2>
+    <p>A 1-second in-page guard eats below an HP floor, flees on an empty quiver and stops recipes at target counts. Before it existed, HP fell from 102 to 6 between two LLM wakes. But the guard ate only from the current food slot; with that slot empty it did nothing, and in this game a death destroys an equipped item. The fix: switch to the next slot with food, and flee only when every slot is empty. Prevention belongs in the planner: equip enough food before a long fight.</p>
+    <p><strong>Guards must also fail closed by construction.</strong> A guard that crashes, times out or can't reach its judge should stop the action or ask a person, never quietly let it through. Some hook systems skip a failed hook by default, so check what yours does. The sister site <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain</a> works through this for Claude Code mods, including a guard that asks a decision model about ambiguous shell commands.</p>
+
+    <h2>What a cascade saves</h2>
+    <p>Run the numbers on the <a href="cost.html#calculator">cost calculator</a>. With 70% of decisions handled by code, 25% by a decision model alone, 4.5% by an LLM and 0.5% by a person, a cascade costs well under half of sending everything to the LLM, even though both still pay for the same deep reads and the same people. And the push-down loop moves the mix toward code every week.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="novelty-and-doubt.html">Novelty and doubt</a>, the two signals that decide what leaves the decision tier.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="301.html"><span>Previous</span>Decision models 301</a><a class="pager-next" href="novelty-and-doubt.html"><span>Next</span>Novelty and doubt</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

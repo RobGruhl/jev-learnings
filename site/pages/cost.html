@@ -1,0 +1,82 @@
+    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026</p>
+    <h1>The cost ladder</h1>
+    <p class="lede">The same judgment costs wildly different amounts depending on who makes it. With Jev as 1×, here's what one decision costs as you climb from decision models to small LLMs, to frontier LLMs, to a person.</p>
+
+    <figure>
+      <img src="assets/img/cost.jpg" alt="A staircase of six steps, each with a stack of gold coins growing dramatically taller from left to right. A small robot with a pocket calculator on the first step stares up at the tallest stack." width="1536" height="1024">
+    </figure>
+
+    <h2>One decision, normalized</h2>
+    <p>Bars use a logarithmic scale, from 0.5× to 10,000×, so equal lengths mean equal multiples.</p>
+    <div class="widget" style="padding-top:12px">
+      <div class="cost-row"><span class="name">Open weights, own machine</span><span class="track"><span class="fill decision" style="width:1%"></span></span><span class="mult">≈0×</span></div>
+      <div class="cost-row"><span class="name">Jev 1.13</span><span class="track"><span class="fill decision" style="width:7%"></span></span><span class="mult">1×</span></div>
+      <div class="cost-row"><span class="name">Open 2B, rented L4, kept busy</span><span class="track"><span class="fill decision" style="width:8%"></span></span><span class="mult">≈1.1×</span></div>
+      <div class="cost-row"><span class="name">OpenAI Decisions API</span><span class="track"><span class="fill decision" style="width:15.8%"></span></span><span class="mult">2.4×</span></div>
+      <div class="cost-row"><span class="name">Claude Haiku 5.5 (low)</span><span class="track"><span class="fill small" style="width:25.1%"></span></span><span class="mult">5–7×</span></div>
+      <div class="cost-row"><span class="name">Claude Sonnet 5.5</span><span class="track"><span class="fill llm" style="width:56.9%"></span></span><span class="mult">~140×</span></div>
+      <div class="cost-row"><span class="name">Claude Opus 5.5</span><span class="track"><span class="fill llm" style="width:64.2%"></span></span><span class="mult">~290×</span></div>
+      <div class="cost-row"><span class="name">Claude Fable 5.1</span><span class="track"><span class="fill llm" style="width:73.3%"></span></span><span class="mult">~710×</span></div>
+      <div class="cost-row"><span class="name">A person, 30 seconds</span><span class="track"><span class="fill human" style="width:97.6%"></span></span><span class="mult">~7,900×</span></div>
+      <div class="legend"><span><i style="background:var(--teal)"></i>Decision models (measured)</span><span><i style="background:var(--amber)"></i>Small LLM (measured)</span><span><i style="background:var(--coral)"></i>Frontier LLMs (estimated)</span><span><i style="background:var(--ink)"></i>Human (illustrative)</span></div>
+    </div>
+
+    <h2>How these numbers were built</h2>
+    <p>The reference decision is a typical mail-rubric request: about <strong>1,500 input tokens</strong> on Jev, several questions over one email. At $0.042 per million input tokens, that's <strong>$0.000063</strong>, our 1×.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Option</th><th>Price per million tokens (in / out)</th><th>Basis</th><th class="num">Per decision</th><th class="num">Multiple</th></tr></thead>
+      <tbody>
+        <tr><td>Jev 1.13</td><td>$0.042 / free</td><td>Measured: ~$0.00006 per mail request, ~$0.0001 per 13-question wine request</td><td class="num">$0.000063</td><td class="num">1×</td></tr>
+        <tr><td>OpenAI Decisions (<code>gpt-6-luna</code>)</td><td>$0.10 / free</td><td>Measured: 9,314 calls, 17.8M tokens, $1.78; tokens per request matched Jev's on the same wines</td><td class="num">$0.00015</td><td class="num">2.4×</td></tr>
+        <tr><td>Claude Haiku 5.5, effort low</td><td>$0.10 / $0.50</td><td>Measured: ~$0.0004 per mail request (2.5k in), ~$0.00055 per wine request (3.5k in, ~400 out). Requests run ~2× Jev's tokens (framing plus a newer tokenizer), and output is billed</td><td class="num">$0.0004</td><td class="num">5–7×</td></tr>
+        <tr><td>Claude Sonnet 5.5</td><td>$2 / $10</td><td>Estimated: Haiku's request shape (2,500 in, 400 out) at Sonnet prices</td><td class="num">$0.009</td><td class="num">~140×</td></tr>
+        <tr><td>Claude Opus 5.5</td><td>$4 / $20</td><td>Estimated, same shape</td><td class="num">$0.018</td><td class="num">~290×</td></tr>
+        <tr><td>Claude Fable 5.1</td><td>$10 / $50</td><td>Estimated, same shape</td><td class="num">$0.045</td><td class="num">~710×</td></tr>
+        <tr><td>Open weights on your Mac</td><td>—</td><td>No per-call charge; electricity and 2–18 s per request</td><td class="num">≈$0</td><td class="num">≈0×</td></tr>
+        <tr><td>Open 2B on a rented NVIDIA L4</td><td>~$0.80 per GPU-hour</td><td>Estimated: 0.32 s per request serially, ~11,000 requests an hour, only if kept busy</td><td class="num">≈$0.00007</td><td class="num">≈1.1×</td></tr>
+        <tr><td>A person</td><td>—</td><td>Illustrative: 30 seconds at $60 an hour</td><td class="num">$0.50</td><td class="num">~7,900×</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout warn">
+      <p><strong>Read the estimates as floors.</strong> The frontier rows assume a frontier model answers the same small question with the same small output. In practice the LLM tier does bigger work (a deep read, a plan audit, a fix), with longer prompts and more thinking at higher effort, so one LLM escalation often costs 10× the per-decision figure above. That's another reason the cascade matters: the LLM's time is for problems only it can solve.</p>
+    </div>
+    <p>Two other prices to know. Microsoft's hosted <strong>Decision-1</strong> (launched October 9) is listed at $0.042 per million input tokens, the same as Jev; we haven't tested it. Cloudflare's open <strong>Clef</strong> models are hosted on Workers AI at $0.24 (Clef) and $0.09 (Clef-flash) per million input tokens. Batch APIs halve the Claude prices (Haiku 5.5 on Batch: $0.05 / $0.25) when you can wait.</p>
+
+    <h2>What a thousand decisions cost</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Option</th><th class="num">1,000 decisions</th><th class="num">1 million decisions</th></tr></thead>
+      <tbody>
+        <tr><td>Jev 1.13</td><td class="num">$0.06</td><td class="num">$63</td></tr>
+        <tr><td>OpenAI Decisions API</td><td class="num">$0.15</td><td class="num">$150</td></tr>
+        <tr><td>Claude Haiku 5.5 (low)</td><td class="num">$0.40</td><td class="num">$400</td></tr>
+        <tr><td>Claude Sonnet 5.5 (est.)</td><td class="num">$9</td><td class="num">$9,000</td></tr>
+        <tr><td>Claude Opus 5.5 (est.)</td><td class="num">$18</td><td class="num">$18,000</td></tr>
+        <tr><td>Claude Fable 5.1 (est.)</td><td class="num">$45</td><td class="num">$45,000</td></tr>
+      </tbody>
+    </table></div>
+    <p>For scale: the game agent's decision model cost <strong>under $0.10 per overnight session</strong>. A full day of wine-cookbook runs, including tests, came to $0.54 on Jev. The whole Haiku benchmark (15,039 calls) cost $7.57; the Decisions API benchmark (9,314 calls) cost $1.78.</p>
+
+    <h2 id="calculator">Calculator: what does your cascade cost?</h2>
+    <p>Set how many decisions you make a day and where they end up. Every decision that leaves code is asked of the decision model first; escalations also pay for the LLM, and the person tier pays for both plus the person.</p>
+    <div class="widget" id="cost-calc">
+      <label><span>Decisions per day</span><input type="number" id="cc-n" min="0" step="1000" value="10000" aria-label="decisions per day"><span></span></label>
+      <label><span>Settled by code</span><input type="range" id="cc-code" min="0" max="100" step="0.5" value="70" aria-label="share settled by code"><output data-for="cc-code"></output></label>
+      <label><span>Settled by decision model</span><input type="range" id="cc-dm" min="0" max="100" step="0.5" value="25" aria-label="share settled by the decision model"><output data-for="cc-dm"></output></label>
+      <label><span>Escalated to LLM</span><input type="range" id="cc-llm" min="0" max="100" step="0.5" value="4.5" aria-label="share escalated to the LLM"><output data-for="cc-llm"></output></label>
+      <label><span>Escalated to a person</span><input type="range" id="cc-human" min="0" max="20" step="0.1" value="0.5" aria-label="share escalated to a person"><output data-for="cc-human"></output></label>
+      <label><span>Decision model</span>
+        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option></select><span></span></label>
+      <label><span>LLM tier</span>
+        <select id="cc-lmodel" aria-label="LLM tier model"><option value="sonnet">Claude Sonnet 5.5</option><option value="opus" selected>Claude Opus 5.5</option><option value="fable">Claude Fable 5.1</option><option value="haiku">Claude Haiku 5.5</option></select><span></span></label>
+      <label><span>LLM request size</span><input type="range" id="cc-llmsize" min="1" max="20" step="1" value="10" aria-label="LLM request size multiple"><output data-for="cc-llmsize"></output></label>
+      <p style="font-size:14px;margin:4px 0 0">Shares are normalized to 100%. "LLM request size" scales the per-decision LLM estimate for the bigger work escalations really are (10× by default). "Everything to the LLM" has the LLM make every first pass at the small size, and still pays the same deep reads and people as the cascade, so the two differ only in who makes the first pass.</p>
+      <div class="readout">
+        <div class="stat"><div class="k">Cascade, per month</div><div class="v" id="cc-cascade">—</div></div>
+        <div class="stat"><div class="k">Everything to the LLM</div><div class="v" id="cc-allllm">—</div></div>
+        <div class="stat"><div class="k">Cascade saves</div><div class="v" id="cc-ratio">—</div></div>
+        <div class="stat"><div class="k">Of which, people</div><div class="v" id="cc-human-cost">—</div></div>
+      </div>
+    </div>
+    <p>Two things fall out quickly. Once people are in the loop, their time dominates every other cost, so the human tier should see only true preference and stakes. And the decision model's share barely moves the bill. What moves it is how many decisions escalate past it. That's why the push-down loop, which turns each escalation into a rule or a context line, is the real cost lever.</p>
+
+    <div class="callout note"><p><strong>Choosing by cost alone is a mistake.</strong> Haiku costs 6× Jev but wins on reasoning-heavy judgments; the Decisions API costs 2.4× but is the fastest hosted option. See <a href="compare.html#when">when to use which</a>.</p></div>

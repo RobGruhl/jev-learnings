@@ -1,0 +1,48 @@
+    <p class="eyebrow"><span class="badge l0">Level 0</span> Five minutes · no jargon</p>
+    <h1>Explain like I'm five</h1>
+    <p class="lede">Imagine a mailroom. Letters pour in all day. Somebody has to decide where each one goes.</p>
+
+    <figure>
+      <img src="assets/img/eli5.jpg" alt="A cheerful robot sorts letters into three bins labeled Bills, Friends and Junk, with a gauge over its head showing it is fairly sure. A puzzled letter is handed up a staircase to a kind grown-up in an armchair. A sign reads: Not sure? Ask up." width="1536" height="1024">
+    </figure>
+
+    <h2>Three helpers in the mailroom</h2>
+    <h3>1. The rule follower</h3>
+    <p>Some letters are easy. If the envelope says "Electric Company," it goes in the <strong>Bills</strong> bin. Every time. You can write that rule on a card and tape it to the wall. That's <strong>code</strong>: rules you can write down. It's the fastest and cheapest helper, and it never gets tired. But it can only follow rules somebody already wrote.</p>
+
+    <h3>2. The quick sorter</h3>
+    <p>Some letters need a little judgment. "Is this from a friend, or is it junk pretending to be friendly?" No rule card covers it, but you don't need to think for an hour either. You need a quick, good guess.</p>
+    <p>That's the <strong>decision model</strong>. It's a little robot that is very good at one thing: you show it a letter and ask a question with answers already written out, like "Bills, Friends or Junk?", and it points to one. It also tells you <strong>how sure it is</strong>. "I'm 95% sure this is junk." Or "Hmm, maybe 50-50."</p>
+    <p>It doesn't write letters back. It doesn't explain itself. It just sorts, fast, and says how sure it is.</p>
+
+    <h3>3. The grown-up upstairs</h3>
+    <p>When the quick sorter isn't sure, it doesn't guess. It carries the letter upstairs to someone who can sit down and really read it. That's the <strong>big language model</strong>: slower and more expensive, but it can think through a strange letter and even write a reply.</p>
+    <p>And for the very important letters, like "should we sign this?", the grown-up asks <strong>you</strong>. You're the <strong>human</strong>. You decide what matters.</p>
+
+    <div class="big-rule">Easy letters: the rule card. Quick judgment: the sorter. Hard letters: the grown-up. Big choices: you.</div>
+
+    <h2>Why not just give everything to the grown-up?</h2>
+    <p>Because the grown-up is slow and costs a lot. If every letter goes upstairs, the stairs get crowded and the mail piles up. In our experiments, asking the quick sorter cost about <strong>one penny for every 160 letters</strong>. Asking a big thinking model the same question costs <strong>hundreds of times more</strong>. So you send the grown-up only the letters that need one.</p>
+
+    <h2>The best trick: teach the helpers below</h2>
+    <p>Here's the secret. Every time the grown-up sorts a tricky letter, they also leave a note for the helpers downstairs. "Letters from the swim club are from Friends." Next time, the quick sorter knows, or the rule follower gets a new card. So the same tricky letter never has to climb the stairs twice.</p>
+    <p>Over time, fewer and fewer letters go upstairs. The mailroom gets faster and cheaper, and the grown-up only sees the truly new stuff.</p>
+
+    <h2>Two little alarm bells</h2>
+    <p>The quick sorter has two alarm bells it can ring:</p>
+    <ul>
+      <li><strong>"I've never seen anything like this."</strong> That's <em>novelty</em>. The letter is strange and new. Up the stairs it goes, and the grown-up leaves a note so it's not strange next time.</li>
+      <li><strong>"I picked a bin, but something feels off."</strong> That's <em>doubt</em>. The sorter takes a second look at its own choice. When doubt is really high, it's almost always right that something is wrong.</li>
+    </ul>
+    <p>But here's a funny thing. The sorter can only pick from the bins it's given. If someone forgot to build a <strong>Birthday Cards</strong> bin, the sorter will happily drop birthday cards in <strong>Friends</strong> and feel fine about it. Nobody rang a bell, because the problem wasn't the choice. It was the missing bin. Somebody has to check the bins themselves.</p>
+
+    <h2>What to remember</h2>
+    <ol>
+      <li>Use the cheapest helper that can do the job right.</li>
+      <li>A decision model is a quick sorter that says how sure it is.</li>
+      <li>Not sure? Ask up.</li>
+      <li>Every time someone upstairs fixes a letter, teach the helpers downstairs.</li>
+      <li>Check the bins, not just the sorting.</li>
+    </ol>
+
+    <div class="callout note"><p><strong>Ready for the grown-up version?</strong> <a href="101.html">Decision models 101</a> uses the same mailroom, with the real names: Choice, Noul, Score, state and calibrated confidence.</p></div>

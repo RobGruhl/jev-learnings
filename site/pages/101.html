@@ -1,0 +1,120 @@
+    <p class="eyebrow"><span class="badge l1">Level 1</span> 101 · about 15 minutes</p>
+    <h1>Decision models 101</h1>
+    <p class="lede">A decision model reads natural language and returns <strong>typed answers with probabilities</strong> instead of generated text. You decide the possible answers ahead of time. The model tells you which one fits and how sure it is.</p>
+
+    <h2>The one-paragraph definition</h2>
+    <p>You send two things: a <strong>state</strong> (the text or JSON you want judged: an email, a support ticket, a game screen as data) and one or more <strong>questions</strong>, each with its answer space spelled out. You get back one typed answer per question. Nothing else comes back: no explanation, no reply, no code. TypeSafe, which makes Jev, calls this class of model <em>System One</em>, after Daniel Kahneman's fast, intuitive System 1. Language models are the slow, deliberate System 2.</p>
+
+    <h2>Three kinds of question</h2>
+    <figure>
+      <img src="assets/img/primitives.jpg" alt="Three illustrated cards. Choice: a fork in a path with three signposts and bars of different heights. Noul: a switch with a gauge near 0.9, yes or no as a probability. Score: a five-step staircase with a marker between steps three and four. Banner: typed answers, not paragraphs." width="1536" height="1024">
+    </figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Type</th><th>Asks</th><th>You define</th><th>You get back</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Choice</strong></td><td>Which of these fits?</td><td>Named options, each with a description</td><td>The top option, a probability for every option, and a confidence</td></tr>
+        <tr><td><strong>Noul</strong></td><td>Is this true?</td><td>A proposition, optionally what yes and no mean</td><td>The probability that the answer is yes (0 to 1)</td></tr>
+        <tr><td><strong>Score</strong></td><td>Where on this scale?</td><td>2 to 10 ordered levels</td><td>A probability-weighted position that can land between levels, plus the distribution</td></tr>
+      </tbody>
+    </table></div>
+    <p>"Noul" is TypeSafe's name for a yes/no question answered as a probability. OpenAI's Decisions API calls the same thing a <code>predicate</code>.</p>
+
+    <h3>What a call looks like</h3>
+    <p>This is Jev's HTTP shape (<code>POST /v1/systemone</code>). The other decision models use the same idea with different field names; see <a href="301.html#adapters">adapters</a>.</p>
+<pre><code>{
+  "model": "jev-1.13.0",
+  "state": "Help! My payouts have been failing for 3 days.",
+  "questions": {
+    "department": {
+      "type": "choice",
+      "instructions": "Which team should handle this?",
+      "criteria": {
+        "billing":   "Payments, invoicing, refunds",
+        "technical": "Bugs, outages, integrations",
+        "sales":     "Pricing, upgrades, new accounts"
+      }
+    },
+    "is_urgent": { "type": "noul", "instructions": "Does this convey urgency?" }
+  }
+}</code></pre>
+<pre><code>{
+  "model": "jev-1.13.0",
+  "answers": {
+    "department": { "type": "choice", "choice": "billing",
+                    "probabilities": { "billing": 0.88, "technical": 0.12, "sales": 0.0 },
+                    "confidence": 0.81 },
+    "is_urgent":  { "type": "noul", "noul": 0.95 }
+  }
+}</code></pre>
+    <p>Notice what your code can do with that: route on <code>choice</code>, page someone if <code>is_urgent</code> is over a line, and send anything with low confidence to a reviewer. No parsing of prose, ever.</p>
+
+    <h2>How it differs from a language model</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Decision model</th><th>Language model (LLM)</th></tr></thead>
+      <tbody>
+        <tr><td>Output</td><td>Typed answers you defined</td><td>Text (or JSON it writes)</td></tr>
+        <tr><td>Probabilities</td><td>Trained for calibration against outcomes</td><td>If you ask for one, it's a number the model writes down</td></tr>
+        <tr><td>Repeatability</td><td>Same request, same answer (Jev and the Decisions API both re-asked identically)</td><td>Re-asks vary: Haiku 5.5 gave identical answers on a third of re-asks</td></tr>
+        <tr><td>Speed</td><td>About 0.3–0.6 s per request hosted</td><td>Seconds to minutes</td></tr>
+        <tr><td>Price</td><td>Input tokens only, output free. Jev: $0.042 per million</td><td>Input and output. Haiku 5.5: $0.10 / $0.50 per million; Opus 5.5: $4 / $20</td></tr>
+        <tr><td>Can it explain, write, plan, use tools?</td><td>No</td><td>Yes</td></tr>
+      </tbody>
+    </table></div>
+    <p>That last row is the point. A decision model is not a cheaper LLM. It's a different tool for a narrower job: <strong>bounded judgments</strong>, where the answers can be listed ahead of time and nobody needs an essay.</p>
+
+    <h2>Probability, confidence and acting on them</h2>
+    <p>A <strong>probability</strong> is the model's estimate for one answer. <strong>Confidence</strong> summarizes a whole Choice or Score distribution: it's 0 when every option is equally likely and 1 when one option has all the weight. For a Choice with <em>n</em> options and a top probability <em>p</em>, TypeSafe defines it as <code>(n·p − 1) / (n − 1)</code>.</p>
+    <p><strong>Calibrated</strong> means that across many answers given at 0.8, about 80% turn out right. That's a property of groups, not a promise about any single answer. Calibration is what makes a threshold mean something: "act alone above 0.8" becomes a statement about how often you'll be wrong.</p>
+
+    <div class="widget" id="conf-widget">
+      <h4>Try it: route a support ticket</h4>
+      <p style="margin-top:0;font-size:15px">Drag the weights to reshape the model's answer, then set the line above which code acts alone.</p>
+      <div class="bars" aria-hidden="true"><div><span></span></div><div><span></span></div><div><span></span></div></div>
+      <div class="bar-labels" aria-hidden="true"><span>billing</span><span>technical</span><span>account</span></div>
+      <label><span>billing</span><input type="range" min="0" max="100" value="80" data-opt="0" aria-label="billing weight"><output data-for="0"></output></label>
+      <label><span>technical</span><input type="range" min="0" max="100" value="15" data-opt="1" aria-label="technical weight"><output data-for="1"></output></label>
+      <label><span>account</span><input type="range" min="0" max="100" value="5" data-opt="2" aria-label="account weight"><output data-for="2"></output></label>
+      <label><span>Act-alone line</span><input type="range" id="conf-thr" min="0" max="1" step="0.01" value="0.6" aria-label="confidence threshold"><output id="conf-thr-out"></output></label>
+      <div class="readout">
+        <div class="stat"><div class="k">Top choice</div><div class="v" id="conf-pick">—</div></div>
+        <div class="stat"><div class="k">Confidence</div><div class="v" id="conf-val">—</div></div>
+      </div>
+      <div id="conf-verdict" class="verdict" role="status" aria-live="polite"></div>
+    </div>
+
+    <h2>What it's good at, and what it isn't</h2>
+    <div class="two-col">
+      <div class="callout"><p class="kicker">Good at</p>
+        <ul>
+          <li>Common-sense judgment on text: "is someone waiting on a reply?" (AUC 0.986 on a real inbox)</li>
+          <li>Picking among named options: "is this a deadline, an event, an offer, or nothing?" (0.980)</li>
+          <li>Matching: "is this message about the same matter as this open record?" (0.980)</li>
+          <li>Many questions over one state in one request, for fractions of a cent</li>
+        </ul></div>
+      <div class="callout warn"><p class="kicker">Not good at</p>
+        <ul>
+          <li><strong>Measuring.</strong> Score ranks but doesn't size amounts (Spearman 0.28). Extract the numbers and do the arithmetic in code.</li>
+          <li><strong>Dates and math.</strong> Extract the parts and compare in code.</li>
+          <li><strong>Knowing what isn't in the state:</strong> who you know, what's already open, what you've ruled before.</li>
+          <li><strong>Reading your intent.</strong> It answers the question you wrote, literally.</li>
+          <li><strong>Generating anything.</strong> Use an LLM.</li>
+        </ul></div>
+    </div>
+
+    <h2>Where it sits</h2>
+    <p>Both of our projects converged on the same shape. Each tier handles what it can and passes up what it can't:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tier</th><th>Speed</th><th>Job</th><th>Passes up when</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Guards</strong> (code)</td><td>~1 s</td><td>Safety only: stop or protect, never decide</td><td>Never; they act and log</td></tr>
+        <tr><td><strong>Code</strong></td><td>Per step</td><td>Extract state, list legal options, plan from data, verify outcomes, apply policies with computable answers</td><td>A step can't be found, or verification fails</td></tr>
+        <tr><td><strong>Decision model</strong></td><td>~0.5–5 s, fractions of a cent</td><td>Narrow judgments with no computable answer</td><td>Its own checks fire (novelty, doubt), or the failure isn't transient</td></tr>
+        <tr><td><strong>LLM</strong></td><td>Minutes, woken by events</td><td>Inspects, decides, and fixes the cause in a lower tier</td><td>Real money, accounts, irreversible actions, preferences</td></tr>
+        <tr><td><strong>Human</strong></td><td>Hours</td><td>Preferences, approvals, gray-zone rulings</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Who makes them</h2>
+    <p>As of October 2026: <strong>Jev</strong> from TypeSafe (hosted; the first of the class), OpenAI's <strong>Decisions API</strong> (<code>gpt-6-luna</code>, public beta), and open-weight options you can run yourself, such as <strong>APUS-OpenJev</strong> (4B) and AWS's <strong>Strands Decider</strong> (2B). You can also ask a small general LLM like <strong>Claude Haiku 5.5</strong> to fill in the same answer shapes. Each has a different cost, speed and quality profile; see <a href="compare.html">Four ways compared</a>.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="201.html">201</a> covers how to phrase questions so the answers are worth having, and how to use the answers once you have them.</p></div>

@@ -1,0 +1,55 @@
+    <section class="home-hero">
+      <figure style="margin-top:0">
+        <img class="hero-img" src="assets/img/hero.jpg" alt="An illustrated four-step cascade: gears sorting envelopes at the bottom, a small robot referee with probability dials, a larger robot reading a scroll, and a person at a desk at the top. Title: Decision Tier, a field guide to decision models." width="1536" height="1024">
+      </figure>
+      <p class="eyebrow">A field guide · October 2026</p>
+      <h1>Match the tool to the work.</h1>
+      <p class="lede">A <strong>decision model</strong> reads text and returns typed answers with probabilities: which of these options, how likely is this true, where on this scale. It is fast and costs fractions of a cent per decision. It sits between your code and a big language model, and it handles the judgment calls that don't need an essay. This site teaches that idea from a five-year-old's version up to the engineering, using what we measured in two real projects.</p>
+    </section>
+
+    <h2>Pick your level</h2>
+    <div class="ladder">
+      <a class="rung" href="eli5.html"><div class="lvl">L0</div><div><h3>Explain like I'm five</h3><p>A mailroom, three bins, and a grown-up upstairs for the letters nobody is sure about. Five minutes, no jargon.</p></div></a>
+      <a class="rung" href="101.html"><div class="lvl">L1</div><div><h3>101 · What a decision model is</h3><p>Choice, Noul and Score. State and questions. Why calibrated probabilities matter, and how a decision model differs from an LLM.</p></div></a>
+      <a class="rung" href="201.html"><div class="lvl">L2</div><div><h3>201 · Asking well, using answers</h3><p>Contrastive choices that name the near misses, exact propositions, answers as features, and thresholds that mean something.</p></div></a>
+      <a class="rung" href="301.html"><div class="lvl">L3</div><div><h3>301 · Engineering a decision tier</h3><p>Honest evaluation, thresholds keyed to (model, runtime, rubric), drift, adapters across vendors, determinism and operations.</p></div></a>
+    </div>
+
+    <h2>The big ideas</h2>
+    <div class="cards">
+      <a class="card" href="cascade.html"><span class="badge arch">Architecture</span><h3>The cascade</h3><p>Code first, a decision model for bounded judgment, an LLM for open questions, a human for stakes. Every escalation should end with a fix in a lower tier.</p></a>
+      <a class="card" href="novelty-and-doubt.html"><span class="badge arch">Architecture</span><h3>Novelty and doubt</h3><p>The model's own "this one isn't mine" signals. High doubt was right every time it fired. The bugs sat just under the line.</p></a>
+      <a class="card" href="compare.html"><span class="badge data">Evidence</span><h3>Four ways compared</h3><p>Jev, OpenAI's Decisions API, open-weight decision models and Claude Haiku 5.5, measured on wine reviews, a real inbox and browser pages.</p></a>
+      <a class="card" href="cost.html"><span class="badge data">Evidence</span><h3>The cost ladder</h3><p>With Jev as 1×: Decisions API 2.4×, Haiku about 6×, Sonnet about 140×, Opus about 290×, Fable about 710×. Includes a calculator.</p></a>
+      <a class="card" href="landscape.html"><span class="badge data">Evidence</span><h3>Landscape refresh</h3><p>What's new as of October 2026: the Claude lineup, the Decisions API, and whether the open-weight options have gotten better.</p></a>
+      <a class="card" href="build.html"><span class="badge build">Build</span><h3>Build your own</h3><p>The Decision Skeleton: a facilitated tutorial you run in Claude Code, one small module at a time, ending with a cascade you measured yourself.</p></a>
+    </div>
+
+    <h2>The ten-line version</h2>
+    <ol>
+      <li>Put each kind of decision in the cheapest tier that can make it correctly: code first, a decision model for judgment, the LLM for novelty, the human for preference.</li>
+      <li>When the decision model is wrong in a consistent direction, or the question has a computable answer, move it to code.</li>
+      <li>The decision model judges the decision against the state it is shown. It can't see a consequence the state doesn't contain, so code must put that consequence in the state.</li>
+      <li>Doubt is good evidence when it is high. Bugs often sit just below the escalation line, though, and the worst ones never reach the model at all: they are planner gaps where every option offered was bad.</li>
+      <li>A playbook line turns a novelty escalation into a confident decision next time. One sentence of context moved doubt from 0.71 to 0.35.</li>
+      <li>Verifiers must check outcomes (the count went up), not starts. They must also accept deliberate stops as success.</li>
+      <li>In an agent loop, LLM wakes are the scarce resource. Batch sizes, restock sizes and how often "nothing to do" happens decide the wake rate.</li>
+      <li>Prefer one contrastive Choice whose options name the near misses. Grade every question against its own concept.</li>
+      <li>Use answers as features in a learned combiner, not as hard thresholds. Validate on a new time window, not just cross-validation.</li>
+      <li>Safety belongs in the fastest tier, and the environment (tabs, focus, disconnects) is its own failure class.</li>
+    </ol>
+
+    <h2>Or sing it</h2>
+    <p><strong>What Are We Asking For?</strong> is a 4½-minute karaoke video that teaches the same cascade: deterministic code for rules you can write down, a decision model for bounded judgments, a language model for open questions, and a human for stakes and values. The chorus is the whole idea: <em>match the tool to the work we do, and let the real world tell us what holds true.</em></p>
+    <video controls preload="none" poster="assets/img/song-thumbnail.jpg">
+      <source src="media/what-are-we-asking-for-540p.mp4" type="video/mp4">
+      <a href="media/what-are-we-asking-for-540p.mp4">Download the video (MP4, 31 MB)</a>
+    </video>
+    <p style="font-size:14px;color:var(--ink-faint)">Song made with Suno (voice and piano). Animation made with Claude Code on <a href="https://github.com/JohnHeibel/ClaudeAnimationBase">ClaudeAnimationBase</a>.</p>
+
+    <h2>Where the evidence comes from</h2>
+    <div class="two-col">
+      <div class="callout"><p class="kicker">An email first pass</p><p>A personal inbox, studied across several held-out months. Every message got a set of decision-model questions plus deterministic rules, and was sorted into buckets that set how much LLM attention it gets. Junk cost zero LLM tokens. Concept labels were made blind.</p></div>
+      <div class="callout"><p class="kicker">A long-running game agent</p><p>An agent that played Melvor Idle through a web browser for days: code planned and verified, the decision model judged priorities on every tick, Claude woke on escalations. Several hundred logged ticks and about 60 logged escalations. The decision model cost under $0.10 a night.</p></div>
+    </div>
+    <p>The decision model in both was <strong>Jev</strong>, TypeSafe's hosted model (<code>jev-1.13.0</code>). In October we ran the same harnesses against OpenAI's Decisions API, two open-weight decision models and Claude Haiku 5.5. The results are on <a href="compare.html">Four ways compared</a>.</p>

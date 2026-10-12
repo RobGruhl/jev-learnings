@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explain like I&#x27;m five · Decision Tier</title>
+<meta name="description" content="Decision models explained with a mailroom, three bins and a grown-up upstairs.">
+<meta property="og:title" content="Explain like I&#x27;m five · Decision Tier">
+<meta property="og:description" content="Decision models explained with a mailroom, three bins and a grown-up upstairs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/eli5.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html" aria-current="page">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge l0">Level 0</span> Five minutes · no jargon</p>
+    <h1>Explain like I'm five</h1>
+    <p class="lede">Imagine a mailroom. Letters pour in all day. Somebody has to decide where each one goes.</p>
+
+    <figure>
+      <img src="assets/img/eli5.jpg" alt="A cheerful robot sorts letters into three bins labeled Bills, Friends and Junk, with a gauge over its head showing it is fairly sure. A puzzled letter is handed up a staircase to a kind grown-up in an armchair. A sign reads: Not sure? Ask up." width="1536" height="1024">
+    </figure>
+
+    <h2>Three helpers in the mailroom</h2>
+    <h3>1. The rule follower</h3>
+    <p>Some letters are easy. If the envelope says "Electric Company," it goes in the <strong>Bills</strong> bin. Every time. You can write that rule on a card and tape it to the wall. That's <strong>code</strong>: rules you can write down. It's the fastest and cheapest helper, and it never gets tired. But it can only follow rules somebody already wrote.</p>
+
+    <h3>2. The quick sorter</h3>
+    <p>Some letters need a little judgment. "Is this from a friend, or is it junk pretending to be friendly?" No rule card covers it, but you don't need to think for an hour either. You need a quick, good guess.</p>
+    <p>That's the <strong>decision model</strong>. It's a little robot that is very good at one thing: you show it a letter and ask a question with answers already written out, like "Bills, Friends or Junk?", and it points to one. It also tells you <strong>how sure it is</strong>. "I'm 95% sure this is junk." Or "Hmm, maybe 50-50."</p>
+    <p>It doesn't write letters back. It doesn't explain itself. It just sorts, fast, and says how sure it is.</p>
+
+    <h3>3. The grown-up upstairs</h3>
+    <p>When the quick sorter isn't sure, it doesn't guess. It carries the letter upstairs to someone who can sit down and really read it. That's the <strong>big language model</strong>: slower and more expensive, but it can think through a strange letter and even write a reply.</p>
+    <p>And for the very important letters, like "should we sign this?", the grown-up asks <strong>you</strong>. You're the <strong>human</strong>. You decide what matters.</p>
+
+    <div class="big-rule">Easy letters: the rule card. Quick judgment: the sorter. Hard letters: the grown-up. Big choices: you.</div>
+
+    <h2>Why not just give everything to the grown-up?</h2>
+    <p>Because the grown-up is slow and costs a lot. If every letter goes upstairs, the stairs get crowded and the mail piles up. In our experiments, asking the quick sorter cost about <strong>one penny for every 160 letters</strong>. Asking a big thinking model the same question costs <strong>hundreds of times more</strong>. So you send the grown-up only the letters that need one.</p>
+
+    <h2>The best trick: teach the helpers below</h2>
+    <p>Here's the secret. Every time the grown-up sorts a tricky letter, they also leave a note for the helpers downstairs. "Letters from the swim club are from Friends." Next time, the quick sorter knows, or the rule follower gets a new card. So the same tricky letter never has to climb the stairs twice.</p>
+    <p>Over time, fewer and fewer letters go upstairs. The mailroom gets faster and cheaper, and the grown-up only sees the truly new stuff.</p>
+
+    <h2>Two little alarm bells</h2>
+    <p>The quick sorter has two alarm bells it can ring:</p>
+    <ul>
+      <li><strong>"I've never seen anything like this."</strong> That's <em>novelty</em>. The letter is strange and new. Up the stairs it goes, and the grown-up leaves a note so it's not strange next time.</li>
+      <li><strong>"I picked a bin, but something feels off."</strong> That's <em>doubt</em>. The sorter takes a second look at its own choice. When doubt is really high, it's almost always right that something is wrong.</li>
+    </ul>
+    <p>But here's a funny thing. The sorter can only pick from the bins it's given. If someone forgot to build a <strong>Birthday Cards</strong> bin, the sorter will happily drop birthday cards in <strong>Friends</strong> and feel fine about it. Nobody rang a bell, because the problem wasn't the choice. It was the missing bin. Somebody has to check the bins themselves.</p>
+
+    <h2>What to remember</h2>
+    <ol>
+      <li>Use the cheapest helper that can do the job right.</li>
+      <li>A decision model is a quick sorter that says how sure it is.</li>
+      <li>Not sure? Ask up.</li>
+      <li>Every time someone upstairs fixes a letter, teach the helpers downstairs.</li>
+      <li>Check the bins, not just the sorting.</li>
+    </ol>
+
+    <div class="callout note"><p><strong>Ready for the grown-up version?</strong> <a href="101.html">Decision models 101</a> uses the same mailroom, with the real names: Choice, Noul, Score, state and calibrated confidence.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="index.html"><span>Previous</span>Decision Tier</a><a class="pager-next" href="101.html"><span>Next</span>Decision models 101</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

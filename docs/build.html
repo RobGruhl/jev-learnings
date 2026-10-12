@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build your own decision skeleton · Decision Tier</title>
+<meta name="description" content="A facilitated, module-by-module tutorial for building your own decision cascade with Claude Code.">
+<meta property="og:title" content="Build your own decision skeleton · Decision Tier">
+<meta property="og:description" content="A facilitated, module-by-module tutorial for building your own decision cascade with Claude Code.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/build.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html" aria-current="page">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge build">Build</span> A facilitated tutorial for Claude Code</p>
+    <h1>Build your own decision skeleton</h1>
+    <p class="lede">Reading about cascades only goes so far. The <strong>Decision Skeleton 101</strong> is a tutorial you run inside Claude Code. Claude facilitates: it teaches one idea, makes one small change, asks you to predict the result, runs the check for real, commits, and asks you a question. You end with a small decision cascade you built and measured yourself, with a git history that tells the story one layer per commit.</p>
+
+    <div class="two-col" style="align-items:start">
+      <figure style="margin-top:0">
+        <img src="assets/img/skeleton.jpg" alt="A vintage anatomical chart titled The Decision Skeleton: a walking skeleton in a t-shirt reading decide(), holding a balance scale and a clipboard, with labels LLM at the head, Decision model at the chest, Human at the heart and Code at the clipboard. Footer: Start small. Measure honestly. Push every fix down." width="1024" height="1536">
+      </figure>
+      <div>
+        <h2 style="margin-top:0">What you'll build</h2>
+        <p>A <strong>decision skeleton</strong> is the smallest end-to-end system that makes judgment calls the right way: code for what's computable, a decision model for bounded judgment, an LLM for escalations, a person for rulings. Every escalation pushes a fix back down.</p>
+        <p>It's the decision-making cousin of the <a href="https://walkingskeleton.org/">Walking Skeleton tutorial</a>, and it uses the same format: small modules, real checks, and predictions before results.</p>
+        <h3>You'll need</h3>
+        <ul>
+          <li>Claude Code, git, and Node.js LTS (no other installs by default)</li>
+          <li>One decision backend by Module 5: Jev, OpenAI's Decisions API, Claude Haiku 5.5, or a local open-weight model</li>
+          <li>Optionally an LLM key for the escalation tier. Without one, escalations go to a human queue.</li>
+          <li>5–7 hours across several sittings, and cents in API spend</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>How to start</h2>
+<pre><code>git clone https://github.com/RobGruhl/jev-learnings.git
+cd jev-learnings/tutorial
+claude</code></pre>
+    <p>The folder's own <code>CLAUDE.md</code> turns Claude into the facilitator: it greets you, checks your setup, and offers to begin. Your project gets built in <code>tutorial/my-decisions/</code> as its own git repository, and the tutorial files stay untouched. If Claude doesn't start on its own, say: <em>"Walk me through the Decision Skeleton 101 one module at a time, following the Facilitator Contract in 101-decision-skeleton.md."</em></p>
+    <p>Coming back later? Open the folder again and say: <em>"We're partway through the Decision Skeleton 101. Read the git log in my project and continue from the next module."</em> Each module is one commit, so Claude can always find your place.</p>
+
+    <h2>The modules</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th class="num">#</th><th>Module</th><th>You walk away knowing</th></tr></thead>
+      <tbody>
+        <tr><td class="num">0</td><td>Orient and calibrate</td><td>Which mistake in your domain is worse, and by how much</td></tr>
+        <tr><td class="num">0.5</td><td>Version control and secret hygiene</td><td>Why raw model outputs are as private as the data</td></tr>
+        <tr><td class="num">1</td><td>Write the decision card</td><td>Half of "judgment" is usually rules; move it to code</td></tr>
+        <tr><td class="num">2</td><td>Build and freeze a labeled set</td><td>Labels before scores; the held-out set stays locked</td></tr>
+        <tr><td class="num">3</td><td>The code tier and the baselines</td><td>Escalate-everything and rules-only are the bars to beat</td></tr>
+        <tr><td class="num">4</td><td>The decision contract and a fake backend</td><td>One contract, many backends; fail loudly</td></tr>
+        <tr><td class="num">5</td><td>Ask your first real question</td><td>Contrastive choices that name the near misses; pin the model</td></tr>
+        <tr><td class="num">6</td><td>Grade it honestly</td><td>AUC against the question's own concept, from logs</td></tr>
+        <tr><td class="num">7</td><td>A phrasing ladder</td><td>Phrasing moves results; re-grade per model</td></tr>
+        <tr><td class="num">8</td><td>Thresholds and bands</td><td>Fit on dev only; key thresholds to (model, rubric)</td></tr>
+        <tr><td class="num">9</td><td>The escalation tier</td><td>Why the LLM gets only what cheaper tiers can't settle</td></tr>
+        <tr><td class="num">10</td><td>Novelty and doubt</td><td>The model's own "not mine" signals, and what doubt can't see</td></tr>
+        <tr><td class="num">11</td><td>Close the loop: push a fix down</td><td>Every escalation leaves a cheaper fix behind</td></tr>
+        <tr><td class="num">12</td><td>Held-out validation</td><td>Run once, frozen; report misses with an honest bound</td></tr>
+        <tr><td class="num">13</td><td>Swap the backend</td><td>Quality, latency, cost and repeatability as a profile</td></tr>
+        <tr><td class="num">14</td><td>What it costs</td><td>Escalation rate, not the per-call price, drives the bill</td></tr>
+        <tr><td class="num">15</td><td>Runbook and CLAUDE.md</td><td>The invariants an eager agent is tempted to break</td></tr>
+        <tr><td class="num">16</td><td>Final review: is this a cascade?</td><td>Which tiers are real, which numbers are honest, what's next</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>How a module feels</h2>
+    <ol class="steps">
+      <li><strong>Learn the idea</strong> in a few plain sentences, with a link to the matching page on this site.</li>
+      <li><strong>Make one small change.</strong> Claude proposes and writes it; you see the diff.</li>
+      <li><strong>Predict.</strong> "What AUC do you expect?" "Will held-out filter more or less than dev?" Claude stops and waits for your answer.</li>
+      <li><strong>Run the check for real</strong> and compare it with your prediction. Being wrong is where the learning is.</li>
+      <li><strong>Commit</strong> as <code>module N: title</code>.</li>
+      <li><strong>Reflect.</strong> Answer a question in your own words before Claude shows the expected answer.</li>
+    </ol>
+
+    <h2>The rules Claude follows</h2>
+    <p>The facilitator contract is strict about the habits this site preaches:</p>
+    <ul>
+      <li><strong>Never peek at held-out data</strong> before Module 12.</li>
+      <li><strong>Never claim a number it didn't compute.</strong> Every AUC, rate, latency and cost comes from a script that ran in front of you.</li>
+      <li><strong>Announce spend</strong> before any paid call, and keep a running total.</li>
+      <li><strong>Keys never touch git</strong>, and your own data goes to a hosted backend only after you say yes to that vendor by name.</li>
+      <li>After about three failed attempts at the same check, <strong>stop and explain</strong> instead of thrashing.</li>
+    </ul>
+    <p>Read the full script: <a href="https://github.com/RobGruhl/jev-learnings/blob/main/tutorial/101-decision-skeleton.md">tutorial/101-decision-skeleton.md</a>.</p>
+
+    <div class="callout note"><p><strong>Prefer a five-minute version first?</strong> The <a href="eli5.html">ELI5</a> and <a href="101.html">101</a> pages cover the ideas the tutorial makes you build.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="landscape.html"><span>Previous</span>Landscape, October 2026</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

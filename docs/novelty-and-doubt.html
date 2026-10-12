@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novelty and doubt · Decision Tier</title>
+<meta name="description" content="A decision model&#x27;s own escalation signals: what each catches, the watch band and what doubt can&#x27;t see.">
+<meta property="og:title" content="Novelty and doubt · Decision Tier">
+<meta property="og:description" content="A decision model&#x27;s own escalation signals: what each catches, the watch band and what doubt can&#x27;t see.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/novelty-and-doubt.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html" aria-current="page">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge arch">Architecture</span> Escalation signals</p>
+    <h1>Novelty and doubt</h1>
+    <p class="lede">A decision model that acts in a loop needs a way to say "this one isn't mine." In the game agent, it answered two extra questions on every tick, and either one could send the decision up to the LLM. They ask different things, and they point to different fixes.</p>
+
+    <figure>
+      <img src="assets/img/doubt.jpg" alt="Two scenes. Left: an explorer robot with a lantern at the edge of a map where the roads end, under a gauge labeled Novelty. Right: a robot looking through a magnifying glass at a single chess-like piece that was just moved, under a gauge labeled Doubt." width="1536" height="1024">
+    </figure>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Check</th><th>Asked how</th><th>Question</th><th>Escalates when</th></tr></thead>
+      <tbody>
+        <tr><td><code>novel_situation</code></td><td>Inside the decide call, alongside the option scores</td><td>Is this state unlike what the goal, playbook and milestones describe?</td><td>&gt; 0.7</td></tr>
+        <tr><td><code>doubt_action</code></td><td>A <strong>separate verifier call</strong>, after the action is chosen, with that action in view</td><td>Would a careful player doubt this specific action here?</td><td>&gt; 0.7</td></tr>
+      </tbody>
+    </table></div>
+    <div class="two-col">
+      <div class="callout"><p class="kicker">Novelty is about the situation</p><p>High novelty means the context the model judges against doesn't cover this state. <strong>The fix is more context:</strong> a playbook line, a milestone, a standing rule.</p></div>
+      <div class="callout warn"><p class="kicker">Doubt is about the action</p><p>High doubt means the chosen action looks wrong for this state. <strong>The fix is in the options or the plan:</strong> a planner rule, a code policy, or the LLM overriding this one action.</p></div>
+    </div>
+
+    <h2>What we observed</h2>
+    <p>Four sessions, several hundred ticks, about 60 logged escalations.</p>
+
+    <h3>1. In-call novelty is weak; a separate doubt verifier is strong</h3>
+    <p>Asked inside the decide call, novelty sat in a narrow band (p10/p50/p90 = 0.32/0.40/0.50) and rarely fired. Doubt, asked as its own call on the chosen action, ranged widely (about 0.1–0.85) and tracked real problems. A model grading its own pick in the same breath is less useful than a second look at a concrete action.</p>
+
+    <h3>2. When doubt fires high, it is usually right</h3>
+    <p>Every firing above about 0.75 pointed at a real problem:</p>
+    <ul>
+      <li><strong>0.79:</strong> farm a bow from a 2%-per-kill drop (about 1,000 arrows on average).</li>
+      <li><strong>0.78:</strong> sell an item every tick while also crafting it.</li>
+      <li><strong>0.84:</strong> fight a level-27 monster with a weak melee setup, for a 4.5% drop, to train an unrelated skill.</li>
+    </ul>
+    <p>The one false alarm (0.74, a large sale that was fine) went away after one line of playbook context. The same kind of sale scored 0.35 next time.</p>
+
+    <h3>3. Novelty fires on first occurrences, and context retires it</h3>
+    <p>Novelty fired at 0.71 twice in one session, both genuinely new for the character: selling an obsolete ammo tier for the first time, and swapping to a melee weapon for material farming. After one playbook line ("older tiers are surplus once the better tier is worn"), selling an old armor piece went through at novelty 0.35. Firings do their job when they're rare, and when each one leaves behind context that prevents the next.</p>
+
+    <h3>4. Doubt measures how well the context fits</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Decision</th><th class="num">Doubt</th></tr></thead>
+      <tbody>
+        <tr><td>Equipping the milestone's target item</td><td class="num">0.08–0.19</td></tr>
+        <tr><td>Steps along a named milestone chain</td><td class="num">0.15–0.35</td></tr>
+        <tr><td>Ambiguous picks against a vague goal</td><td class="num">0.5–0.65</td></tr>
+      </tbody>
+    </table></div>
+    <p>That makes doubt a cheap <strong>metric for context changes</strong>. When a playbook line conflicted with the only safe option, doubt sat at 0.60–0.63 on three identical picks. After the line gained a safety condition, the same pick scored 0.51, then 0.46.</p>
+
+    <h3>5. The patterns under the threshold carry information</h3>
+    <div class="diagram" role="img" aria-label="Three doubt traces over eight repeated decisions with a dashed escalation line at 0.7 and a shaded watch band from 0.5 to 0.7. A rising trace climbs from 0.45 to 0.64, never crossing 0.7: a possible loop. A flat trace sits at about 0.61: a context conflict. A falling trace drops from 0.63 to 0.46 after a fix.">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="72" width="620" height="80" fill="var(--amber-soft)"/>
+        <line x1="60" y1="72" x2="680" y2="72" stroke="var(--coral)" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="676" y="64" text-anchor="end" font-size="12.5">escalate &gt; 0.7</text>
+        <text x="676" y="146" text-anchor="end" font-size="12.5" class="muted">watch band 0.5–0.7</text>
+        <line x1="60" y1="272" x2="680" y2="272" stroke="var(--line)"/>
+        <text x="52" y="76" text-anchor="end" font-size="12" class="muted">0.7</text>
+        <text x="52" y="156" text-anchor="end" font-size="12" class="muted">0.5</text>
+        <text x="52" y="276" text-anchor="end" font-size="12" class="muted">0.2</text>
+        <text x="370" y="294" text-anchor="middle" font-size="12" class="muted">repeated identical decisions →</text>
+        <!-- y = 272 - (d-0.2)*400 -->
+        <polyline fill="none" stroke="var(--coral)" stroke-width="3" points="80,172 165,160 250,148 335,136 420,124 505,110 590,96"/>
+        <text x="600" y="112" font-size="12.5" font-weight="700">rising: a loop?</text>
+        <polyline fill="none" stroke="var(--ink-soft)" stroke-width="3" points="80,108 165,104 250,112 335,106 420,108"/>
+        <text x="426" y="100" font-size="12.5" font-weight="700">flat: a context conflict</text>
+        <polyline fill="none" stroke="var(--teal)" stroke-width="3" points="80,100 165,100 250,104 335,140 420,160 505,168"/>
+        <text x="512" y="190" font-size="12.5" font-weight="700">falling after a fix: it worked</text>
+      </svg>
+    </div>
+    <ul>
+      <li><strong>Rising doubt across repeated identical decisions</strong> points to a loop. A purchase loop's doubt climbed to 0.64 over repeats and never fired.</li>
+      <li><strong>Flat, persistent mid-band doubt on the same pick</strong> (0.6 ± 0.03, several times) points to a context conflict.</li>
+      <li><strong>A single mid-band reading on a new kind of action</strong> is usually fine. Let it run and look at the outcome.</li>
+    </ul>
+    <p>A fixed 0.7 gate tuned to stay quiet hides all three. Treat 0.5–0.7 as a <strong>watch band</strong>: log it, and have the LLM review it at its next scheduled wake rather than waking it on purpose.</p>
+
+    <h3>6. Doubt can't see problems in the options it was given</h3>
+    <p>This is the most important limit. Several bad plans arrived with doubt at only 0.27–0.35: crafting 30 arrows when the run needed 300; making a short batch instead of first making the scarce input; training on leftovers that covered one craft; mining for 100 minutes when equivalent stock sat in the bank.</p>
+    <p>The verifier judges whether the chosen action is reasonable <em>among the options it was shown, in the state it was shown</em>. When the planner offers only bad options, the best bad option looks fine. Doubt is a check on the <strong>choice</strong>, not on the <strong>option generator</strong>. Planner gaps have to be caught another way: the LLM reads the plan's stated reasons, outcome checks run after each step, and code raises efficiency signals ("this run will last only 4 crafts").</p>
+
+    <div class="widget" id="doubt-widget">
+      <h4>Try it: where does this tick go?</h4>
+      <label><span>Doubt (verifier)</span><input type="range" id="doubt-in" min="0" max="1" step="0.01" value="0.62" aria-label="doubt reading"><output id="doubt-out"></output></label>
+      <label><span>Novelty (in-call)</span><input type="range" id="novelty-in" min="0" max="1" step="0.01" value="0.40" aria-label="novelty reading"><output id="novelty-out"></output></label>
+      <label style="grid-template-columns:auto 1fr"><input type="checkbox" id="repeat-in" checked> <span>Same pick as the last few ticks</span></label>
+      <div id="doubt-verdict" class="verdict" role="status" aria-live="polite"></div>
+    </div>
+
+    <h2>How to use the two signals</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Signal</th><th>Reading</th><th>Who acts</th><th>Typical fix</th></tr></thead>
+      <tbody>
+        <tr><td>Doubt &gt; 0.7</td><td>This action looks wrong</td><td>LLM, now</td><td>Override; then fix the planner or add a code policy so the option isn't offered again</td></tr>
+        <tr><td>Novelty &gt; 0.7</td><td>This state is outside the context</td><td>LLM, now</td><td>Approve or redirect; add a playbook line or milestone</td></tr>
+        <tr><td>Doubt 0.5–0.7, flat over repeats</td><td>Context conflict</td><td>LLM, next wake</td><td>Find the conflicting line and add the missing condition</td></tr>
+        <tr><td>Doubt rising over repeats</td><td>Possible loop</td><td>LLM, next wake</td><td>Check whether the outcomes are changing state at all</td></tr>
+        <tr><td>Doubt low, plan inefficient</td><td>Planner gap; neither check can see it</td><td>LLM audit, outcome checks</td><td>Fix the option generator</td></tr>
+        <tr><td>Doubt after a context change</td><td>Did the fix work?</td><td>Measurement</td><td>Compare the same kind of decision before and after</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Design notes</h2>
+    <ul>
+      <li><strong>Use a separate verifier call for doubt.</strong> One concrete chosen action gives a sharper reading than self-assessment inside the scoring call. It costs one extra call per decision, which is cheap at decision-model prices.</li>
+      <li><strong>Keep the two questions separate.</strong> Merging them into one "uncertain?" signal loses the routing.</li>
+      <li><strong>Log every reading, not just firings.</strong></li>
+      <li><strong>Close the loop.</strong> If the same check keeps firing on the same kind of case, the lower tier hasn't learned yet.</li>
+      <li><strong>Don't expect the decision model to audit its inputs.</strong> It can say "this choice looks wrong." It can't say "you forgot to offer the right choice."</li>
+    </ul>
+<pre><code>// The shape of one tick (pseudocode)
+const options = planner.legalOptions(state);              // code
+const scores  = await dm.decide(state, options, {          // decision model
+  extra: { novel_situation: noul("Is this state unlike the goal, playbook and milestones?") }
+});
+const pick    = combine(scores, weights);                 // code, explicit weights
+const doubt   = await dm.ask(state, noul(`Would a careful player doubt this action here: ${pick}?`));
+log({ tick, pick, doubt, novelty: scores.novel_situation });
+if (doubt > 0.7 || scores.novel_situation > 0.7) return escalate(pick);   // LLM, now
+if (doubt >= 0.5) watchBand.push({ tick, pick, doubt });                  // LLM, next wake
+act(pick); verifyOutcome(pick);                                           // code</code></pre>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="cascade.html"><span>Previous</span>The cascade</a><a class="pager-next" href="compare.html"><span>Next</span>Four ways compared</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

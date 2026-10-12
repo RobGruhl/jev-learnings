@@ -1,0 +1,126 @@
+    <p class="eyebrow"><span class="badge l3">Level 3</span> 301 · for engineers</p>
+    <h1>Engineering a decision tier</h1>
+    <p class="lede">A decision model in production is a measured component with a contract, not a prompt you tweak until it looks right. This page covers evaluation you can believe, the invariants that keep thresholds honest, adapters across vendors, determinism, and the operational habits that kept two systems running.</p>
+
+    <figure>
+      <img src="assets/img/blueprint.jpg" alt="A blueprint-style exploded view of four stacked modules (gears, a gauge cluster, a library, a desk) joined by pipes, with flow going up and a return pipe bringing fixes back down." width="1536" height="1024">
+    </figure>
+
+    <h2 id="evaluation">1. Evaluation you can believe</h2>
+    <h3>Before a held-out run</h3>
+    <ul>
+      <li><strong>Freeze and commit</strong> the rubric (the question set) and the thresholds first. Anything tuned on a window makes that window in-sample.</li>
+      <li><strong>Label every suppressed item.</strong> Then misses are exact, not estimated.</li>
+      <li><strong>Label a seeded random sample of escalated items</strong> for precision and a recall estimate. Report recall with a Wilson interval.</li>
+      <li><strong>Label blind.</strong> Labelers never see model scores. The human's rulings override provisional labels.</li>
+    </ul>
+    <h3>Reading the result</h3>
+    <ul>
+      <li>Zero misses in a few hundred items doesn't prove 99% recall. About <code>3/n</code> is a rough 95% upper bound on the miss rate when you saw zero misses in <em>n</em> (the "rule of three").</li>
+      <li>Windows are correlated (same senders, same habits), so a strong month is weaker evidence than it looks.</li>
+      <li>Replaying logged scores under a new rule set is great for debugging, but it's in-sample whenever those months shaped the rules.</li>
+      <li>Always compare against baselines. Escalate-everything has 100% recall and filters nothing. Simple conservative rules gave 72% recall at 20% filtered.</li>
+    </ul>
+    <h3>Three held-out months, honestly reported</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Month</th><th class="num">Filtered (zero LLM tokens)</th><th>Misses</th><th class="num">Est. recall</th><th class="num">Escalation precision</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">27.8%</td><td>7 (all low-confidence labels)</td><td class="num">~97%</td><td class="num">42.5%</td></tr>
+        <tr><td>2</td><td class="num">28.6%</td><td>23</td><td class="num">~92%</td><td class="num">50.0%</td></tr>
+        <tr><td>3</td><td class="num">29.7%</td><td>5 (all low-confidence labels)</td><td class="num">~98%</td><td class="num">55.8%</td></tr>
+      </tbody>
+    </table></div>
+    <p>Month 2 is in the table on purpose. Every change between runs traced to a specific pattern of misses: plainer questions, rules demoted from overrides to facts, context the small model couldn't have had (which services belong to which projects), and charge history per vendor.</p>
+    <h3>Validate on a new time window, not only cross-validation</h3>
+    <ul>
+      <li>On a fresh two-week window with a frozen threshold, the sorter filed 68% instead of the 58% seen in cross-validation, and missed 2 of 55 actions (both debatable).</li>
+      <li>Adding more concept answers as features looked like +2.4 points in leave-one-month-out, but missed 6 actions on the new window.</li>
+      <li><strong>The score threshold transfers; the filter rate doesn't.</strong> Guard for drift in every window.</li>
+    </ul>
+
+    <h2 id="invariants">2. Invariants worth writing down</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Invariant</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Thresholds are keyed by <strong>(model, runtime, rubric)</strong> and stored next to the rubric version</td><td>A prefill-step change moved probabilities 0.043; swapping backends under a trained combiner raised error from 1.86 to 2.12</td></tr>
+        <tr><td><strong>Pin model versions</strong>, never aliases, when thresholds depend on them</td><td>An alias like <code>jev-latest</code> moves on release. The Decisions API has no pinned snapshot at all, so re-check thresholds whenever OpenAI ships</td></tr>
+        <tr><td>Log the <strong>model id the response reports</strong>, plus every reading, not just firings</td><td>The useful patterns (flat, rising, falling after a fix) only show up across ticks</td></tr>
+        <tr><td><strong>Rules are facts, not overrides</strong></td><td>Overrides saved zero important messages and cost filtering. Only bad input and prompt injection force review</td></tr>
+        <tr><td>Interfaces <strong>fail loudly</strong></td><td>A gate read a field the observation layer never sent. Cost read 0, so the gate always passed</td></tr>
+        <tr><td>Verifiers check <strong>outcomes, not starts</strong>, and accept deliberate stops</td><td>With a full bank the game silently discarded every product, and "action started" called it success</td></tr>
+        <tr><td>Private data goes only to backends approved for it, <strong>gated in code</strong></td><td>In our harness any non-loopback backend refused private mail without an explicit environment flag and a recorded approval</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="improvement">3. An improvement loop for questions</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Step</th><th>Who</th></tr></thead>
+      <tbody>
+        <tr><td>Find a failing concept (blind audit of each window's filed items)</td><td>LLM subagents</td></tr>
+        <tr><td>Propose a phrasing ladder and a contrastive Choice</td><td>LLM</td></tr>
+        <tr><td>Label concept gold: an enriched probe plus a seeded random slice, blind</td><td>LLM subagents, with human spot-checks</td></tr>
+        <tr><td>Grade each rung against its own concept; test sub-questions against one good question</td><td>Code</td></tr>
+        <tr><td>Decide the use (feature, gate or rule) and validate on a new window</td><td>Code, then LLM judgment</td></tr>
+        <tr><td>Rule on the gray zones the disagreement exposes</td><td>Human only</td></tr>
+      </tbody>
+    </table></div>
+    <p>Rounds of question tuning on a small local model weren't worth running. Concepts that depend on hidden consequences needed the hosted model or the LLM reader.</p>
+
+    <h2 id="adapters">4. Adapters: one contract, many backends</h2>
+    <p>Write your code against one decision contract and put a thin adapter in front of each backend. We used Jev's <code>POST /v1/systemone</code> shape as the contract and ran OpenAI's Decisions API, Claude Haiku 5.5 and a local open-weight model behind it. The official TypeSafe SDK and every harness then ran unchanged. As of October 2026 the <code>/v1/systemone</code> shape is becoming a de facto standard: Ollama and llama.cpp serve it locally, and AWS's Strands Decider speaks it natively. OpenAI's endpoint does not.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Jev <code>/v1/systemone</code></th><th>OpenAI <code>/v1/decisions</code></th></tr></thead>
+      <tbody>
+        <tr><td>Yes/no type</td><td><code>noul</code></td><td><code>predicate</code></td></tr>
+        <tr><td>Body</td><td><code>{state, model, questions: {id: q}}</code></td><td><code>{input, model, questions: [{name, ...}]}</code></td></tr>
+        <tr><td>State</td><td>Text or a JSON object</td><td>Text or user-role messages, including images. A JSON object is a 400; the adapter pretty-prints it</td></tr>
+        <tr><td>Criteria on a yes/no</td><td><code>{true, false}</code> or free-form</td><td>No such field; the adapter folds it into the instructions</td></tr>
+        <tr><td>Choice options</td><td>Map of option → description or <code>null</code></td><td><code>[{value, description?}]</code>; a <code>null</code> description is a 400</td></tr>
+        <tr><td>One-option Choice</td><td>Answered</td><td>Rejected (minimum 2). The Strands Decider rejects it too</td></tr>
+        <tr><td>Errors</td><td>422 <code>{detail: {...}}</code></td><td>400 <code>{error: {...}}</code>; the adapter maps to 422</td></tr>
+        <tr><td>Version pinning</td><td><code>jev-1.13.0</code></td><td>Only <code>gpt-6-luna</code></td></tr>
+      </tbody>
+    </table></div>
+    <p>An adapter for a general LLM (we used Claude Haiku 5.5) turns each question set into a structured-output JSON schema: one probability per Noul, one per option or level. Two caveats come with that: <strong>every probability is a number the model wrote down</strong>, not a measured log-probability, and the adapter has to clamp to [0, 1] and normalize each distribution.</p>
+    <details><summary>Compatibility gotchas we hit</summary>
+      <ul>
+        <li>The SDK's <code>choice(q, {a: null})</code> idiom sends <code>null</code> descriptions; two backends reject them. Send <code>""</code>.</li>
+        <li>The Strands Decider 2B server crashed under concurrent requests (as its docs warn). Serialize requests to it.</li>
+        <li>It has a 4,096-token window, no <code>effort</code>, no auth (binds 127.0.0.1) and no pinned base revision.</li>
+        <li>Haiku requests were about 2× Jev's token count for the same mail (framing plus a newer tokenizer). Any feature built on token counts needs refitting per backend.</li>
+        <li>Restarting an adapter mid-run made a queue runner race through its jobs with instant connection errors. Stop runners first.</li>
+      </ul>
+    </details>
+
+    <h2 id="determinism">5. Determinism and repeatability</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Backend</th><th>Re-ask the same request</th><th>Consequence</th></tr></thead>
+      <tbody>
+        <tr><td>Hosted Jev</td><td>Identical</td><td>A frozen threshold stays put</td></tr>
+        <tr><td>OpenAI Decisions (<code>gpt-6-luna</code>)</td><td>Identical (759 re-asked answers)</td><td>Stays put, until OpenAI ships an unpinned change</td></tr>
+        <tr><td>Strands Decider 2B</td><td>Identical across runs</td><td>Stays put</td></tr>
+        <tr><td>Claude Haiku 5.5 (effort low)</td><td>33% identical; yes-probabilities moved 0.10 at p90 (0.60 max); 13% of Choice argmaxes flipped</td><td>Keep thresholds away from the busy part of the distribution, or average 2–3 calls at 2–3× the cost</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="ops">6. Operating it</h2>
+    <ul>
+      <li><strong>Log every tick:</strong> the decision, both checks, the outcome. Log every escalation with its detail and resolution. The escalation log is the dataset for the next round of push-downs.</li>
+      <li><strong>Measure the loop's real objective per resource.</strong> The game agent's Ranged training change was judged on XP per arrow, not on kills.</li>
+      <li><strong>Record the starting state</strong> before any run you want to measure. A missing starting value cost one comparison.</li>
+      <li><strong>Wake on events, not timers.</strong> A watcher printed one line per state change (idle, escalate, milestone, low HP, stale, hidden tab); a 20–30 minute timer was only the fallback.</li>
+      <li><strong>Ship small, then watch the next cycle.</strong> A batching rule rejected every purchase, including the one routine restock it needed. The next tick showed it.</li>
+      <li><strong>Treat the environment as its own failure class:</strong> background tabs pause the page, clicks don't land behind another tab, extensions disconnect. No judgment tier catches these; each needs its own signal in code.</li>
+      <li><strong>Watch hosted rate limits.</strong> TypeSafe says Jev's limits are "adjusting dynamically" under demand, and the SDKs retry 429s with backoff. Plan for it.</li>
+    </ul>
+
+    <h2 id="local">7. Local and open weights: what to plan for</h2>
+    <ul>
+      <li><strong>Speed.</strong> APUS-OpenJev-4B on an M4 Pro took 5–18 s per message, serially, at about 5.4 GB peak memory. Strands Decider 2B was 2.1 s per request on the same Mac and 0.32–0.40 s on an NVIDIA L4.</li>
+      <li><strong>Calibration.</strong> The local 4B's probabilities were unbiased but 16–28% more spread out than hosted. The 2B decider squeezed its Score answers toward the middle (spread 0.30 levels against Jev's 0.85).</li>
+      <li><strong>Shared-prefix caching</strong> made batching six questions over ~10k tokens 3.5× faster. Make sure it's bit-identical before trusting thresholds across it.</li>
+      <li><strong>Privacy</strong> is the strongest reason to go local: the data never leaves the machine.</li>
+      <li>The open field is moving fast. Larger open models released in October report JevBench scores at or above Jev's. See <a href="landscape.html">Landscape</a>, and run your own harness before you switch.</li>
+    </ul>
+
+    <div class="callout note"><p><strong>Next:</strong> the <a href="cascade.html">cascade</a> puts these pieces together into an architecture.</p></div>

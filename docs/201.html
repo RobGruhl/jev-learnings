@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision models 201 · Decision Tier</title>
+<meta name="description" content="How to phrase questions, use answers as features and set thresholds that mean something.">
+<meta property="og:title" content="Decision models 201 · Decision Tier">
+<meta property="og:description" content="How to phrase questions, use answers as features and set thresholds that mean something.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/201.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html" aria-current="page">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge l2">Level 2</span> 201 · for practitioners</p>
+    <h1>Asking well, using answers</h1>
+    <p class="lede">A decision model's answers are only as good as the questions. And once you have answers, how you combine them matters as much as the model. This page collects what held up across several months of a real inbox, graded blind against labeled concepts.</p>
+
+    <h2>How the evidence was gathered</h2>
+    <p>Each concept ("someone is waiting on a reply", "a payment failed") got hand-made labels, blind to any model score. Every question phrasing was graded with <strong>AUC</strong> against its own concept. AUC is the chance that a random true example scores above a random false one: 0.5 is a coin flip, 1.0 is perfect ranking.</p>
+
+    <h2>What a decision model judged well</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Concept</th><th>Best question shape</th><th class="num">AUC (hosted Jev)</th></tr></thead>
+      <tbody>
+        <tr><td>An action with a deadline</td><td>Contrastive Choice: deadline / event / offer / informational / none</td><td class="num">0.980</td></tr>
+        <tr><td>A payment failed or a service is ending</td><td>Contrastive Choice (an exact Noul was nearly as good, 0.993)</td><td class="num">0.997</td></tr>
+        <tr><td>Someone is waiting on a reply</td><td>Contrastive Choice</td><td class="num">0.986</td></tr>
+        <tr><td>An unexpected future charge</td><td>Surprise framing</td><td class="num">0.96</td></tr>
+        <tr><td>Same matter as an open record</td><td>Noul on the pair</td><td class="num">0.980</td></tr>
+        <tr><td>The new message resolves the open record</td><td>Noul on the pair</td><td class="num">0.933</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Nine rules for phrasing</h2>
+    <ol class="steps">
+      <li><strong>Prefer a Choice whose options name the near misses.</strong> It was the best single question on every concept tested. "Deadline / event / offer / informational / none" works because each wrong answer has somewhere to go. Describe <code>none</code> well: with a vague <code>none</code>, accuracy on true negatives was 50%.</li>
+      <li><strong>Exact Nouls are the best calibrated.</strong> One exact payment Noul had 88% precision at 0.5. Use them where a threshold has to mean something.</li>
+      <li><strong>Abstract wording ranks but over-fires.</strong> "Involves a deadline" averaged 0.31 on negatives. It fails outright when the abstraction changes the concept: "personal" isn't "someone is waiting" (0.744).</li>
+      <li><strong>Consequence and surprise framing depends on the concept.</strong> It won for hidden charges and waiting-on-reply, and lost for deadlines and payment failures. Test it; don't assume.</li>
+      <li><strong>Don't decompose a concept the model already grasps.</strong> Surface-fact sub-questions lost by 0.03–0.08 AUC. Decomposition fits conjunctions of checkable facts, such as spam signals.</li>
+      <li><strong>Grade every question against its own concept first.</strong> One question looked like chance against the target label but scored 0.89 against its own concept. It was a good question pointed at the wrong target.</li>
+      <li><strong>Plain propositions beat custom true/false criteria.</strong> Custom criteria made one Noul fire at about 0.9 on noise and another read about 0 on invitations.</li>
+      <li><strong>Batching is free.</strong> Send every question in one request with the shared state once. On a local model with a shared-prefix cache, six questions over about 10k tokens took 4.8 s instead of 16.9 s.</li>
+      <li><strong>Phrasing doesn't transfer between models.</strong> Framings tuned on hosted Jev fell by up to 0.20 AUC on another model. Re-grade any phrasing ladder per model.</li>
+    </ol>
+
+    <h3>A worked example</h3>
+    <p>Here's the shape of the contrastive Choice that won on deadlines. The near misses (an event, an offer) are named so that "there's a date in it" doesn't pull everything toward <em>deadline</em>:</p>
+<pre><code>"deadline_kind": {
+  "type": "choice",
+  "instructions": "What does this message ask of the reader, if anything, with respect to time?",
+  "criteria": {
+    "deadline":      "The reader must do something by a stated date or time, or lose something.",
+    "event":         "A scheduled happening the reader may attend; nothing is lost by not acting.",
+    "offer":         "A promotion or sale that expires; ignoring it costs nothing.",
+    "informational": "Dates appear, but nothing is asked of the reader.",
+    "none":          "No date, time or time pressure is involved at all."
+  }
+}</code></pre>
+
+    <h2>What it can't do, so code must</h2>
+    <ul>
+      <li><strong>Measure.</strong> Score ranks but doesn't size: Spearman 0.28 on amounts, 0.15 on time-to-deadline. Extract the parts and do the arithmetic in code.</li>
+      <li><strong>Know what isn't in the message:</strong> who is known, what is open, what the human has ruled. The worst misses were all of this kind. Code has to supply those facts.</li>
+      <li><strong>Route over a weak taxonomy.</strong> A 9-way area Choice was 60–65% top-1 on every model tried, so the taxonomy was the problem, not the model.</li>
+    </ul>
+
+    <h2>Using answers: features, not judges</h2>
+    <p>The tempting design is to set a hand-picked threshold on each answer. The better design feeds every answer, plus the rule facts code already knows, into a small learned combiner (gradient-boosted trees). Same safety, about twice the filtering:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Setup</th><th class="num">Mail filtered with zero LLM tokens</th><th class="num">Missed actions</th></tr></thead>
+      <tbody>
+        <tr><td>Frozen hand thresholds</td><td class="num">29%</td><td class="num">0</td></tr>
+        <tr><td>Local model, learned combiner (leave-one-month-out)</td><td class="num">47%</td><td class="num">0</td></tr>
+        <tr><td>Hosted model, learned combiner (leave-one-month-out)</td><td class="num">58%</td><td class="num">1</td></tr>
+      </tbody>
+    </table></div>
+    <p>The same held on an unrelated public dataset. On TypeSafe's wine-review cookbook, 38 questions combined by a model predicted critic scores with an error of 1.75 points, against 2.20 for asking the score directly. And a small local model nearly matched hosted Jev when many questions were combined (+5% error), while trailing badly as a single judge (+23%).</p>
+
+    <div class="big-rule">One answer is a judge. Thirty-eight answers are features. Features are more forgiving of a weaker model.</div>
+
+    <h2>Gates, facts and rules</h2>
+    <h3>As a gate, modestly</h3>
+    <p>Escalating a filed message whenever any concept Choice had P ≥ 0.5 caught 1 of 2 filed actions, at a cost of 2.8 points of filtering. Useful, not magic.</p>
+    <h3>Facts beat more questions for the remaining misses</h3>
+    <ul>
+      <li>"A known person is never filed" caught 3 of 3 filed known-person messages, at a cost of 3 messages.</li>
+      <li>The human's rulings and the list of open matters explain most of the rest. Those are facts code can supply. No model can infer them from one message.</li>
+    </ul>
+    <h3>Rules are facts, not overrides</h3>
+    <p>In the email pipeline, rules ran in parallel with the model and contributed facts. Only bad input and embedded instructions (prompt injection) could force a review. Other rules could only keep mail <em>out of</em> the zero-token buckets, and the model's category never suppressed mail on its own. An earlier "not bulk-looking" override saved zero important messages over three evaluation sets and cost filtering.</p>
+
+    <h2>Thresholds belong to a (model, rubric) pair</h2>
+    <p>A number like 0.62 means nothing on its own. It means something for one model, one runtime and one set of questions. Changing any of them means refitting:</p>
+    <ul>
+      <li><strong>Runtime:</strong> a faster prefill step on the local model shifted probabilities by up to 0.043, enough to flip 1 decision in 282.</li>
+      <li><strong>Tokenizer:</strong> token counts differed about 2.5× between two runtimes of the same model family.</li>
+      <li><strong>Backend swap:</strong> a wine combiner trained on hosted answers and fed local ones rose from 1.96 to 2.13 error. Trained on local and fed hosted, 1.86 rose to 2.12.</li>
+    </ul>
+
+    <h2>In an agent loop</h2>
+    <ul>
+      <li>One flat Choice over many activities came back flat (top probability ≈ 0.2), with nothing to act on. One narrow Score per option, combined in code with explicit weights, gave a stable ranking.</li>
+      <li>Let the model judge <em>which target matters</em> and let code derive the steps from data. The decision model never plans a chain.</li>
+      <li>A decision model can choose steps on a web page. Given an accessibility snapshot, one request per page picked the page state and the next control: 25 of 25 fixtures, against a keyword baseline's 18, and 8 of 8 pages built to break keywords (baseline: 1). Code kept perception, execution and verification.</li>
+    </ul>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="301.html">301</a> is the engineering: honest evaluation, drift, adapters across vendors and running it in production.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="101.html"><span>Previous</span>Decision models 101</a><a class="pager-next" href="301.html"><span>Next</span>Decision models 301</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

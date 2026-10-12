@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landscape, October 2026 · Decision Tier</title>
+<meta name="description" content="A refresh of the decision-model landscape: latest Claude releases, OpenAI Decisions and open weights.">
+<meta property="og:title" content="Landscape, October 2026 · Decision Tier">
+<meta property="og:description" content="A refresh of the decision-model landscape: latest Claude releases, OpenAI Decisions and open weights.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/landscape.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html" aria-current="page">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge data">Evidence</span> Checked October 12, 2026</p>
+    <h1>Landscape, October 2026</h1>
+    <p class="lede">Decision models went from one vendor to a crowded field in about a month. Here's what changed since our benchmark runs in early October: the Claude lineup, OpenAI's Decisions API, and the open-weight models that, by their own published numbers, may no longer be mid.</p>
+    <div class="callout warn"><p><strong>Provenance.</strong> Our own measurements are on <a href="compare.html">Four ways compared</a>. Everything on this page comes from vendor documentation, release notes, public leaderboards and press as of October 12, 2026, and we haven't reproduced it. Vendor benchmark claims are marked as claims. The field changes daily.</p></div>
+
+    <h2 id="claude">The Claude lineup</h2>
+    <p>Three new Claude models shipped in the last four weeks. All have a 1M-token context window and up to 128K output tokens.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th>ID</th><th>Released</th><th class="num">Input / output per M tokens</th><th>Role in a cascade</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Claude Fable 5.1</strong></td><td><code>claude-fable-5-1</code></td><td>Sept 1, 2026</td><td class="num">$10 / $50</td><td>The hardest escalations: long-horizon audits, novel failures</td></tr>
+        <tr><td><strong>Claude Opus 5.5</strong></td><td><code>claude-opus-5-5</code></td><td>Sept 22, 2026</td><td class="num">$4 / $20</td><td>The default LLM tier: inspect, decide, fix the cause below. Cheaper than Opus 5 ($5 / $25)</td></tr>
+        <tr><td><strong>Claude Sonnet 5.5</strong></td><td><code>claude-sonnet-5-5</code></td><td>Sept 28, 2026</td><td class="num">$2 / $10</td><td>A cheaper LLM tier for routine escalations and plan audits</td></tr>
+        <tr><td><strong>Claude Haiku 5.5</strong></td><td><code>claude-haiku-5-5</code></td><td>Oct 7, 2026</td><td class="num">$0.10 / $0.50 (≤100K-token prompts)</td><td>A judgment tier, or the watch-band reviewer. Anthropic positions it for classification, extraction and routing</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>Haiku 5.5 costs $0.50 / $2.50 for prompts over 100K tokens. The Batch API is 50% off (Haiku 5.5: $0.05 / $0.25).</li>
+      <li>Anthropic has <strong>no decision or classification endpoint and no log-probabilities.</strong> The closest mechanism is structured outputs plus strict tool use, which is what our Haiku adapter used.</li>
+      <li>Haiku 5.5 is a remarkable price drop: the previous Haiku 4.5 was $1 / $5, ten times more.</li>
+      <li>Sources: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Claude pricing</a>, <a href="https://platform.claude.com/docs/en/models/overview">models overview</a>, <a href="https://platform.claude.com/docs/en/release-notes/overview">release notes</a>.</li>
+    </ul>
+
+    <h2 id="jev">Jev: unchanged</h2>
+    <ul>
+      <li><code>jev-1.13.0</code> is still the only model; <code>jev-latest</code> and <code>jev-preview</code> both point to it. No 1.14 yet.</li>
+      <li>Still $0.042 per million input tokens, output free; still text-only; 64k context per request.</li>
+      <li>Rate limits are "adjusting dynamically" under demand, per TypeSafe.</li>
+      <li>The Python SDK reached v0.7.3 (October 9) with concurrency and TLS fixes. Jev is also listed on OpenRouter as <code>typesafe/jev-1.13</code>.</li>
+      <li>Source: <a href="https://docs.typesafe.ai/models">docs.typesafe.ai/models</a>.</li>
+    </ul>
+
+    <h2 id="openai">OpenAI: Decisions API and Luna</h2>
+    <ul>
+      <li><strong>Decisions API</strong> has been in public beta since October 6, with GA promised "in the coming weeks." Still only <code>gpt-6-luna</code> and no pinned snapshot. Still $0.10 per million input tokens, with no charge for output or caching. It accepts images as inline base64. Rate limits aren't documented.</li>
+      <li><strong>Luna is also a general model.</strong> <code>gpt-6-luna</code> (Sept 22) is OpenAI's cheapest general text model: $0.10 in, $0.50 out per million, 1.05M context, on Chat Completions, Responses and Batch. Its predecessor <code>gpt-5.6-luna</code> is still listed at $0.20 / $1.20.</li>
+      <li>OpenAI has not adopted the <code>/v1/systemone</code> request shape that others are converging on; you still need an adapter.</li>
+      <li>Sources: <a href="https://developers.openai.com/api/docs/guides/decisions">Decisions guide</a>, <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">gpt-6-luna</a>, <a href="https://developers.openai.com/api/docs/changelog">changelog</a>.</li>
+    </ul>
+
+    <h2 id="open">Open weights: have they gotten better?</h2>
+    <p><strong>By the published numbers, yes, noticeably.</strong> In our early-October runs, the open options (APUS-OpenJev-4B, Strands Decider 2B) sat clearly below Jev. Since then:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th>Released</th><th>What's new</th><th>Reported result</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Strands Decider, Gemma 4 family</strong> (E2B, E4B, 12B, 26B-A4B)</td><td>Oct 9</td><td>Apache-2.0; also a new 2B reference model. Gemma 4 support is on GitHub main, not yet on PyPI</td><td>JevBench public: 180, 187, 200, <strong>207</strong> / 231 (Jev: 200). Median latency 102–245 ms on an H100</td></tr>
+        <tr><td><strong>APUS-OpenJev-v1</strong> 9B and 35B-A3B</td><td>~Sept 23</td><td>New sizes beside the 4B we tested; GGUF and MLX 4-/8-bit</td><td>Not yet on our harnesses</td></tr>
+        <tr><td><strong>Cloudflare Clef</strong> (27B) and <strong>Clef-flash</strong> (9B)</td><td>Oct 1</td><td>Apache-2.0; text, JSON, images and video in; also hosted on Workers AI</td><td>Vendor claims wins over Jev on several tasks (not independently replicated)</td></tr>
+        <tr><td><strong>H2O-Lightning-4B</strong></td><td>v1.2.3, Oct 10</td><td>Apache-2.0, Qwen3.5-4B base, takes images</td><td>Vendor claims JevBench v1.6.1 composite 72.5 against Jev's 71.5</td></tr>
+        <tr><td><strong>Liquid AI d1-3B</strong>, d1-omni-600M</td><td>Oct 7</td><td>Text and images (omni: audio, experimental)</td><td>Vendor claims 8 ms on an RTX 4090; made for edge devices</td></tr>
+      </tbody>
+    </table></div>
+    <h3>The JevBench Capability board</h3>
+    <p>JevBench v1.6.1's live board (October 12) lists Jev 1.13.0 as the unranked reference at Capability <strong>77.1</strong> (Calibration 90.6). The top open models:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th class="num">Rank</th><th>Model</th><th class="num">Size</th><th class="num">Capability</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Quyet-1.0-Large</td><td class="num">31B</td><td class="num best">81.7</td></tr>
+        <tr><td class="num">2</td><td>decisio v0.8.0 (Gemma 4 31B)</td><td class="num">31B</td><td class="num">79.6</td></tr>
+        <tr><td class="num">3</td><td>deck-31B</td><td class="num">31B</td><td class="num">77.6</td></tr>
+        <tr><td class="num">4</td><td>René-1 31B FP8</td><td class="num">31B</td><td class="num">76.0</td></tr>
+        <tr><td class="num">5</td><td>H2O-Lightning-4B v1.1</td><td class="num">4B</td><td class="num">75.0</td></tr>
+        <tr><td class="num">—</td><td><em>Jev 1.13.0 (reference)</em></td><td class="num">—</td><td class="num">77.1</td></tr>
+      </tbody>
+    </table></div>
+    <p>Source: <a href="https://benchmarkheaven.com/jev-models">benchmarkheaven.com/jev-models</a>; harness at <a href="https://github.com/fstandhartinger/jevbench">github.com/fstandhartinger/jevbench</a>.</p>
+    <div class="callout">
+      <p class="kicker">How to read this</p>
+      <p>JevBench is a public benchmark, and public sets leak into training. Our own lesson was that benchmark wins didn't predict mail wins: the 2B decider tied Jev on several JevBench families and still trailed it badly as a sorter feature source. A 31B model is also not a laptop model: expect a real GPU. The honest next step is to run the Gemma 4 Decider 12B/26B and APUS 9B through the same wine, mail and page harnesses. The <a href="build.html">Decision Skeleton</a> makes that a one-module job: swap the backend, re-run the eval.</p>
+    </div>
+
+    <h2 id="others">Other entrants and the emerging standard</h2>
+    <ul>
+      <li><strong>Microsoft Decision-1</strong> (Foundry, Oct 9): hosted only, text only, 32K context, priced like Jev at $0.042 per million input tokens. Microsoft claims best accuracy on 36 benchmarks.</li>
+      <li><strong><code>/v1/systemone</code> is becoming a de facto API.</strong> Reports say AWS, Upstage and Ollama have aligned on TypeSafe's request shape. Ollama v0.35+ and llama.cpp's server can serve it locally, and Pydantic AI has a <code>SystemOneModel</code>. A decision model you can swap without an adapter is now realistic for everyone except OpenAI.</li>
+      <li><strong>Other hosted decision APIs</strong> are appearing (Upstage Solar Decide, Perplexity, and others) from single-source announcements; treat them as unverified.</li>
+      <li>Google, Meta, Mistral and Nvidia have no first-party decision model yet; Gemma 4 and Qwen 3.5/3.8 are the common bases for others' fine-tunes.</li>
+    </ul>
+
+    <h2>What this changes in our advice</h2>
+    <ol>
+      <li><strong>Write against the <code>/v1/systemone</code> shape</strong> and keep backends swappable. The cost of switching is now an eval run, not a rewrite.</li>
+      <li><strong>Re-test open weights before calling them mid.</strong> If a 12B–26B open model matches Jev on your data, privacy and zero marginal cost become free wins.</li>
+      <li><strong>Haiku 5.5 changed the "small LLM" math.</strong> At $0.10 / $0.50, the price gap to decision models is now 5–7×, not 50×. Repeatability, latency and calibration, not price, are the reasons to prefer a decision model.</li>
+      <li><strong>Pin what you can.</strong> More vendors means more silent model updates. Thresholds belong to a (model, runtime, rubric) triple.</li>
+    </ol>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="cost.html"><span>Previous</span>The cost ladder</a><a class="pager-next" href="build.html"><span>Next</span>Build your own decision skeleton</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

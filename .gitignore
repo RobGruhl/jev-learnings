@@ -1,0 +1,4 @@
+.playwright-mcp/
+tutorial/my-decisions/
+__pycache__/
+.DS_Store

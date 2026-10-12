@@ -54,7 +54,7 @@
     render();
   }
 
-  // Doubt / novelty gauge: the bands used in the Melvor agent.
+  // Doubt / novelty gauge: the bands used in the long-running operations agent.
   const gauge = $("#doubt-widget");
   if (gauge) {
     const d = $("#doubt-in", gauge), nv = $("#novelty-in", gauge), rep = $("#repeat-in", gauge);

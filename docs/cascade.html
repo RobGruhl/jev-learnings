@@ -85,7 +85,7 @@
     <div class="table-wrap"><table>
       <thead><tr><th>Tier</th><th>Owns</th><th>Never does</th></tr></thead>
       <tbody>
-        <tr><td><strong>Guards</strong></td><td>Safety reflexes in the fastest loop: eat below an HP floor, flee on an empty quiver, stop at target counts</td><td>Decide anything. They act and log</td></tr>
+        <tr><td><strong>Guards</strong></td><td>Safety reflexes in the fastest loop: pause when a health metric drops below its floor, stop a job when its supply runs out, stop at target counts</td><td>Decide anything. They act and log</td></tr>
         <tr><td><strong>Code</strong></td><td>Anything computable: extracting state, listing legal options, planning from data, verifying outcomes, policies with a right answer</td><td>Guess at judgment calls</td></tr>
         <tr><td><strong>Decision model</strong></td><td>Priorities among options and worth-it calls, phrased narrowly and scored per option; code combines scores with explicit weights</td><td>Plan a chain, do arithmetic, audit its own options</td></tr>
         <tr><td><strong>LLM</strong></td><td>Audits plans as well as doubt; writes milestones and playbook (the context the decision model judges against); turns each escalation into a lower-tier change</td><td>Sit in the hot path for routine decisions</td></tr>
@@ -98,19 +98,19 @@
     <div class="table-wrap"><table>
       <thead><tr><th>Escalation</th><th>Push-down</th><th>Effect</th></tr></thead>
       <tbody>
-        <tr><td>Selling XP-crafted gear (doubt 0.74)</td><td>Playbook: "gear crafted only for XP is surplus"</td><td>Next time 0.35</td></tr>
-        <tr><td>Selling an obsolete ammo tier (novelty 0.71)</td><td>Playbook: "older tiers are surplus once the better one is worn and the standing goal names it"</td><td>Selling old armor next time: novelty 0.35, no escalation</td></tr>
+        <tr><td>Selling items made only for practice (doubt 0.74)</td><td>Playbook: "items made only for practice are surplus"</td><td>Next time 0.35</td></tr>
+        <tr><td>Retiring an obsolete supply tier (novelty 0.71)</td><td>Playbook: "older tiers are surplus once the better one is in use and the standing goal names it"</td><td>Retiring older equipment next time: novelty 0.35, no escalation</td></tr>
         <tr><td>Doubt 0.63 on the same safe pick, three times</td><td>Playbook safety condition</td><td>0.51, then 0.46</td></tr>
-        <tr><td>Rare-drop training plan (doubt 0.84)</td><td>Code: training never relies on rare drops</td><td>Next pick 0.41 doubt, no escalation</td></tr>
+        <tr><td>A plan that relied on a rare outcome (doubt 0.84)</td><td>Code: plans never rely on rare outcomes</td><td>Next pick 0.41 doubt, no escalation</td></tr>
       </tbody>
     </table></div>
-    <p>Concrete milestones are a strong lever too. Against a paragraph-long goal, the decision model's picks scored 0.3–0.5. Along a named milestone's recipe chain, they scored 0.85–0.96.</p>
+    <p>Concrete milestones are a strong lever too. Against a paragraph-long goal, the decision model's picks scored 0.3–0.5. Along a named milestone's chain of steps, they scored 0.85–0.96.</p>
 
     <h2>Promote questions to code when the answer is computable</h2>
     <ul>
-      <li>The model rated "equip a free upgrade into an empty slot" under 0.7 every time. The answer is never worse than nothing, so it became a code policy.</li>
-      <li>It rated spare copies of worn gear as "possibly useful", so the bank filled up. "Surplus gear under bank pressure" became a code policy.</li>
-      <li>Picking the training monster is arithmetic once you can compute damage per arrow against monster HP, with a safety cutoff. It moved to code.</li>
+      <li>The model rated "install a free upgrade into an empty slot" under 0.7 every time. The answer is never worse than nothing, so it became a code policy.</li>
+      <li>It rated spare copies of equipment already in use as "possibly useful", so storage filled up. "Surplus under storage pressure" became a code policy.</li>
+      <li>Picking the target for a job is arithmetic once you can compute useful output per unit of supply, with a safety cutoff. It moved to code.</li>
     </ul>
     <div class="big-rule">Decision model for judgments without a computable answer. Code the moment a question has one, or the model's error has a fixed sign.</div>
     <p>Code policies ended up running roughly a fifth of ticks.</p>
@@ -118,32 +118,32 @@
     <h2>What the decision model can't see: planner gaps</h2>
     <p>The biggest single lesson from the fourth session: <strong>most bad plans reached the LLM with the decision model at low doubt (0.27–0.35).</strong> It judges the options it is given. When the planner offers only bad options, it confidently picks the best bad one. Each of these was fixed in code:</p>
     <ul>
-      <li><strong>Checked one craft, not the whole run.</strong> 36 Feathers passed a "can craft at least once" test, so the restock rule never ran, and the plan made 30 arrows instead of 300.</li>
-      <li><strong>Off-by-one threshold.</strong> 51 Feathers sat one above a restock threshold of 50.</li>
-      <li><strong>Fixed buy size.</strong> Restocks bought 300 when the run needed 1,000: buy → craft → buy cycles.</li>
-      <li><strong>Wrong metric.</strong> Ranking recipes by XP per material ignored gathering time: about 100 minutes of mining when 30,000 ore for an almost-as-good recipe sat in the bank.</li>
-      <li><strong>Wasted damage.</strong> A hardcoded training target lost most of each hit to overkill: 41 damage per arrow against 51 on a bigger monster at the same safety level.</li>
+      <li><strong>Checked one unit, not the whole batch.</strong> Enough material for one unit passed a "can make at least once" test, so the restock rule never ran, and the plan made 30 units instead of 300.</li>
+      <li><strong>Off-by-one threshold.</strong> Stock of 51 sat one above a restock threshold of 50.</li>
+      <li><strong>Fixed buy size.</strong> Restocks bought 300 when the run needed 1,000: buy → make → buy cycles.</li>
+      <li><strong>Wrong metric.</strong> Ranking options by output per unit of material ignored gathering time: about 100 minutes of gathering when stock for an almost-as-good option already sat in storage.</li>
+      <li><strong>Wasted capacity.</strong> A hardcoded target wasted most of each unit of supply: 41 units of useful work per unit, against 51 for a better-matched target at the same risk.</li>
     </ul>
     <p>So the LLM tier has to <strong>audit the plans, not only the doubt scores.</strong> Each finding goes into the planner as a rule, with a comment naming the case that motivated it.</p>
 
     <h2>Rules interact; state invariants per goal</h2>
     <ul>
-      <li>Independent policies, each correct alone, formed loops: buying feathers when arrows ran low (the real block was arrowtips); selling surplus chaps while crafting chaps. Each fix narrowed a precondition.</li>
-      <li>A global gate written for one goal ("a banked melee weapon counts as armed") later sent a ranged character into a fight with zero arrows. The invariant moved to the goal that needs it.</li>
+      <li>Independent policies, each correct alone, formed loops: buying one input when output ran low, though the real block was a different input; selling "surplus" of an item while also producing it. Each fix narrowed a precondition.</li>
+      <li>A global readiness check written for one goal ("a stored backup tool counts as equipped") later sent a job out with zero of the supply it actually needed. The invariant moved to the goal that needs it.</li>
     </ul>
 
     <h2>LLM wakes are the scarce resource</h2>
     <p>In a long-running loop the expensive thing is the LLM waking up, not the decision model or wall time. Each "do a small thing, then stop" cycle costs a tick and a wake. What reduced wakes:</p>
     <ul>
-      <li><strong>Size batches to the remaining need.</strong> A fixed batch of 120 meant about 12 rounds for one level; sizing to the remaining XP (capped at 400) cut it to about 4.</li>
+      <li><strong>Size batches to the remaining need.</strong> A fixed batch of 120 meant about 12 rounds to reach one target; sizing the batch to the remaining need (capped at 400) cut it to about 4.</li>
       <li><strong>Size restocks to the whole run.</strong> One purchase of 800 instead of three of 300.</li>
-      <li><strong>Size standing stock to the grind.</strong> Raising standing ammo from 300 to 1,000 cut about 16 cycles to about 5.</li>
-      <li><strong>Don't make trips for nothing.</strong> Selling 1–2 gold of junk after every round cost a full trip. Junk now waits until the bank is nearly full.</li>
+      <li><strong>Size standing stock to the workload.</strong> Raising standing stock of one supply from 300 to 1,000 cut about 16 cycles to about 5.</li>
+      <li><strong>Don't make trips for nothing.</strong> Selling a few cents of leftovers after every round cost a full trip. Leftovers now wait until storage is nearly full.</li>
       <li><strong>Wake on events, not timers.</strong></li>
     </ul>
 
     <h2>Safety goes in the fastest tier, and it needs its own audit</h2>
-    <p>A 1-second in-page guard eats below an HP floor, flees on an empty quiver and stops recipes at target counts. Before it existed, HP fell from 102 to 6 between two LLM wakes. But the guard ate only from the current food slot; with that slot empty it did nothing, and in this game a death destroys an equipped item. The fix: switch to the next slot with food, and flee only when every slot is empty. Prevention belongs in the planner: equip enough food before a long fight.</p>
+    <p>A 1-second in-page guard tops up reserves when a health metric drops below its floor, stops a job when its supply runs out, and stops production at target counts. Before it existed, the health metric fell from 102 to 6 between two LLM wakes. But the guard drew only from the current reserve slot; with that slot empty it did nothing, and in that environment hitting zero destroyed equipment in use. The fix: switch to the next stocked slot, and stop the job only when every slot is empty. Prevention belongs in the planner: load enough reserves before a long job.</p>
     <p><strong>Guards must also fail closed by construction.</strong> A guard that crashes, times out or can't reach its judge should stop the action or ask a person, never quietly let it through. Some hook systems skip a failed hook by default, so check what yours does. The sister site <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain</a> works through this for Claude Code mods, including a guard that asks a decision model about ambiguous shell commands.</p>
 
     <h2>What a cascade saves</h2>
@@ -153,7 +153,7 @@
 
 <nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="301.html"><span>Previous</span>Decision models 301</a><a class="pager-next" href="novelty-and-doubt.html"><span>Next</span>Novelty and doubt</a></nav>
     <footer class="footer">
-      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
       <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
       <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
     </footer>

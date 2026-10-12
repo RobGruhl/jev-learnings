@@ -88,13 +88,13 @@
     <h2>Where the evidence comes from</h2>
     <div class="two-col">
       <div class="callout"><p class="kicker">An email first pass</p><p>A personal inbox, studied across several held-out months. Every message got a set of decision-model questions plus deterministic rules, and was sorted into buckets that set how much LLM attention it gets. Junk cost zero LLM tokens. Concept labels were made blind.</p></div>
-      <div class="callout"><p class="kicker">A long-running game agent</p><p>An agent that played Melvor Idle through a web browser for days: code planned and verified, the decision model judged priorities on every tick, Claude woke on escalations. Several hundred logged ticks and about 60 logged escalations. The decision model cost under $0.10 a night.</p></div>
+      <div class="callout"><p class="kicker">A long-running operations agent</p><p>An agent that ran for days in a web browser: it scheduled production jobs, bought and restocked supplies, managed limited storage, and kept a health metric above a floor. Code planned and verified, the decision model judged priorities on every tick, and Claude woke on escalations. Several hundred logged ticks and about 60 logged escalations. The decision model cost under $0.10 a night.</p><p style="font-size:14px">The testbed was an idle game (Melvor Idle) chosen because it runs unattended for days. Everything on this site describes it in plain operations terms: jobs, supplies, stock, storage.</p></div>
     </div>
     <p>The decision model in both was <strong>Jev</strong>, TypeSafe's hosted model (<code>jev-1.13.0</code>). In October we ran the same harnesses against OpenAI's Decisions API, two open-weight decision models and Claude Haiku 5.5. The results are on <a href="compare.html">Four ways compared</a>.</p>
 
 
     <footer class="footer">
-      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
       <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
       <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
     </footer>

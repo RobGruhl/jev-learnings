@@ -313,7 +313,7 @@ Read the card back and ask the learner to classify three made-up items using onl
 <details>
 <summary>Expected intuition (reveal only after the learner answers)</summary>
 
-Anything with a computable answer is cheaper, faster, deterministic and testable in code, and decision models are measurably weak at arithmetic, dates and facts that aren't in the item (who you know, what's already open). In the game agent, "equip a free upgrade into an empty slot" kept getting uncertain scores from the model, though the answer is never worse than nothing; it became a code policy. In the email project, "a known person is never filed" caught 3 of 3 misses that more model questions couldn't. Rule of thumb: model for judgment without a computable answer; code the moment there is one.
+Anything with a computable answer is cheaper, faster, deterministic and testable in code, and decision models are measurably weak at arithmetic, dates and facts that aren't in the item (who you know, what's already open). In the long-running operations agent, "install a free upgrade into an empty slot" kept getting uncertain scores from the model, though the answer is never worse than nothing; it became a code policy. In the email project, "a known person is never filed" caught 3 of 3 misses that more model questions couldn't. Rule of thumb: model for judgment without a computable answer; code the moment there is one.
 
 </details>
 
@@ -446,7 +446,7 @@ Predict: what should happen if a backend returns a Choice whose probabilities su
 <details>
 <summary>Expected intuition (reveal only after the learner answers)</summary>
 
-Because a silent default turns a bug into a wrong decision that looks normal. In the game agent, a gold-versus-cost gate read a field the observation layer never sent; cost read as 0, so the gate always passed, and nothing complained. Each tier can only escalate what the tier below reports honestly. Loud failures are cheap; quiet ones compound.
+Because a silent default turns a bug into a wrong decision that looks normal. In the long-running operations agent, a budget-versus-cost gate read a field the observation layer never sent; cost read as 0, so the gate always passed, and nothing complained. Each tier can only escalate what the tier below reports honestly. Loud failures are cheap; quiet ones compound.
 
 </details>
 
@@ -662,7 +662,7 @@ Give the decision tier its own escalation signals and a watch band.
 
 ## Intuition
 
-A confidence threshold catches uncertain answers. Two more checks catch different trouble. **Novelty** asks whether the situation is outside what the context describes; the fix is more context. **Doubt** is a separate verifier call that shows the model the chosen action and asks whether a careful person would doubt it; the fix is in the options or the plan. In the game agent, doubt above about 0.75 pointed at a real problem every time, while bugs often sat just under the line, in the 0.5–0.7 band.
+A confidence threshold catches uncertain answers. Two more checks catch different trouble. **Novelty** asks whether the situation is outside what the context describes; the fix is more context. **Doubt** is a separate verifier call that shows the model the chosen action and asks whether a careful person would doubt it; the fix is in the options or the plan. In the long-running operations agent, doubt above about 0.75 pointed at a real problem every time, while bugs often sat just under the line, in the 0.5–0.7 band.
 
 ## Claude Code Instructions
 
@@ -687,7 +687,7 @@ Predict whether doubt or novelty will spread more widely across dev items. Then 
 <details>
 <summary>Expected intuition (reveal only after the learner answers)</summary>
 
-Doubt judges the chosen action among the options it was shown, in the state it was shown. If the state is missing a fact (the sender is your landlord) or the options are wrong (no route existed for "forward to my accountant"), the best available option looks fine. In the game agent, most bad plans reached the LLM with doubt at only 0.27–0.35: planner gaps where every option offered was bad. Doubt checks the choice, not the option generator. Outcome checks and LLM audits catch the rest.
+Doubt judges the chosen action among the options it was shown, in the state it was shown. If the state is missing a fact (the sender is your landlord) or the options are wrong (no route existed for "forward to my accountant"), the best available option looks fine. In the long-running operations agent, most bad plans reached the LLM with doubt at only 0.27–0.35: planner gaps where every option offered was bad. Doubt checks the choice, not the option generator. Outcome checks and LLM audits catch the rest.
 
 </details>
 
@@ -701,7 +701,7 @@ Turn one escalation into a lower-tier change and measure that it worked.
 
 ## Intuition
 
-This is what makes a cascade get cheaper over time instead of just routing. Every time the expensive tier resolves something, leave a change in a cheaper tier so the same case doesn't climb again: a **rule** (if the answer is computable), a **context line** (if the model lacked a fact), or a **better option** (if the choice was missing). In the game agent, one playbook line moved the same kind of decision from doubt 0.74 to 0.35.
+This is what makes a cascade get cheaper over time instead of just routing. Every time the expensive tier resolves something, leave a change in a cheaper tier so the same case doesn't climb again: a **rule** (if the answer is computable), a **context line** (if the model lacked a fact), or a **better option** (if the choice was missing). In the long-running operations agent, one playbook line moved the same kind of decision from doubt 0.74 to 0.35.
 
 ## Claude Code Instructions
 
@@ -726,7 +726,7 @@ Predict the after-readings. Then re-run the affected items.
 <details>
 <summary>Expected intuition (reveal only after the learner answers)</summary>
 
-Rules interact, and a fix can break the next case. In the game agent, a batching rule fixed one loop and then rejected every purchase, including the one routine restock it needed; it was caught one cycle later. Independent policies that are each correct alone formed loops. Ship small, then watch the next cycle: re-running dev is that next cycle.
+Rules interact, and a fix can break the next case. In the long-running operations agent, a batching rule fixed one loop and then rejected every purchase, including the one routine restock it needed; it was caught one cycle later. Independent policies that are each correct alone formed loops. Ship small, then watch the next cycle: re-running dev is that next cycle.
 
 </details>
 
@@ -951,7 +951,7 @@ The mix of tiers, through the push-down loop: as escalations turn into rules and
 
 - **Answers as features.** Ask 10–40 narrow questions and combine them with a small learned model (logistic regression or gradient-boosted trees) instead of hand thresholds. In the email project this doubled filtering at the same safety; validate on a new time window.
 - **An agent loop.** Use the same tiers for an agent: code plans and verifies, the decision model judges priorities per tick, the LLM wakes on escalations and fixes causes. Guards go in the fastest loop.
-- **Re-test open weights.** Run the October 2026 releases (Strands Decider Gemma 4 sizes, APUS 9B/35B) through Module 13.
+- **Re-test open weights.** Run the October 2026 releases (Strands Decider Gemma 4 sizes, APUS 9B/35B) through Module 13. Check memory first: weights take about parameters × bytes per parameter (0.5 at 4-bit, 1 at 8-bit, 2 at BF16) plus a few GB. 2B–12B models fit a laptop (12B only quantized); a 26B mixture-of-experts is borderline on 24 GB; 31B dense wants a 32 GB+ machine at 4-bit or a rented 80 GB GPU.
 - **More data, new windows.** Label a real month blind, run once, repeat next month.
 
 *© Rob Gruhl. Licensed under CC BY 4.0. Format adapted from the [Walking Skeleton Tutorial](https://walkingskeleton.org/).*

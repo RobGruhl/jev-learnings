@@ -85,7 +85,7 @@
         <tr><td>Log the <strong>model id the response reports</strong>, plus every reading, not just firings</td><td>The useful patterns (flat, rising, falling after a fix) only show up across ticks</td></tr>
         <tr><td><strong>Rules are facts, not overrides</strong></td><td>Overrides saved zero important messages and cost filtering. Only bad input and prompt injection force review</td></tr>
         <tr><td>Interfaces <strong>fail loudly</strong></td><td>A gate read a field the observation layer never sent. Cost read 0, so the gate always passed</td></tr>
-        <tr><td>Verifiers check <strong>outcomes, not starts</strong>, and accept deliberate stops</td><td>With a full bank the game silently discarded every product, and "action started" called it success</td></tr>
+        <tr><td>Verifiers check <strong>outcomes, not starts</strong>, and accept deliberate stops</td><td>With storage full, the system silently discarded every product, and "job started" called it success</td></tr>
         <tr><td>Private data goes only to backends approved for it, <strong>gated in code</strong></td><td>In our harness any non-loopback backend refused private mail without an explicit environment flag and a recorded approval</td></tr>
       </tbody>
     </table></div>
@@ -144,9 +144,9 @@
     <h2 id="ops">6. Operating it</h2>
     <ul>
       <li><strong>Log every tick:</strong> the decision, both checks, the outcome. Log every escalation with its detail and resolution. The escalation log is the dataset for the next round of push-downs.</li>
-      <li><strong>Measure the loop's real objective per resource.</strong> The game agent's Ranged training change was judged on XP per arrow, not on kills.</li>
+      <li><strong>Measure the loop's real objective per resource.</strong> The operations agent's target change was judged on useful output per unit of supply, not on raw job count.</li>
       <li><strong>Record the starting state</strong> before any run you want to measure. A missing starting value cost one comparison.</li>
-      <li><strong>Wake on events, not timers.</strong> A watcher printed one line per state change (idle, escalate, milestone, low HP, stale, hidden tab); a 20–30 minute timer was only the fallback.</li>
+      <li><strong>Wake on events, not timers.</strong> A watcher printed one line per state change (idle, escalate, milestone, health below floor, stale, hidden tab); a 20–30 minute timer was only the fallback.</li>
       <li><strong>Ship small, then watch the next cycle.</strong> A batching rule rejected every purchase, including the one routine restock it needed. The next tick showed it.</li>
       <li><strong>Treat the environment as its own failure class:</strong> background tabs pause the page, clicks don't land behind another tab, extensions disconnect. No judgment tier catches these; each needs its own signal in code.</li>
       <li><strong>Watch hosted rate limits.</strong> TypeSafe says Jev's limits are "adjusting dynamically" under demand, and the SDKs retry 429s with backoff. Plan for it.</li>
@@ -159,13 +159,14 @@
       <li><strong>Shared-prefix caching</strong> made batching six questions over ~10k tokens 3.5× faster. Make sure it's bit-identical before trusting thresholds across it.</li>
       <li><strong>Privacy</strong> is the strongest reason to go local: the data never leaves the machine.</li>
       <li>The open field is moving fast. Larger open models released in October report JevBench scores at or above Jev's. See <a href="landscape.html">Landscape</a>, and run your own harness before you switch.</li>
+      <li><strong>Size the machine before the model.</strong> Weights take about parameters × bytes per parameter (0.5 at 4-bit, 1 at 8-bit, 2 at BF16) plus a few GB of cache. A 26B mixture-of-experts at 4-bit is borderline on a 24 GB laptop; a 31B dense model wants a 32 GB+ machine at 4-bit and an 80 GB GPU at BF16. Details on <a href="landscape.html#hardware">Landscape</a>.</li>
     </ul>
 
     <div class="callout note"><p><strong>Next:</strong> the <a href="cascade.html">cascade</a> puts these pieces together into an architecture.</p></div>
 
 <nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="201.html"><span>Previous</span>Decision models 201</a><a class="pager-next" href="cascade.html"><span>Next</span>The cascade</a></nav>
     <footer class="footer">
-      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and an agent that played Melvor Idle in a browser for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
       <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
       <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
     </footer>

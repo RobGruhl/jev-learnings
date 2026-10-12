@@ -50,6 +50,25 @@
         <tr><td><strong>Liquid AI d1-3B</strong>, d1-omni-600M</td><td>Oct 7</td><td>Text and images (omni: audio, experimental)</td><td>Vendor claims 8 ms on an RTX 4090; made for edge devices</td></tr>
       </tbody>
     </table></div>
+    <h3 id="hardware">What it takes to run them</h3>
+    <p><strong>The models that beat Jev on JevBench are big.</strong> Before you plan on "free," check what the hardware costs. A model's weights take roughly <em>parameters × bytes per parameter</em>: 2 bytes at BF16, 1 at 8-bit, 0.5 at 4-bit. Then add a few GB for the KV cache and the runtime. These are rule-of-thumb estimates, not measurements:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model class</th><th class="num">4-bit</th><th class="num">8-bit</th><th class="num">BF16</th><th>Realistic hardware</th></tr></thead>
+      <tbody>
+        <tr><td>2B–4B (Decider 2B, APUS 4B, H2O-Lightning-4B, Gemma 4 E2B/E4B)</td><td class="num">1–2 GB</td><td class="num">2–4 GB</td><td class="num">4–9 GB</td><td>Any recent laptop</td></tr>
+        <tr><td>9B–12B (APUS 9B, Decider 12B)</td><td class="num">5–7 GB</td><td class="num">9–13 GB</td><td class="num">18–24 GB</td><td>A 16–24 GB laptop if quantized; BF16 wants a 24–32 GB GPU</td></tr>
+        <tr><td>26B-A4B mixture-of-experts (Decider 26B)</td><td class="num">~14 GB</td><td class="num">~27 GB</td><td class="num">~52 GB</td><td>All 26B must sit in memory even though only ~4B work per token, so it's fast once it fits. A 24 GB GPU at 4-bit; a 48 GB+ machine at 8-bit; an 80 GB GPU at BF16 (Strands' latency figures are from an H100)</td></tr>
+        <tr><td>31B dense (the top of the Capability board)</td><td class="num">~17 GB</td><td class="num">~33 GB</td><td class="num">~62 GB</td><td>Every parameter works on every token, so it's several times slower per request than a 4B. A 24 GB GPU or a 32 GB+ Mac squeezes 4-bit; a 48 GB card (L40S, A6000) or a 64 GB Mac for 8-bit; an 80 GB H100 for BF16</td></tr>
+        <tr><td>35B-A3B mixture-of-experts (APUS 35B)</td><td class="num">~19 GB</td><td class="num">~37 GB</td><td class="num">~70 GB</td><td>Like the 26B, but larger: a 32 GB+ machine at 4-bit</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>On a 24 GB Apple-silicon laptop</strong> (our test machine): the 2B–4B models run comfortably, and 9B–12B fit if a quantized build exists. The 26B-A4B at 4-bit is borderline, because macOS lets the GPU use only part of unified memory by default (roughly two-thirds to three-quarters). 31B dense and 35B-A3B don't realistically fit. Downloads are large too: budget the model's size in free disk, twice over while converting.</li>
+      <li><strong>Check the runtime, not just the size.</strong> Some decider servers run on PyTorch, which on a Mac means BF16 on the GPU unless someone publishes a quantized MLX or GGUF build. A 12B in BF16 (~24 GB) won't fit a 24 GB Mac.</li>
+      <li><strong>Quantizing changes the answers.</strong> 4-bit weights shift probabilities. Treat a quantized model as a new model: re-grade your questions and re-fit thresholds (they belong to a model, runtime and rubric triple).</li>
+      <li><strong>Rented GPUs have a price too.</strong> An 80 GB H100 rents for several dollars an hour. At our measured hosted price, Jev answers tens of thousands of typical requests for that. Open weights win on privacy and at high, steady volume, not automatically on cost.</li>
+    </ul>
+
     <h3>The JevBench Capability board</h3>
     <p>JevBench v1.6.1's live board (October 12) lists Jev 1.13.0 as the unranked reference at Capability <strong>77.1</strong> (Calibration 90.6). The top open models:</p>
     <div class="table-wrap"><table>
@@ -66,7 +85,7 @@
     <p>Source: <a href="https://benchmarkheaven.com/jev-models">benchmarkheaven.com/jev-models</a>; harness at <a href="https://github.com/fstandhartinger/jevbench">github.com/fstandhartinger/jevbench</a>.</p>
     <div class="callout">
       <p class="kicker">How to read this</p>
-      <p>JevBench is a public benchmark, and public sets leak into training. Our own lesson was that benchmark wins didn't predict mail wins: the 2B decider tied Jev on several JevBench families and still trailed it badly as a sorter feature source. A 31B model is also not a laptop model: expect a real GPU. The honest next step is to run the Gemma 4 Decider 12B/26B and APUS 9B through the same wine, mail and page harnesses. The <a href="build.html">Decision Skeleton</a> makes that a one-module job: swap the backend, re-run the eval.</p>
+      <p>JevBench is a public benchmark, and public sets leak into training. Our own lesson was that benchmark wins didn't predict mail wins: the 2B decider tied Jev on several JevBench families and still trailed it badly as a sorter feature source. A 31B model is also not a laptop model: see <a href="#hardware">what it takes to run them</a>. The honest next step is to run the Gemma 4 Decider 12B/26B and APUS 9B through the same wine, mail and page harnesses. The <a href="build.html">Decision Skeleton</a> makes that a one-module job: swap the backend, re-run the eval.</p>
     </div>
 
     <h2 id="others">Other entrants and the emerging standard</h2>

@@ -19,7 +19,7 @@ The site source is `site/` (page fragments plus a template). `python3 site/build
 
 [![What Are We Asking For? A sing-along guide to code, models and humans](docs/media/what-are-we-asking-for-thumbnail.png)](docs/media/what-are-we-asking-for-540p.mp4)
 
-[**What Are We Asking For? A sing-along guide to code, models and humans**](docs/media/what-are-we-asking-for-540p.mp4) is a 4½-minute karaoke video (540p). It teaches the same cascade: deterministic code for rules you can write down, a decision model for bounded judgments, a language model for open questions, and a human for stakes and values. The chorus is the whole idea: *match the tool to the work we do, and let the real world tell us what holds true.*
+[**What Are We Asking For? A sing-along guide to code, models and humans**](docs/media/what-are-we-asking-for-540p.mp4) is a 4½-minute karaoke video (540p). The full 1080p version is on the [sing-along release](https://github.com/RobGruhl/jev-learnings/releases/tag/singalong-v1). It teaches the same cascade: deterministic code for rules you can write down, a decision model for bounded judgments, a language model for open questions, and a human for stakes and values. The chorus is the whole idea: *match the tool to the work we do, and let the real world tell us what holds true.*
 
 The song is Suno-generated (voice and piano). The animation was made with Claude Code on [ClaudeAnimationBase](https://github.com/JohnHeibel/ClaudeAnimationBase).
 

@@ -23,6 +23,10 @@ The site source is `site/` (page fragments plus a template). `python3 site/build
 
 The song is Suno-generated (voice and piano). The animation was made with Claude Code on [ClaudeAnimationBase](https://github.com/JohnHeibel/ClaudeAnimationBase).
 
+[![What Are We Asking For? (Name the Job, Then Light the Spark)](docs/media/what-are-we-asking-for-rock-thumbnail.png)](docs/media/what-are-we-asking-for-rock-540p.mp4)
+
+[**What Are We Asking For? (Name the Job, Then Light the Spark)**](docs/media/what-are-we-asking-for-rock-540p.mp4) is the pop-punk version: a 3¼-minute karaoke video (540p) with new lyrics on the same lesson, set in a mid-2000s rock club. Clawd is the frontman (the language model), a drum machine plays the code, a guitar tuner that can only snap to the options it was given plays the decision model, and the stage manager makes the human call on the pyro. The chorus: *name the job before we light the spark, and let the real world keep the score.* The song is Suno-generated, the animation was made with Claude Code on the same kit, and the thumbnail was made with gpt-image-2.
+
 ## The shape both projects converged on
 
 | Tier | Speed | Job | Passes up when |

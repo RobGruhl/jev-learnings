@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melvor Idle, the testbed · Decision Tier</title>
+<meta name="description" content="The case study&#x27;s testbed: what an idle game is, Melvor&#x27;s skills and production chains, the ranger character and how the agent is wired.">
+<meta property="og:title" content="Melvor Idle, the testbed · Decision Tier">
+<meta property="og:description" content="The case study&#x27;s testbed: what an idle game is, Melvor&#x27;s skills and production chains, the ranger character and how the agent is wired.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/melvor.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html" aria-current="page">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 1 of 4 · the testbed</p>
+    <h1>Melvor Idle, the testbed</h1>
+    <p class="lede">Most of this site's operations evidence comes from one agent: Claude playing the browser game Melvor Idle for days, with Jev making the judgment calls and plain code doing everything computable. This four-part case study drops the generic "jobs and supplies" language and shows the real thing: the game, the wiring, the cascade, and every push-down that taught it something.</p>
+
+    <div class="tier-legend" aria-label="Color code used in this case study">
+      <span><span class="tag code">Code</span> deterministic code: guards, planner, policies, verification</span>
+      <span><span class="tag jev">Jev</span> the decision model: bounded judgments, novelty and doubt</span>
+      <span><span class="tag llm">LLM</span> Claude: wakes on events, inspects, fixes the cause below</span>
+      <span><span class="tag human">Human</span> the owner: money, accounts, preferences</span>
+      <span><span class="tag env">Environment</span> the browser, tabs and window it all runs in</span>
+    </div>
+
+    <div class="cards">
+      <a class="card" href="melvor.html"><span class="tag">Part 1</span><h3>The testbed</h3><p>What an idle game is, the skills and chains, the character, and how the agent is wired.</p></a>
+      <a class="card" href="melvor-why.html"><span class="tag">Part 2</span><h3>Why a game?</h3><p>Why Melvor is a good place to learn the cascade, and how it compares with the email project.</p></a>
+      <a class="card" href="melvor-cascade.html"><span class="tag">Part 3</span><h3>The cascade, built</h3><p>Per-tick flow, color-coded pseudo-code, the questions Jev answers and the measured rates.</p></a>
+      <a class="card" href="melvor-pushdowns.html"><span class="tag">Part 4</span><h3>Push-downs</h3><p>Fifty-one resolved escalations: who caught each one, and which tier the fix landed in.</p></a>
+    </div>
+
+    <h2>What an idle game is</h2>
+    <p>An idle game plays itself once you point it at something. In Melvor Idle you choose one action, such as cutting a tree, smelting a bar or fighting a monster. The game repeats it on a timer, every few seconds, until you stop it or something runs out. Each repeat gives experience points (XP) in a skill and usually an item that lands in your bank. Levels unlock better actions. The level curve is exponential, so later levels take hours or days of one action.</p>
+    <p>Three properties matter for an agent:</p>
+    <ul>
+      <li><strong>One active action at a time.</strong> Woodcutting and fighting can't run together. Every choice of what to run is a real trade-off.</li>
+      <li><strong>Actions keep going without you.</strong> A batch of 1,000 arrows or a two-hour mining run needs no attention once started. Some systems, such as Farming plots and the Township, grow in the background whatever else you're doing.</li>
+      <li><strong>The state is fully readable.</strong> The game runs in the browser tab as plain JavaScript objects: every item, recipe, drop table, monster stat and timer. Code can compute almost anything a player would estimate.</li>
+    </ul>
+
+    <h2>Skills</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Kind</th><th>Examples</th><th>What they do</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Gathering</strong></td><td>Woodcutting, Mining, Fishing, Thieving</td><td>Turn time into raw materials: logs, ore, coal, raw fish</td></tr>
+        <tr><td><strong>Artisan</strong></td><td>Smithing, Fletching, Crafting, Cooking, Herblore</td><td>Turn materials into better materials, gear, ammunition, food and potions</td></tr>
+        <tr><td><strong>Combat</strong></td><td>Ranged, Attack, Strength, Defence, Hitpoints, Magic, Prayer, Slayer</td><td>Fight monsters for XP and drops; ranged combat burns one arrow per shot</td></tr>
+        <tr><td><strong>Passive</strong></td><td>Farming, Township</td><td>Plots and a town that grow on their own clocks, beside whatever is running</td></tr>
+        <tr><td><strong>Course</strong></td><td>Agility</td><td>Obstacles you pay to build; once built, their bonuses apply everywhere</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Combat in one paragraph</h2>
+    <p>You pick a monster in an area, and both sides attack on timers. Your accuracy against its evasion decides how often you hit; your max hit and its hit points decide how many hits a kill takes. You eat food to heal. A ranger uses an arrow on every attack unless an ammo-preservation bonus saves it, so ammunition is a running cost. Dying loses a worn item. Kills drop loot (leather, raw meat, bones, gems, seeds, rare equipment) into a loot container that throws away new drops once it's full.</p>
+
+    <h2>Production chains: why it's a supply-chain game</h2>
+    <p>The agent's character is a <strong>self-sufficient ranger</strong>: it makes nearly everything it uses and buys only lasting upgrades and raw materials it can't gather (feathers, bowstrings). That turns one goal, "get better at Ranged", into a web of chains that all have to stay fed:</p>
+
+    <h4>Ammunition</h4>
+    <div class="chain" aria-label="Arrow chain">
+      <span class="it"><small>Mining</small>Adamantite Ore + Coal</span><span class="ar">→</span>
+      <span class="it"><small>Smithing</small>Adamantite Bar</span><span class="ar">→</span>
+      <span class="it"><small>Smithing</small>Adamant Arrowtips</span>
+    </div>
+    <div class="chain" aria-label="Shaft chain">
+      <span class="it"><small>Woodcutting</small>Maple Logs</span><span class="ar">→</span>
+      <span class="it"><small>Fletching</small>Arrow Shafts</span><span class="ar">+</span>
+      <span class="it"><small>Shop</small>Feathers</span><span class="ar">→</span>
+      <span class="it"><small>Fletching</small>Headless Arrows</span><span class="ar">+</span>
+      <span class="it"><small>Smithing</small>Arrowtips</span><span class="ar">→</span>
+      <span class="it"><small>Fletching</small>Adamant Arrows</span><span class="ar">→</span>
+      <span class="it"><small>Combat</small>Ranged XP</span>
+    </div>
+    <p>One Adamantite Bar needs six Coal, and a 1,000-arrow restock took about 67 bars and 400 Coal. A refill touches four skills before a single arrow is fired.</p>
+
+    <h4>Weapons, armor and food</h4>
+    <div class="chain" aria-label="Bow chain">
+      <span class="it"><small>Woodcutting</small>Logs</span><span class="ar">→</span>
+      <span class="it"><small>Fletching</small>Longbow (u)</span><span class="ar">+</span>
+      <span class="it"><small>Shop</small>Bowstring</span><span class="ar">→</span>
+      <span class="it"><small>Equip</small>Longbow</span>
+    </div>
+    <div class="chain" aria-label="Leather and food chain">
+      <span class="it"><small>Combat</small>Cows</span><span class="ar">→</span>
+      <span class="it"><small>Drop</small>Leather</span><span class="ar">→</span>
+      <span class="it"><small>Crafting</small>Hard Leather armor</span>
+      <span class="ar">·</span>
+      <span class="it"><small>Drop</small>Raw Beef</span><span class="ar">→</span>
+      <span class="it"><small>Cooking</small>Beef</span><span class="ar">→</span>
+      <span class="it"><small>Combat</small>food</span>
+    </div>
+    <div class="chain" aria-label="Jewelry chain">
+      <span class="it"><small>Mining</small>Silver Ore</span><span class="ar">→</span>
+      <span class="it"><small>Smithing</small>Silver Bar</span><span class="ar">+</span>
+      <span class="it"><small>Mining drop</small>Emerald</span><span class="ar">→</span>
+      <span class="it"><small>Crafting</small>Silver Emerald Necklace</span><span class="ar">→</span>
+      <span class="it"><small>Effect</small>+5% ammo kept</span>
+    </div>
+    <p>Each chain has computable economics (XP per material, materials per hour, arrows per kill, food per arrow) and a few real judgment calls on top: which chain to feed now, what a material is worth keeping, how much risk a fight is worth.</p>
+
+    <h2>Milestones: the character's plan</h2>
+    <p>Claude owns the character's direction and writes it down as <strong>milestones</strong> in chapters: concrete, code-checkable goals such as "Ranged 55", "1,000 Adamant Arrows (quiver + bank)" or "wear the Yew Longbow". Code checks which are done; the decision model works on the first unfinished one; when a chapter closes, the watcher wakes Claude to write the next.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Chapter</th><th>Theme</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>First steps</td><td>Fill a quiver, first hunt, a full leather set, an Oak bow</td></tr>
+        <tr><td>2</td><td>Iron ranger</td><td>300 Iron Arrows, Ranged 20, Willow Shortbow</td></tr>
+        <tr><td>3</td><td>Hard-leather ranger</td><td>Cooked food stock, Hard Leather armor, Ranged 30, Steel Arrows</td></tr>
+        <tr><td>4</td><td>Steel ranger</td><td>Hard Leather Body, Silver Emerald Ring, Maple Longbow, Ranged 40</td></tr>
+        <tr><td>5</td><td>Mithril ranger</td><td>Emerald necklace for ammo preservation, 1,000 Mithril Arrows, Ranged 50</td></tr>
+        <tr><td>6</td><td>Adamant ranger</td><td>Mining 70, Smithing 58, 1,000 Adamant Arrows, Ranged 55</td></tr>
+        <tr><td>7</td><td>Yew ranger</td><td>Woodcutting 60, Fletching 70, Yew Longbow, Ranged 60 (in progress)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Beside the chapters sit <strong>standing goals</strong> that keep supplies healthy: 1,000 arrows of the current tier and 150 cooked food. By October 13, 2026, 29 of the 34 milestones were done. Combat level was 53, with Ranged 55, Fletching 61, Mining 70 and Smithing 59, all from a fresh start four days earlier.</p>
+
+    <h2>How the agent is wired</h2>
+    <p>Claude plays the real web game in a Chrome tab and clicks through its UI like a person. It never edits the save or calls game functions to skip work. Five parts do the rest:</p>
+    <div class="archmap" role="img" aria-label="Architecture: the game tab with jevkit and its one-second guard posts state to a local bridge; the bridge runs the brain, which asks Jev; Claude, woken by a watcher, clicks the planned steps in the tab.">
+      <div class="tcard code"><span class="tag code">Code</span><h4>Game tab + jevkit</h4><p>A script installed in the page. It reads state, lists legal actions, plans multi-step chains, locates buttons on screen, verifies outcomes, and runs a <strong>1-second guard</strong>.</p></div>
+      <div class="link"><b>⇄</b>state and<br>decisions</div>
+      <div class="tcard code"><span class="tag code">Code</span><h4>Bridge + brain</h4><p>A small local server. The brain turns state into questions, applies code policies, combines Jev's scores with explicit weights and logs every tick.</p></div>
+      <div class="link"><b>⇄</b>one call<br>per tick</div>
+      <div class="tcard jev"><span class="tag jev">Jev</span><h4>Decision model</h4><p>Scores targets and one-off actions, rates item usefulness, says how soon to look again, and flags novelty and doubt.</p></div>
+    </div>
+    <div class="archmap" role="img" aria-label="The watcher polls the bridge and wakes Claude on events; Claude clicks the steps and escalates to the human only across fixed lines.">
+      <div class="tcard code"><span class="tag code">Code</span><h4>Watcher</h4><p>Polls the bridge every 2 seconds and prints one line per new condition: idle, escalate, stale, hidden tab, milestone, low HP, old save.</p></div>
+      <div class="link"><b>⇄</b>events<br>wake it</div>
+      <div class="tcard llm"><span class="tag llm">LLM</span><h4>Claude (Claude Code)</h4><p>Runs a self-paced loop. On each wake it ticks, clicks the planned steps, checks them, and turns each escalation into a fix in code or context.</p></div>
+      <div class="link"><b>⇄</b>rare<br>questions</div>
+      <div class="tcard human"><span class="tag human">Human</span><h4>The owner</h4><p>Asks questions, approves policies with real trade-offs, keeps the window visible, and owns money and account decisions.</p></div>
+    </div>
+
+    <div class="statrow">
+      <div class="stat"><div class="k">Run</div><div class="v">5 days</div><div class="s">Oct 9–13, 2026, five sessions</div></div>
+      <div class="stat"><div class="k">Logged ticks</div><div class="v">714</div><div class="s">each with state, questions, answers, decision</div></div>
+      <div class="stat"><div class="k">Resolved escalations</div><div class="v">51</div><div class="s">each with detail and the fix</div></div>
+      <div class="stat"><div class="k">jevkit versions</div><div class="v">49</div><div class="s">most of them push-downs</div></div>
+    </div>
+    <p>Jev cost about $0.0009 per tick in the first session's measurement. Each tick is now two calls: the decision and a separate doubt check. Claude's wakes, not Jev calls, are the scarce resource. That shapes a lot of the design in <a href="melvor-cascade.html">part 3</a>.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="melvor-why.html">Why a game?</a> What makes Melvor a good place to learn the cascade, and where it falls short of real stakes.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="novelty-and-doubt.html"><span>Previous</span>Novelty and doubt</a><a class="pager-next" href="melvor-why.html"><span>Next</span>Why a game is a good teacher</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Push-downs: how the cascade learned · Decision Tier</title>
+<meta name="description" content="Fifty-one resolved escalations from the Melvor agent: who caught each one, where the fix landed, and the case studies behind the code.">
+<meta property="og:title" content="Push-downs: how the cascade learned · Decision Tier">
+<meta property="og:description" content="Fifty-one resolved escalations from the Melvor agent: who caught each one, where the fix landed, and the case studies behind the code.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/melvor-pushdowns.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html" aria-current="page">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 4 of 4 · how it learned</p>
+    <h1>Push-downs: how the cascade learned</h1>
+    <p class="lede">The rule that makes a cascade get cheaper over time: every escalation ends with a change in a lower tier, so the same situation is routine next time. Over five days the Melvor agent logged 51 resolved escalations, each with what happened and what changed. This page shows who caught each kind of problem, where the fix landed, and the case studies behind most of the code.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span><span class="tag code">Code</span> guards, planner, policies</span>
+      <span><span class="tag jev">Jev</span> decision model</span>
+      <span><span class="tag llm">LLM</span> Claude</span>
+      <span><span class="tag human">Human</span> the owner</span>
+      <span><span class="tag env">Environment</span> browser and window</span>
+    </div>
+
+    <div class="diagram narrow" role="img" aria-label="The push-down loop. Five tiers stacked: human, LLM, Jev, code, guard. Solid arrows on the left carry escalations up. Dashed arrows on the right carry fixes down from the LLM: playbook lines and milestones to Jev's context, and planner rules, policies and guards to code. 43 of 51 fixes changed code; 7 changed only context.">
+      <svg viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="pu" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+          <marker id="pd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-code"/></marker>
+        </defs>
+        <rect x="190" y="20" width="260" height="68" rx="12" class="b-human"/>
+        <text x="320" y="50" text-anchor="middle" font-size="19" font-weight="700">Human</text>
+        <text x="320" y="74" text-anchor="middle" font-size="14" class="muted">money · accounts · preferences</text>
+        <rect x="190" y="118" width="260" height="68" rx="12" class="b-llm"/>
+        <text x="320" y="148" text-anchor="middle" font-size="19" font-weight="700">LLM (Claude)</text>
+        <text x="320" y="172" text-anchor="middle" font-size="14" class="muted">inspect · decide · fix below</text>
+        <rect x="190" y="216" width="260" height="68" rx="12" class="b-jev"/>
+        <text x="320" y="246" text-anchor="middle" font-size="19" font-weight="700">Jev</text>
+        <text x="320" y="270" text-anchor="middle" font-size="14" class="muted">judges against its context</text>
+        <rect x="190" y="314" width="260" height="68" rx="12" class="b-code"/>
+        <text x="320" y="344" text-anchor="middle" font-size="19" font-weight="700">Code</text>
+        <text x="320" y="368" text-anchor="middle" font-size="14" class="muted">planner · policies · verify</text>
+        <rect x="190" y="412" width="260" height="68" rx="12" class="b-code"/>
+        <text x="320" y="442" text-anchor="middle" font-size="19" font-weight="700">Guard</text>
+        <text x="320" y="466" text-anchor="middle" font-size="14" class="muted">every second, in the page</text>
+
+        <path d="M180 348 C 140 348, 140 250, 184 250" class="up" marker-end="url(#pu)"/>
+        <text x="10" y="292" font-size="14">step fails,</text><text x="10" y="310" font-size="14">verify fails</text>
+        <path d="M180 250 C 140 250, 140 152, 184 152" class="up" marker-end="url(#pu)"/>
+        <text x="10" y="194" font-size="14">check &gt; 0.7,</text><text x="10" y="212" font-size="14">watch band</text>
+        <path d="M180 152 C 140 152, 140 54, 184 54" class="up" marker-end="url(#pu)"/>
+        <text x="10" y="96" font-size="14">money, accounts,</text><text x="10" y="114" font-size="14">preferences</text>
+
+        <path d="M456 156 C 490 162, 490 244, 458 250" class="down" marker-end="url(#pd)"/>
+        <path d="M456 164 C 535 176, 535 334, 458 346" class="down" marker-end="url(#pd)"/>
+        <path d="M456 172 C 580 190, 580 428, 458 444" class="down" marker-end="url(#pd)"/>
+        <text x="600" y="244" font-size="14" class="x-code">playbook lines,</text><text x="600" y="262" font-size="14" class="x-code">milestones (7)</text>
+        <text x="600" y="342" font-size="14" class="x-code">planner rules,</text><text x="600" y="360" font-size="14" class="x-code">policies (43)</text>
+        <text x="600" y="440" font-size="14" class="x-code">guard rules</text><text x="600" y="458" font-size="14" class="x-code">(within the 43)</text>
+        <text x="380" y="508" text-anchor="middle" font-size="14" class="muted">Solid: escalation goes up. Dashed: the resolution becomes a lower-tier change.</text>
+      </svg>
+    </div>
+
+    <h2>Who caught it</h2>
+    <p>Of the 51 resolved escalations, here is which tier first noticed the problem:</p>
+    <div class="bar100" role="img" aria-label="Who caught it: LLM audit 37, code triggers 4, Jev above 0.7 4, Jev watch band 1, human 5.">
+      <span class="llm" style="width:72.5%"></span><span class="code" style="width:7.8%"></span><span class="jev" style="width:9.8%"></span><span class="human" style="width:9.8%"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Caught by</th><th class="num">Count</th><th>What it looked like</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag llm">LLM</span> Claude's own audit</td><td class="num">37</td><td>Claude read the plan's stated reasons, the outcome or the efficiency and found a gap; Jev's doubt was usually low</td></tr>
+        <tr><td><span class="tag jev">Jev</span> a check above 0.7</td><td class="num">4</td><td>Doubt 0.74, 0.78, 0.84; novelty 0.71</td></tr>
+        <tr><td><span class="tag jev">Jev</span> the watch band</td><td class="num">1</td><td>Novelty 0.62 and doubt 0.58, rising across a restock; logged as its own kind of catch</td></tr>
+        <tr><td><span class="tag code">Code</span> a watcher or milestone trigger</td><td class="num">4</td><td>Stale snapshots (twice) and a finished chapter (twice)</td></tr>
+        <tr><td><span class="tag human">Human</span> the owner's questions</td><td class="num">5</td><td>"What should we be using money for?", "Why am I not wearing a Mithril Helmet?", "Is melee better for farming drops?", approving a death-risk policy, and asking for Farming, Township and Agility support</td></tr>
+      </tbody>
+    </table></div>
+    <p>Watch-band readings also show up inside Claude's audits: doubt rising to 0.64 in a buying loop, doubt flat at 0.60–0.63 on one pick, doubt 0.61 on a weak training recipe. In all, sub-threshold Jev readings were part of the evidence in at least 3 of the 37 audit catches.</p>
+
+    <h2>Where the fix landed</h2>
+    <div class="bar100" role="img" aria-label="Where fixes landed: code 43, context only 7, documentation and a request to the owner 1.">
+      <span class="code" style="width:84.3%"></span><span class="jev" style="width:13.7%"></span><span class="human" style="width:2%"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Fix</th><th class="num">Count</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag code">Code</span> planner rules, policies, guards, verify, watcher</td><td class="num">43</td><td>Batch sizing, restock sizing, risk guard, gear audit, measured target choice</td></tr>
+        <tr><td><span class="tag jev">Jev's context</span> playbook lines or milestones only</td><td class="num">7</td><td>"Older arrow tiers are surplus once the better tier is worn"; a new milestone chapter</td></tr>
+        <tr><td><span class="tag human">Human</span> documentation and a request</td><td class="num">1</td><td>Keep the game window visible</td></tr>
+      </tbody>
+    </table></div>
+    <div class="big-rule">The decision model judges the options it is given. Most problems were in the options, so most fixes were in code.</div>
+
+    <h2>When Jev caught it</h2>
+    <div class="tcards">
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">Jev doubt 0.79</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>The 2% bow</h4>
+        <p>The planner's first source for an Oak Shortbow was a monster that drops it once in about 50 kills. Doubt vetoed it. Fix: drops at 10% or more per kill count as a source; rarer drops come only after buying and level training.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">Jev doubt 0.78</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>Selling what you're making</h4>
+        <p>The surplus-gear policy wanted to sell Leather Chaps every tick while Crafting was making them for XP. Fix: surplus sales need a nearly full bank and skip whatever the current action produces.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">Jev doubt 0.84</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>A ring with a rare input</h4>
+        <p>Crafting training picked the Gold Ruby Ring as the best XP per material, but its only gold source was a rare drop. Fix: rare-drop steps are tagged, and training skips recipes that need one. The next pick scored doubt 0.41 with no escalation.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">Jev novelty 0.71</span>→<span class="tag llm">LLM</span>→<span class="tag jev">Playbook</span></div>
+        <h4>First time an ammo tier retired</h4>
+        <p>After moving to Steel Arrows, Jev chose to sell 203 Bronze Arrows and old boots, and flagged it as new. Approved, and the playbook gained "older tiers are surplus once the better tier is worn". Retiring old armor later: novelty 0.35, no escalation.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">Jev doubt 0.74</span>→<span class="tag llm">LLM</span>→<span class="tag jev">Playbook</span></div>
+        <h4>A large, correct sale</h4>
+        <p>Selling 247 Leather Chaps made for XP at a nearly full bank. It was fine, and approved for 18,525 gold. One playbook line ("XP-crafted gear stacks are surplus") brought the next similar sale to 0.35.</p>
+      </div>
+    </div>
+
+    <h2>When the watch band pointed at it</h2>
+    <div class="tcards">
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">doubt 0.60–0.63 ×3</span>→<span class="tag llm">LLM</span>→<span class="tag jev">Playbook</span></div>
+        <h4>A playbook that contradicted itself</h4>
+        <p>Jev kept picking Cows for Ranged training and doubting it each time, below the line. A playbook line said to prefer magic monsters, but none were safe. Adding the safety condition took doubt to 0.51, then 0.46.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">doubt rising to 0.64</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>A buying loop</h4>
+        <p>An ammo bootstrap kept buying 300 Feathers whenever arrows were low, but the real block was Arrowtips; Headless Arrows piled up to 525. Fix: the bootstrap also requires few Headless Arrows.</p>
+      </div>
+      <div class="tcard jev">
+        <div class="shift"><span class="tag jev">novelty 0.62 · doubt 0.58</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>A full restock for a small remainder</h4>
+        <p>With 2,575 XP left to a milestone, the planner set out to make a standard 1,000 arrows. Both readings rose across the refill. Fix: when the milestone needs fewer arrows than the standard restock, make what it needs (at least 50).</p>
+      </div>
+    </div>
+
+    <h2>Planner gaps Jev couldn't see</h2>
+    <p>These reached Claude with doubt around 0.27–0.35. Jev picked the best of the options offered, but the option generator was wrong. Each was found by Claude reading the plan's reasons or the outcome, and each became a planner rule.</p>
+    <div class="tcards">
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>Checked one craft, not the run</h4>
+        <p>36 Feathers passed a "can make at least once" test, so the restock rule never ran. Fix: check inputs for the whole run and buy what's short first.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>Batch the chain</h4>
+        <p>300 Headless Arrows but 90 Arrowtips would make 90 arrows, then a short fight. Fix: when a made input covers under half the run, make it first.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>One over the line</h4>
+        <p>51 Feathers sat one above a "restock below 50" rule, which was enough for only 45 of the next 300 arrows. Fix: restock below one full batch.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span> <span class="tag jev">Milestones</span></div>
+        <h4>Batch sizes set the wake rate</h4>
+        <p>A fixed batch of 120 meant about 12 rounds to Crafting 50; sizing it to the XP still needed (capped at 400) cut that to about 4. Raising the standing ammo goal from 300 to 1,000 cut about 16 refill cycles to about 5. Restocks now buy for the whole run, one purchase of 800 instead of three of 300.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>From hardcoded to measured targets</h4>
+        <p>Ranged training was hardcoded to Cows, which wasted damage: max hit 118 against 80 HP. Fix: pick by damage per arrow. Then add the hit chance, because the model assumed every arrow hits. Finally, measured XP per arrow beats the model once both monsters have 50+ logged arrows. Measured 13.6 against 14.45 sent it back to the better monster.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>The wrong training metric</h4>
+        <p>Smithing training offered Iron Daggers at 20 XP per bar while Mithril items paid 50, and one option counted XP per bar while ignoring the ore and coal behind each bar. Fix: rank by XP per unit still to be gathered, one recipe level down.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>Remembered recipe choices</h4>
+        <p>Arrow Shafts can use any log; the panel kept the last choice (Willow) with 0 Willow Logs in the bank. Fix: read the game's per-recipe choice and pick the in-stock option. A related fix skips the category and recipe clicks when the recipe is already selected, which saved 2 of 4 steps on a restart.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>Verify that understands deliberate stops</h4>
+        <p>Every Ranged round ended in a false failure, because the guard flees when the quiver is empty. Fix: guard and planner stops are recorded, and verify accepts them as success.</p>
+      </div>
+      <div class="tcard code">
+        <div class="shift"><span class="tag llm">LLM audit</span>→<span class="tag code">Code</span></div>
+        <h4>Vanishing arrows</h4>
+        <p>Crafts used their inputs and produced nothing: the bank was full, and the game discarded the output. Fix: a policy that buys bank slots before making anything when the bank is full. It later became "buy when two or fewer slots are free and gold is 2.5× the price".</p>
+      </div>
+    </div>
+
+    <h2>When the environment broke</h2>
+    <div class="tcards">
+      <div class="tcard env">
+        <div class="shift"><span class="tag env">Environment</span>→<span class="tag code">Code</span> <span class="tag human">Human</span></div>
+        <h4>Hidden tab, stalled game</h4>
+        <p>The watcher reported stale snapshots four times. A per-second probe showed the tab going hidden for 32 seconds; the game paused, then ran an offline catch-up that ended fights. Fixes: status carries <code>hidden</code>, the watcher emits a <code>hidden</code> event, a resume guard restarts the fight, and the owner keeps the window visible.</p>
+      </div>
+      <div class="tcard env">
+        <div class="shift"><span class="tag env">Environment</span>→<span class="tag code">Code</span></div>
+        <h4>The wrong active tab</h4>
+        <p>Opening a fresh browser window left a blank New Tab active, so clicks missed the game. Fix: a startup script closes blank tabs in the game's window and brings the game forward.</p>
+      </div>
+      <div class="tcard env">
+        <div class="shift"><span class="tag env">Environment</span>→<span class="tag code">Code</span></div>
+        <h4>The window shrank</h4>
+        <p>At 844×476 the game folded its sidebar and switched to a mobile layout, so a sidebar button sat at x = −422. Fixes: <code>locate</code> returns the sidebar toggle when a target is off-screen, and takes the click tool's frame width so coordinates match after a resize.</p>
+      </div>
+      <div class="tcard env">
+        <div class="shift"><span class="tag env">Environment</span>→<span class="tag code">Code</span></div>
+        <h4>Saves that never happened</h4>
+        <p>Force Save clicks missed for four hours unnoticed (stale coordinates, no check). Fixes: status reports minutes since the last cloud save, the watcher fires <code>save-old</code> at an hour, and every save is confirmed by the header resetting.</p>
+      </div>
+      <div class="tcard env">
+        <div class="shift"><span class="tag env">Environment</span>→<span class="tag code">Code</span></div>
+        <h4>The page moved under the cursor</h4>
+        <p>Scroll anchoring shifted the page between locating a button and clicking it, so Loot All was missed by about 37 px. Fix: turn off scroll anchoring, and always locate a step right before clicking it.</p>
+      </div>
+    </div>
+
+    <h2>When the human asked</h2>
+    <div class="tcards">
+      <div class="tcard human">
+        <div class="shift"><span class="tag human">Human</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>"What should we be using money for?"</h4>
+        <p>Answering it showed that no tool beyond Iron had ever been bought, though thousands of logs had been cut. No tier was comparing tools. Fix: a policy that buys the next axe, pickaxe or rod tier when it costs at most 25% of gold.</p>
+      </div>
+      <div class="tcard human">
+        <div class="shift"><span class="tag human">Human</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>"Why am I not wearing a Mithril Helmet?"</h4>
+        <p>Milestones named gear by hand, so nothing compared owned armor. Fix: a gear audit that scores pieces for the attack style, plus defence weighted by how dangerous the current enemy is. Under that score the Hard Leather Cowl correctly beats the Mithril Helmet against weak hitters.</p>
+      </div>
+      <div class="tcard human">
+        <div class="shift"><span class="tag human">Human approves</span>→<span class="tag code">Code guard</span></div>
+        <h4>A death-risk policy</h4>
+        <p>Harder monsters pay more XP per arrow but can kill. The owner approved a plan, and it became code: flee if one enemy hit can take 40% of max HP, log arrows, food and deaths per monster, and discount XP by food eaten. Trials: one monster paid 19.6 XP an arrow but ate 1.9 food an arrow, so it was excluded; another paid 16.3 at 0.94.</p>
+      </div>
+      <div class="tcard human">
+        <div class="shift"><span class="tag human">Human</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>"Is melee better for farming drops?"</h4>
+        <p>Arrows were the bottleneck at 3.4 arrows per Leather. Character decision: farm drops with a blade. Fight steps now carry the weapon they want, and the brain swaps weapons first.</p>
+      </div>
+      <div class="tcard human">
+        <div class="shift"><span class="tag human">Human</span>→<span class="tag llm">LLM</span>→<span class="tag code">Code</span></div>
+        <h4>"Let's explore farming as passive income"</h4>
+        <p>Farming chores have computable answers, so they went straight to code: harvest grown plots, clear dead ones, plant the highest-level seed, and unlock plots while they're cheap compared with gold. They click inside each plot card to avoid the paid "all plots" buttons.</p>
+      </div>
+    </div>
+
+    <h2>What stays human</h2>
+    <p>The runbook draws the human line in a few places, and nothing in five days moved it:</p>
+    <ul>
+      <li><strong>Real money</strong> and anything bought outside the game.</li>
+      <li><strong>The account and its settings</strong>, and the owner's own save slot, which the agent never loads.</li>
+      <li><strong>Anything irreversible outside the game.</strong> Inside the game, even expensive one-way choices stay with Claude. One example is a Township worship that costs 50M gold to change. The owner delegated the character.</li>
+      <li><strong>Preferences</strong>: how the owner wants the character to play, and policies with real trade-offs, such as how much death risk is acceptable.</li>
+      <li><strong>The physical environment</strong>: a covered or minimized window is the one failure no code can fix.</li>
+    </ul>
+
+    <h2>Lessons from the push-down log</h2>
+    <ol class="steps">
+      <li><strong>Audit plans, not just doubt.</strong> 37 of 51 catches came from the LLM reading plans and outcomes. Doubt can't see a bad option generator.</li>
+      <li><strong>Most fixes belong in code.</strong> 43 of 51 changed code. When a question has a computable answer, or Jev is wrong in a consistent direction, it moves down.</li>
+      <li><strong>Context fixes are cheap and measurable.</strong> One playbook line moved doubt from 0.74 to 0.35, or 0.63 to 0.46. Doubt works as a metric for context changes.</li>
+      <li><strong>Read the watch band.</strong> Flat mid-band doubt meant a context conflict, rising doubt meant a loop, and both stayed under 0.7.</li>
+      <li><strong>Sizes set the wake rate.</strong> Batches, restocks and standing goals sized to the real need cut LLM wakes by about a factor of three each time.</li>
+      <li><strong>The environment is its own failure class.</strong> Tabs, windows, layouts and saves each got a detector in code and a clear hand-off to a human.</li>
+    </ol>
+
+    <div class="callout note"><p><strong>Back to the general pattern:</strong> <a href="cascade.html">The cascade</a> and <a href="novelty-and-doubt.html">Novelty and doubt</a> state these lessons without the game. Want to build one? <a href="build.html">Build your own</a>.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="melvor-cascade.html"><span>Previous</span>The Melvor cascade, built</a><a class="pager-next" href="compare.html"><span>Next</span>Four ways compared</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -21,6 +21,10 @@ PAGES = [
     ("301.html", "301 · Engineering", "L3", "Decision models 301", "Engineering a decision tier: evaluation, thresholds per model, drift, adapters and operations."),
     ("cascade.html", "The cascade", "Arch", "The cascade", "Code, decision model, LLM, human: what each tier does, what escalates and how fixes flow down."),
     ("novelty-and-doubt.html", "Novelty & doubt", "Arch", "Novelty and doubt", "A decision model's own escalation signals: what each catches, the watch band and what doubt can't see."),
+    ("melvor.html", "1 · The testbed", "Case", "Melvor Idle, the testbed", "The case study's testbed: what an idle game is, Melvor's skills and production chains, the ranger character and how the agent is wired."),
+    ("melvor-why.html", "2 · Why a game?", "Case", "Why a game is a good teacher", "Why Melvor Idle is a good place to learn the code, decision model, LLM, human cascade, and how it compares with the email project."),
+    ("melvor-cascade.html", "3 · The cascade, built", "Case", "The Melvor cascade, built", "The Melvor agent's cascade: per-tick flow, the one-second guard, color-coded pseudo-code, the questions Jev answers and measured rates."),
+    ("melvor-pushdowns.html", "4 · Push-downs", "Case", "Push-downs: how the cascade learned", "Fifty-one resolved escalations from the Melvor agent: who caught each one, where the fix landed, and the case studies behind the code."),
     ("compare.html", "Four ways compared", "Data", "Four ways compared", "Jev, OpenAI's Decisions API, open-weight decision models and Claude Haiku 5.5 on the same benchmarks."),
     ("cost.html", "Cost ladder", "Data", "The cost ladder", "Normalized cost from Jev to the Decisions API, Haiku, Sonnet, Opus, Fable and a human, with a calculator."),
     ("landscape.html", "Landscape · Oct 2026", "Data", "Landscape, October 2026", "A refresh of the decision-model landscape: latest Claude releases, OpenAI Decisions and open weights."),
@@ -30,6 +34,7 @@ PAGES = [
 NAV_GROUPS = [
     ("Learn", ["eli5.html", "101.html", "201.html", "301.html"]),
     ("Architecture", ["cascade.html", "novelty-and-doubt.html"]),
+    ("Case study: Melvor", ["melvor.html", "melvor-why.html", "melvor-cascade.html", "melvor-pushdowns.html"]),
     ("Evidence", ["compare.html", "cost.html", "landscape.html"]),
     ("Build", ["build.html"]),
 ]

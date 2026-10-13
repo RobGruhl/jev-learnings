@@ -1,0 +1,80 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 2 of 4 · why a game</p>
+    <h1>Why a game is a good teacher</h1>
+    <p class="lede">A cascade is a claim about where each decision belongs. To learn where things belong you need many decisions, fast feedback, and a safe place to be wrong. An idle game has all three, plus the messy browser failures that real agents meet. This page explains why Melvor Idle turned out to be a good place to learn the pattern, and where it stops being one.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span><span class="tag env">Environment</span>
+    </div>
+
+    <h2>Eight properties that make it work</h2>
+    <div class="tcards">
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>1. Most decisions have computable answers</h3>
+        <p>XP per hour, XP per material, gold per item, arrows per kill, food per arrow, inputs for a 1,000-unit run: the game exposes every number. That makes it easy to <strong>see when a judgment model or an LLM is wasted</strong>. If code can compute the answer, the question moves down to code.</p>
+        <p>Example: "which monster to train on" started as a judgment and became a damage-per-arrow model, then a measured XP-per-arrow log.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>2. A residue of real judgment remains</h3>
+        <p>Some questions have no formula: is this target worth working on now or later, is this item likely to be useful to the plan, would a careful player object to this move. Those are exactly the bounded calls a decision model is for. They stay with Jev, phrased narrowly and scored per option.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span> <span class="tag code">Code</span>
+        <h3>3. Volume makes tier rates measurable</h3>
+        <p>The loop decided 714 times in five days, and every tick was logged with its state, questions, answers and decision. At that volume you can count things: how often code policies decide (about 17% of ticks), where novelty and doubt sit (median 0.46 and 0.38), how many readings cross the 0.7 line (7 of about 1,240). A handful of decisions would only give you anecdotes.</p>
+      </div>
+      <div class="tcard llm">
+        <span class="tag llm">LLM</span> <span class="tag jev">Jev</span>
+        <h3>4. Mistakes are cheap and reversible</h3>
+        <p>A wasted batch costs minutes; a bad sale costs a little gold. That makes it safe to <strong>let the lower tiers act</strong> rather than gating everything on review. You find the planner's blind spots by watching it run, not by imagining them.</p>
+      </div>
+      <div class="tcard env">
+        <span class="tag env">Environment</span>
+        <h3>5. Real environment failures happen</h3>
+        <p>A background tab gets throttled and fights stall. A narrow window switches the game to its mobile layout and buttons move. A new tab steals focus. A save button click misses and nobody notices for four hours. These are not simulated; each one became a watcher event or a code fix.</p>
+      </div>
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>6. Clear outcomes give verifiable feedback</h3>
+        <p>Did the bar count go up? Is the bow worn? Did the gold go down after a purchase? Every action has an observable effect within seconds. So verification can check <strong>outcomes, not starts</strong>, and a failed check is a precise error report rather than a vague sense that something went wrong.</p>
+      </div>
+      <div class="tcard human">
+        <span class="tag human">Human</span>
+        <h3>7. Natural human-only lines</h3>
+        <p>The game sits inside things that are clearly not the agent's: real money (the game has paid content), the account and its settings, the owner's own save slot, and the owner's preferences about how the character should play. Those lines are easy to state and easy to keep, which makes the top of the cascade unambiguous.</p>
+      </div>
+      <div class="tcard llm">
+        <span class="tag llm">LLM</span>
+        <h3>8. Long horizons need planning, not just reflexes</h3>
+        <p>Goals take hours to days, and every goal feeds others: arrows need bars, bars need coal, coal needs mining time. That gives the LLM a real job above the decision model (writing milestones, auditing plans, fixing the planner) without putting it in the hot path.</p>
+      </div>
+    </div>
+
+    <h2>What the testbed taught that a benchmark couldn't</h2>
+    <ul>
+      <li><strong>The decision model can't see planner gaps.</strong> Most bad plans reached Claude with doubt at only 0.27–0.35. Jev judged the options it was given, and the option generator was at fault. You only learn this by running a planner for days. See <a href="melvor-pushdowns.html">part 4</a>.</li>
+      <li><strong>LLM wakes are the scarce resource.</strong> Batch and restock sizes set how often Claude has to wake. A fixed batch of 120 meant about 12 rounds to one target; sizing it to the remaining need cut that to about 4.</li>
+      <li><strong>Sub-threshold readings carry signal.</strong> Doubt sitting at 0.60–0.63 three ticks in a row pointed to a contradiction in the playbook. A fixed 0.7 gate would never have reported it.</li>
+      <li><strong>Safety belongs in the fastest tier.</strong> A Cow took the character from 102 HP to 6 between two LLM wakes. The in-page guard, which checks every second, exists because of that.</li>
+    </ul>
+
+    <h2>Same pattern, different stakes: Melvor against the email project</h2>
+    <p>The other project on this site is an email first pass over a personal inbox. It uses the same cascade shape, with code, Jev, the LLM and a person. The stakes put the weight in different places:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th>Melvor agent</th><th>Email first pass</th></tr></thead>
+      <tbody>
+        <tr><td><strong>What a decision does</strong></td><td>Acts: starts a job, buys, sells, equips, clicks</td><td>Sorts: decides how much LLM and human attention a message gets</td></tr>
+        <tr><td><strong>Cost of a mistake</strong></td><td>Minutes or a little gold; almost always reversible</td><td>A missed obligation (a deadline, a failed payment) can be costly and is noticed late</td></tr>
+        <tr><td><strong>Feedback</strong></td><td>Seconds: the count went up or it didn't</td><td>Weeks: blind labels on held-out months</td></tr>
+        <tr><td><strong>Code's role</strong></td><td>Large: planner, policies, verification, a 1-second guard</td><td>Rules run beside the model and add facts; they may only keep mail <em>out of</em> the zero-token buckets</td></tr>
+        <tr><td><strong>Jev's role</strong></td><td>Priorities and worth-it calls on every tick, plus novelty and doubt</td><td>Concept detection (deadline, payment, waiting on a reply) as features for a learned sorter</td></tr>
+        <tr><td><strong>How it's measured</strong></td><td>Tier rates, doubt distributions, escalations and their fixes</td><td>AUCs per concept and the share of mail filtered at a fixed number of missed actions (58.9% at 1 miss)</td></tr>
+        <tr><td><strong>The human tier</strong></td><td>Thin: money, accounts, preferences, the visible window</td><td>The point: misses go to the person, so the threshold is set by how many they'll tolerate</td></tr>
+      </tbody>
+    </table></div>
+    <p>The game is where you learn the <strong>mechanics</strong>: what to push down, how to phrase questions, how to read doubt, how to keep wakes rare. Email is where you learn the <strong>stakes</strong>: holding out data, blind labels, and thresholds set by what a miss costs. A cascade for real work needs both lessons.</p>
+
+    <div class="callout warn"><p><strong>Where a game falls short.</strong> Reversible mistakes make it easy to be brave. In a domain where an error can't be undone, the same design needs a stricter gate at each tier, outcome checks before the action as well as after, and a human tier that is the default for anything new, not the exception.</p></div>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="melvor-cascade.html">The Melvor cascade, built</a>: the per-tick flow, the guard, the questions Jev answers and how escalation works, in color-coded pseudo-code.</p></div>

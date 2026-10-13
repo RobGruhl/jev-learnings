@@ -1,0 +1,151 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 3 of 4 · architecture</p>
+    <h1>The Melvor cascade, built</h1>
+    <p class="lede">How code, Jev, Claude and a person share the work of playing Melvor Idle for days. Each part below has a diagram or color-coded pseudo-code. The pseudo-code is condensed from the real source, and each line is marked with the tier that runs it.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span><span class="tag code">Code</span> guards, planner, policies, verification</span>
+      <span><span class="tag jev">Jev</span> decision model calls</span>
+      <span><span class="tag llm">LLM</span> Claude</span>
+      <span><span class="tag human">Human</span> the owner</span>
+      <span><span class="tag env">Environment</span> browser and window</span>
+    </div>
+
+    <h2>The tiers in this agent</h2>
+    <div class="tier-stack">
+      <div class="tier-row human"><h4><span class="tag human">Human</span></h4><p>Real money, the account and its settings, the owner's own save slot, anything irreversible outside the game, and preferences about how the character plays. Also the one fix automation can't reach: bringing a hidden window back.</p><div class="speed">hours · rare</div></div>
+      <div class="tier-row llm"><h4><span class="tag llm">LLM</span></h4><p>Claude, woken by events. Clicks the planned steps, reviews escalations and the watch band, audits plans, writes milestones and playbook lines, and changes the code so the same escalation doesn't come back.</p><div class="speed">minutes · per wake</div></div>
+      <div class="tier-row jev"><h4><span class="tag jev">Jev</span></h4><p>One decision call per tick: target priorities (0–4), one-off actions (yes/no), item usefulness, when to look again, novelty. A second, separate call checks doubt on the chosen action. On failures it judges whether a retry makes sense.</p><div class="speed">seconds · ~$0.001 a tick</div></div>
+      <div class="tier-row code"><h4><span class="tag code">Code</span></h4><p>jevkit and brain: read state, list only legal actions, plan whole chains, size batches, apply policies that have a right answer, combine Jev's scores with explicit weights, locate buttons, verify outcomes.</p><div class="speed">milliseconds · per tick</div></div>
+      <div class="tier-row code"><h4><span class="tag code">Code · guard</span></h4><p>A 1-second loop inside the game tab: eat, flee, collect loot, stop at targets, protect reserved stock, restart a fight after a stall. It acts and logs; it never decides strategy.</p><div class="speed">every second · free</div></div>
+    </div>
+
+    <h2>One tick, end to end</h2>
+    <p>A tick is one decision: what should the character be doing now? Here is the path, colored by the tier that runs each step.</p>
+    <ol class="flow">
+      <li class="fstep llm"><span class="tag llm">LLM</span><strong>Claude wakes</strong><p>From a watcher event (idle, escalate, stale, milestone…) or a 20-minute fallback, it calls <code>jevkit.tickBrief()</code>.</p></li>
+      <li class="fstep code"><span class="tag code">Code</span><strong>Observe</strong><p>Compact state: skills, bank, gear, the running action, combat, loot, popups. Only <em>legal</em> candidate actions. The current milestone and standing goals, each with the planner's next step and why.</p></li>
+      <li class="fstep jev"><span class="tag jev">Jev</span><strong>One decision call</strong><p>Up to 32 questions over that state plus goal, playbook and milestone: score each target, yes/no each one-off, rate each sellable item's usefulness, how soon to check back, and <code>novel_situation</code>.</p></li>
+      <li class="fstep code"><span class="tag code">Code</span><strong>Decide: policies first, then weighted scores</strong><p>Computable policies win outright (dialogs, low HP, loot, farming chores, food, empty armor slots, gear upgrades, ammo, bank space, surplus). Otherwise target score = Jev's score/4 + 0.1 if it's the milestone + 0.08 if already running. The planner already chose each target's step.</p></li>
+      <li class="fstep jev"><span class="tag jev">Jev</span><strong>Doubt check, a separate call</strong><p>The chosen action, in words, goes back to Jev: "Would a careful player object to this right now?"</p></li>
+      <li class="fstep code"><span class="tag code">Code</span><strong>Gate</strong><p>Any check above 0.7 sets <code>escalate</code>. Otherwise <code>plan()</code> turns the action into UI steps: navigate, pick a category, pick a recipe, press Create.</p></li>
+      <li class="fstep llm"><span class="tag llm">LLM</span> <span class="tag code">Code</span><strong>Click</strong><p>For each step, <code>locate(step, frameWidth)</code> returns screen coordinates just before the click; Claude clicks and waits about a second.</p></li>
+      <li class="fstep code"><span class="tag code">Code</span><strong>Verify the outcome</strong><p>Is the activity running, or did its product count rise? Did the gold drop after a purchase? Is the item worn? A guard stop on purpose counts as success.</p></li>
+      <li class="fstep jev branch"><span class="tag jev">Jev</span><strong>If a step failed: recover</strong><p>Transient timing or layout issue (retry, at most twice), or an unexpected state that needs Claude?</p></li>
+      <li class="fstep llm branch"><span class="tag llm">LLM</span><strong>If escalated: Claude</strong><p>Inspect, decide, act, then fix the cause in a lower tier and log it.</p></li>
+      <li class="fstep human branch"><span class="tag human">Human</span><strong>Only across fixed lines</strong><p>Money, accounts, the owner's save, irreversible outside the game, preferences.</p></li>
+    </ol>
+    <p>Note what's missing from the hot path: Claude never chooses the action on a routine tick. It carries out a decision made by code and Jev, and it is only asked to judge when something escalates.</p>
+
+    <h2>The guard: safety in the fastest tier</h2>
+    <p>Claude wakes every few minutes at best, which is far too slow for combat. Early on, a Cow took the character from 102 HP to 6 between two wakes. The guard is a timer inside the page:</p>
+<pre class="pc"><code><span class="l code"><span class="kw">every 1 s</span> in the game tab:</span><span class="l code">  log arrows, XP, food and deaths per monster    <span class="cm"># feeds the planner's measurements</span></span><span class="l code">  <span class="kw">if</span> fighting:</span><span class="l code">    <span class="kw">if</span> ranged and the quiver is empty: run; record a deliberate stop</span><span class="l code">    <span class="kw">if</span> enemy max hit ≥ 40% of max HP: run; mark the monster unsafe</span><span class="l code">    floor = max(40% of max HP, 2 × enemy max hit)</span><span class="l code">    <span class="kw">if</span> HP &lt; floor:</span><span class="l code">      <span class="kw">if</span> this food slot is empty: switch to the next stocked slot</span><span class="l code">      eat, or run if every slot is empty   <span class="cm"># a death loses a worn item</span></span><span class="l code">    <span class="kw">if</span> 8+ loot stacks are waiting: loot all   <span class="cm"># a full container throws drops away</span></span><span class="l code">  stop the running action at the planner's target (item count or level)</span><span class="l code">  stop a recipe that would eat into reserved stock</span><span class="l code">  after an offline catch-up ended a fight: restart it</span></code></pre>
+    <p>Every rule here started as a failure found by a higher tier. The food-slot switch came from a near miss: the guard ate only from the current slot, so with that slot empty it did nothing while HP fell. The 40% risk rule came from a death-risk policy the owner approved (see <a href="melvor-pushdowns.html">part 4</a>).</p>
+
+    <h2>Deciding: policies first, judgment second</h2>
+<pre class="pc"><code><span class="l jev">answers = jev(state + goal + playbook + milestone, questions)   <span class="cm"># one call, ≤ 32 questions</span></span><span class="l code"><span class="cm"># policies with a computable answer come first</span></span><span class="l code"><span class="kw">if</span> a dialog is open:      press Jev's choice, or wait for Claude if confidence &lt; 0.6</span><span class="l code"><span class="kw">if</span> HP &lt; 40%  <span class="kw">or</span> answers.eat_now ≥ 0.6:   eat</span><span class="l code"><span class="kw">if</span> loot is waiting <span class="kw">and</span> the fight has stopped:   collect it</span><span class="l code"><span class="kw">if</span> a plot is grown / dead / empty with seeds:  harvest / clear / plant</span><span class="l code"><span class="kw">if</span> equipped food &lt; 20:   top up from the bank</span><span class="l code"><span class="kw">if</span> an armor slot is empty:   fill it   <span class="cm"># never worse than nothing</span></span><span class="l code">… gear upgrade · ammo top-up · tool upgrade · bank slots · sell surplus</span><span class="l code"><span class="cm"># otherwise Jev's priorities pick the target; the planner already picked its step</span></span><span class="l code">score(t) = answers.tgt[t] / 4 + 0.1·[t is the milestone] + 0.08·[t is running]</span><span class="l code">do = best(t).step</span></code></pre>
+    <p>Two design choices matter here. <strong>Jev picks the goal, code picks the step.</strong> Jev rates how much each target matters now. The planner works out the chain (mine, then smelt, then smith, then fletch) and sizes each batch. <strong>Weights live in code.</strong> Jev's scores are features, not verdicts, so a bias in Jev can be corrected by changing a number instead of rephrasing a question.</p>
+
+    <h2>Doubt and the escalation gate</h2>
+<pre class="pc"><code><span class="l code">chosen = describe(do)</span><span class="l code">  <span class="cm"># e.g. "Start: Fletching Arrow Shafts — the planner's next step toward 'Ammo stock'"</span></span><span class="l jev">doubt = jev(state + chosen, "Would a careful player object to this action right now?")</span><span class="l code">checks = { novel_situation, doubt_action, popup_unsure? }</span><span class="l code"><span class="kw">if</span> no milestone is left:   checks.milestones_complete = 1</span><span class="l code">log every reading to ticks.jsonl</span><span class="l llm"><span class="kw">if</span> any check &gt; 0.7:   escalate to Claude now</span><span class="l llm"><span class="kw">elif</span> a check is in 0.5–0.7:   watch band; Claude reviews it at the next wake</span></code></pre>
+    <p>Doubt is asked <em>after</em> the choice, in its own call, with the concrete action in view. Inside the decision call, novelty sat in a narrow band and rarely fired. The separate doubt call spread widely and tracked real problems. More on that in <a href="novelty-and-doubt.html">Novelty and doubt</a>.</p>
+
+    <h2>Verify and recover</h2>
+<pre class="pc"><code><span class="l code">ok = verify(lastTick)   <span class="cm"># the outcome, not the start</span></span><span class="l code">  buy    → gold went down          equip → the item is worn</span><span class="l code">  sell   → gone from the bank      food  → equipped food went up</span><span class="l code">  build  → the obstacle is built   plot  → harvested, cleared or unlocked</span><span class="l code">  action → running, or its product count rose, or a guard stopped it on purpose</span><span class="l code"><span class="kw">if</span> not ok <span class="kw">or</span> a step couldn't be located:</span><span class="l jev">  v = jev("transient timing or layout issue?", "unexpected state that needs a stronger reasoner?")</span><span class="l code">  <span class="kw">if</span> v.transient ≥ 0.6 <span class="kw">and</span> attempts &lt; 2 <span class="kw">and</span> v.needs_claude ≤ 0.7:   retry</span><span class="l llm">  <span class="kw">else</span>:   escalate to Claude (logged with state and verdict)</span></code></pre>
+    <p>The "stopped on purpose" clause matters. Before it existed, every Ranged round ended in a false failure: the guard flees when the quiver runs dry, so verify saw "fight not running" and escalated a perfectly normal ending.</p>
+
+    <h2>Each wake</h2>
+<pre class="pc"><code><span class="l llm"><span class="kw">on</span> a watcher event <span class="kw">or</span> the 20-minute fallback:</span><span class="l env">  <span class="kw">if</span> stale or hidden:   boot the bridge, reinstall jevkit, bring the tab forward</span><span class="l human">    <span class="kw">if</span> the tab still can't be brought forward:   ask the owner to click it</span><span class="l code">  brief = jevkit.tickBrief()                         <span class="cm"># observe + Jev + plan</span></span><span class="l llm">  <span class="kw">if</span> brief.escalate:   inspect, decide, act, then FIX THE CAUSE BELOW and log it</span><span class="l code">  <span class="kw">for</span> step <span class="kw">in</span> brief.steps:   xy = locate(step, frameWidth)</span><span class="l llm">                            click xy; wait about 1 s</span><span class="l code">  r = verify();  <span class="kw">if</span> not r.ok:   recover(...)</span><span class="l llm">  re-tick after one-offs, sales and dismissals (up to 4 ticks a wake)</span><span class="l code">  Force Save about every 15 min; confirm the save header reset</span><span class="l human">  money · accounts · the owner's save · irreversible outside the game · preferences → stop and ask</span><span class="l llm">  report one line; schedule the fallback wake</span></code></pre>
+
+    <h2>Waking on events, not timers</h2>
+    <div class="diagram narrow" role="img" aria-label="The wake loop. The game tab's guard runs every second and posts status every 3 seconds. The watcher polls every 2 seconds and prints a line only when a condition starts. That line wakes Claude, which ticks the brain and Jev and clicks the resulting steps back into the tab. If nothing changes, nobody wakes.">
+      <svg viewBox="0 0 640 470" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="wl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+        <rect x="20" y="20" width="260" height="130" rx="14" class="b-code"/>
+        <text x="150" y="56" text-anchor="middle" font-size="19" font-weight="700">Game tab · guard</text>
+        <text x="150" y="84" text-anchor="middle" font-size="15">every 1 s: eat, flee, loot,</text>
+        <text x="150" y="106" text-anchor="middle" font-size="15">stop at targets</text>
+        <text x="150" y="132" text-anchor="middle" font-size="14" class="muted">posts status every 3 s</text>
+
+        <rect x="360" y="20" width="260" height="130" rx="14" class="b-code"/>
+        <text x="490" y="56" text-anchor="middle" font-size="19" font-weight="700">Watcher</text>
+        <text x="490" y="84" text-anchor="middle" font-size="15">polls every 2 s; prints a line</text>
+        <text x="490" y="106" text-anchor="middle" font-size="15">only when a condition starts</text>
+        <text x="490" y="132" text-anchor="middle" font-size="14" class="muted">idle · escalate · stale · hidden …</text>
+
+        <rect x="360" y="300" width="260" height="130" rx="14" class="b-llm"/>
+        <text x="490" y="336" text-anchor="middle" font-size="19" font-weight="700">Claude wakes</text>
+        <text x="490" y="364" text-anchor="middle" font-size="15">on the event, or a 20-min</text>
+        <text x="490" y="386" text-anchor="middle" font-size="15">fallback if nothing happens</text>
+        <text x="490" y="412" text-anchor="middle" font-size="14" class="muted">tick · click · verify · fix</text>
+
+        <rect x="20" y="300" width="260" height="130" rx="14" class="b-jev"/>
+        <text x="150" y="336" text-anchor="middle" font-size="19" font-weight="700">Brain + Jev</text>
+        <text x="150" y="364" text-anchor="middle" font-size="15">policies, scores, doubt</text>
+        <text x="150" y="386" text-anchor="middle" font-size="15">→ one action, as UI steps</text>
+        <text x="150" y="412" text-anchor="middle" font-size="14" class="muted">~2 calls a tick</text>
+
+        <path d="M284 85 L354 85" class="arrow" marker-end="url(#wl)"/>
+        <path d="M490 154 L490 294" class="arrow" marker-end="url(#wl)"/>
+        <text x="500" y="230" font-size="14">event line</text>
+        <path d="M356 365 L286 365" class="arrow" marker-end="url(#wl)"/>
+        <text x="321" y="352" text-anchor="middle" font-size="14">tick</text>
+        <path d="M150 296 L150 156" class="arrow" marker-end="url(#wl)"/>
+        <text x="160" y="222" font-size="14">Claude clicks</text>
+        <text x="160" y="240" font-size="14">the steps</text>
+        <text x="320" y="458" text-anchor="middle" font-size="14" class="muted">Quiet game, quiet loop: no condition, no wake.</text>
+      </svg>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Event</th><th>Fires when</th><th>Who handles it</th></tr></thead>
+      <tbody>
+        <tr><td><code>idle</code></td><td>Nothing is running (a recipe ran out between wakes)</td><td><span class="tag llm">LLM</span> ticks for the next action</td></tr>
+        <tr><td><code>escalate</code></td><td>The last tick crossed 0.7 on a check</td><td><span class="tag llm">LLM</span> reviews and fixes the cause</td></tr>
+        <tr><td><code>milestone</code></td><td>The current milestone changed</td><td><span class="tag llm">LLM</span> saves; writes the next chapter after the last one</td></tr>
+        <tr><td><code>stale</code></td><td>No fresh snapshot for 30 s</td><td><span class="tag code">Code</span> boot script, then <span class="tag llm">LLM</span></td></tr>
+        <tr><td><code>hidden</code></td><td>The game is a background tab and stalls</td><td><span class="tag code">Code</span> focus script, then <span class="tag human">Human</span></td></tr>
+        <tr><td><code>hp-low</code></td><td>Under 30% HP in combat (the guard should have prevented it)</td><td><span class="tag llm">LLM</span> audits the guard</td></tr>
+        <tr><td><code>loot</code></td><td>20+ stacks waiting (the guard collects at 8)</td><td><span class="tag llm">LLM</span> audits the guard</td></tr>
+        <tr><td><code>save-old</code></td><td>The cloud save is an hour old</td><td><span class="tag llm">LLM</span> Force Saves and checks the header</td></tr>
+      </tbody>
+    </table></div>
+    <p>Two events, <code>hp-low</code> and <code>loot</code>, exist to catch the guard failing. A safety layer needs its own audit.</p>
+
+    <h2>What Jev is asked</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Question</th><th>Type</th><th>Asked about</th><th>How code uses the answer</th></tr></thead>
+      <tbody>
+        <tr><td><code>tgt_i</code></td><td>Score 0–4</td><td>Each actionable target (up to 8)</td><td>Weighted pick, plus milestone and stay bonuses</td></tr>
+        <tr><td><code>need_i</code></td><td>Score 0–4</td><td>Each activity, only when every target is blocked</td><td>× (0.7 + 0.3 × relative XP rate)</td></tr>
+        <tr><td><code>do_i</code></td><td>Yes/no</td><td>Each one-off: buy, equip, plant, harvest… (up to 8)</td><td>Do the best one at ≥ 0.7</td></tr>
+        <tr><td><code>use_i</code></td><td>Score 0–4</td><td>Each sellable bank item (up to 8)</td><td>Junk if use/4 ≤ 0.15, under bank pressure</td></tr>
+        <tr><td><code>check_back</code></td><td>Score 0–3</td><td>How soon to look again</td><td>5 s to 10 min, capped by when the recipe runs out</td></tr>
+        <tr><td><code>eat_now</code>, <code>popup_choice</code>, <code>tutorial_ready</code></td><td>Yes/no, choice</td><td>Only when in combat, a dialog is open, or in the tutorial</td><td>Eat at ≥ 0.6; a dialog choice under 0.6 confidence waits for Claude</td></tr>
+        <tr><td><code>novel_situation</code></td><td>Yes/no</td><td>Is this outside the goal and playbook?</td><td>&gt; 0.7 escalates</td></tr>
+        <tr><td><code>doubt_action</code></td><td>Yes/no, own call</td><td>The chosen action, in words</td><td>&gt; 0.7 escalates; 0.5–0.7 watch band</td></tr>
+        <tr><td><code>transient</code>, <code>needs_claude</code></td><td>Yes/no, on failure</td><td>A failed step and the screen state</td><td>Retry at ≥ 0.6, at most twice</td></tr>
+      </tbody>
+    </table></div>
+    <p>Shared context (goal, playbook, milestone) travels once in the state; each question just points at it. Arithmetic always beats judgment where both apply. Jev's <code>check_back</code> is overridden by the moment the current recipe will run out of inputs.</p>
+
+    <h2>What the logs say</h2>
+    <p>From all 714 ticks across the five sessions:</p>
+    <div class="statrow">
+      <div class="stat"><div class="k">Decided by a code policy</div><div class="v">118</div><div class="s">17% of ticks; the rest followed Jev's weighted scores</div></div>
+      <div class="stat"><div class="k">Novelty p10 / p50 / p90</div><div class="v">0.35 / 0.46 / 0.56</div><div class="s">622 readings; 3 above 0.7, 177 in 0.5–0.7</div></div>
+      <div class="stat"><div class="k">Doubt p10 / p50 / p90</div><div class="v">0.23 / 0.38 / 0.55</div><div class="s">621 readings; 4 above 0.7, 104 in 0.5–0.7</div></div>
+      <div class="stat"><div class="k">Escalations from ticks</div><div class="v">10</div><div class="s">doubt 4 · novelty 3 · chapter complete 3</div></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Most common code policies</th><th class="num">Ticks</th></tr></thead>
+      <tbody>
+        <tr><td>Ammo top-up (equip arrows from the bank when the quiver runs low)</td><td class="num">37</td></tr>
+        <tr><td>Collect loot (now mostly done by the guard, between ticks)</td><td class="num">24</td></tr>
+        <tr><td>Sell surplus gear under bank pressure</td><td class="num">15</td></tr>
+        <tr><td>Buy the next tool tier (axe, pickaxe, rod) when it costs ≤ 25% of gold</td><td class="num">10</td></tr>
+        <tr><td>Buy bank slots when nearly full</td><td class="num">7</td></tr>
+        <tr><td>Ammo bootstrap · fill an empty armor slot · ammo upgrade · food top-up · weapon swap · cook before fighting · farming chores</td><td class="num">25</td></tr>
+      </tbody>
+    </table></div>
+    <p>Every one of those policies began as a question Jev answered, or as a mistake an upper tier caught. Each became code once it was clear the question had a computable answer. <a href="melvor-pushdowns.html">Part 4</a> tells those stories.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="melvor-pushdowns.html">Push-downs</a>: 51 resolved escalations, who caught each one, and which tier the fix landed in.</p></div>

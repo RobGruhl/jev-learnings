@@ -135,10 +135,10 @@
         <tr><td>4</td><td>Steel ranger</td><td>Hard Leather Body, Silver Emerald Ring, Maple Longbow, Ranged 40</td></tr>
         <tr><td>5</td><td>Mithril ranger</td><td>Emerald necklace for ammo preservation, 1,000 Mithril Arrows, Ranged 50</td></tr>
         <tr><td>6</td><td>Adamant ranger</td><td>Mining 70, Smithing 58, 1,000 Adamant Arrows, Ranged 55</td></tr>
-        <tr><td>7</td><td>Yew ranger</td><td>Woodcutting 60, Fletching 70, Yew Longbow, Ranged 60 (in progress)</td></tr>
+        <tr><td>7</td><td>Yew ranger</td><td>Agility 10 and 20 with a second course obstacle, Woodcutting 60, Fletching 70, Yew Longbow, Ranged 60 (in progress), then Pipe Balance and Agility 30</td></tr>
       </tbody>
     </table></div>
-    <p>Beside the chapters sit <strong>standing goals</strong> that keep supplies healthy: 1,000 arrows of the current tier and 150 cooked food. By October 13, 2026, 29 of the 34 milestones were done. Combat level was 53, with Ranged 55, Fletching 61, Mining 70 and Smithing 59, all from a fresh start four days earlier.</p>
+    <p>Beside the chapters sit <strong>standing goals</strong> that keep supplies healthy: arrows of the current tier (raised to 2,000 for the long Ranged grind), 150 cooked food, and seed stocks for the allotment and herb plots. By October 14, 2026, 37 of the 40 milestones were done: combat level 56, with Ranged 59, Fletching 70, Smithing 60 and Farming 13, all from a fresh start five days earlier. The town, farm plots and Agility course run beside the milestones as code policies.</p>
 
     <h2>How the agent is wired</h2>
     <p>Claude plays the real web game in a Chrome tab and clicks through its UI like a person. It never edits the save or calls game functions to skip work. Five parts do the rest:</p>
@@ -158,10 +158,10 @@
     </div>
 
     <div class="statrow">
-      <div class="stat"><div class="k">Run</div><div class="v">5 days</div><div class="s">Oct 9–13, 2026, five sessions</div></div>
-      <div class="stat"><div class="k">Logged ticks</div><div class="v">714</div><div class="s">each with state, questions, answers, decision</div></div>
-      <div class="stat"><div class="k">Resolved escalations</div><div class="v">51</div><div class="s">each with detail and the fix</div></div>
-      <div class="stat"><div class="k">jevkit versions</div><div class="v">49</div><div class="s">most of them push-downs</div></div>
+      <div class="stat"><div class="k">Run</div><div class="v">6 days</div><div class="s">Oct 9–14, 2026</div></div>
+      <div class="stat"><div class="k">Logged ticks</div><div class="v">935</div><div class="s">each with state, questions, answers, decision</div></div>
+      <div class="stat"><div class="k">Resolved escalations</div><div class="v">65</div><div class="s">each with detail and the fix</div></div>
+      <div class="stat"><div class="k">jevkit versions</div><div class="v">50</div><div class="s">plus 21 later fixes, most of them push-downs</div></div>
     </div>
     <p>Jev cost about $0.0009 per tick in the first session's measurement. Each tick is now two calls: the decision and a separate doubt check. Claude's wakes, not Jev calls, are the scarce resource. That shapes a lot of the design in <a href="melvor-cascade.html">part 3</a>.</p>
 

@@ -6,6 +6,11 @@
       <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span><span class="tag env">Environment</span>
     </div>
 
+    <figure>
+      <img src="media/melvor-combat.jpg" width="1100" height="1059" style="max-width:100%; height:auto" loading="lazy" alt="Melvor Idle's Combat page mid-fight. On the left, the skill sidebar lists each skill's level out of 99. In the middle, the player's panel shows 403 of 560 HP, a food slot, combat stats and the equipment grid with a quiver of 1,137 arrows. On the right, a Tentacle from Sandy Shores at 181 of 250 HP, its stats and a loot box holding 5 of 100 stacks.">
+      <figcaption>The agent's view: one combat tick. Sidebar skills, the ranger's gear and quiver (1,137 arrows), and a Tentacle at 181/250 HP. Every number here is readable from the page, which is what makes the code tier possible.</figcaption>
+    </figure>
+
     <h2>Eight properties that make it work</h2>
     <div class="tcards">
       <div class="tcard code">
@@ -22,7 +27,7 @@
       <div class="tcard jev">
         <span class="tag jev">Jev</span> <span class="tag code">Code</span>
         <h3>3. Volume makes tier rates measurable</h3>
-        <p>The loop decided 714 times in five days, and every tick was logged with its state, questions, answers and decision. At that volume you can count things: how often code policies decide (about 17% of ticks), where novelty and doubt sit (median 0.46 and 0.38), how many readings cross the 0.7 line (7 of about 1,240). A handful of decisions would only give you anecdotes.</p>
+        <p>The loop decided 935 times in six days, and every tick was logged with its state, questions, answers and decision. At that volume you can count things: how often code policies decide (about 23% of ticks), where novelty and doubt sit (median 0.46 and 0.38), how many readings cross the 0.7 line (7 of about 1,690). A handful of decisions would only give you anecdotes.</p>
       </div>
       <div class="tcard llm">
         <span class="tag llm">LLM</span> <span class="tag jev">Jev</span>
@@ -53,7 +58,7 @@
 
     <h2>What the testbed taught that a benchmark couldn't</h2>
     <ul>
-      <li><strong>The decision model can't see planner gaps.</strong> Most bad plans reached Claude with doubt at only 0.27–0.35. Jev judged the options it was given, and the option generator was at fault. You only learn this by running a planner for days. See <a href="melvor-pushdowns.html">part 4</a>.</li>
+      <li><strong>The decision model can't see planner gaps.</strong> Most bad plans reached Claude with doubt at only 0.19–0.50. Jev judged the options it was given, and the option generator was at fault. You only learn this by running a planner for days. See <a href="melvor-pushdowns.html">part 4</a>.</li>
       <li><strong>LLM wakes are the scarce resource.</strong> Batch and restock sizes set how often Claude has to wake. A fixed batch of 120 meant about 12 rounds to one target; sizing it to the remaining need cut that to about 4.</li>
       <li><strong>Sub-threshold readings carry signal.</strong> Doubt sitting at 0.60–0.63 three ticks in a row pointed to a contradiction in the playbook. A fixed 0.7 gate would never have reported it.</li>
       <li><strong>Safety belongs in the fastest tier.</strong> A Cow took the character from 102 HP to 6 between two LLM wakes. The in-page guard, which checks every second, exists because of that.</li>

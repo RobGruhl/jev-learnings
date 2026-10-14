@@ -334,3 +334,20 @@ pre.pc .kw { font-weight: 600; color: var(--ink); }
   .fstep .tag { float: none; display: inline-block; margin: 0 0 4px; }
   .fstep.branch { margin-left: 14px; }
 }
+
+/* Sequence diagram, policy waterfall, doubt strip, production chain (2026-10-14) */
+.diagram.wide-scroll { overflow-x: auto; }
+.diagram.wide-scroll svg { min-width: 660px; }
+.diagram .ll-env, .diagram .ll-code, .diagram .ll-jev, .diagram .ll-llm, .diagram .ll-human { stroke-width: 1.5; stroke-dasharray: 4 6; }
+.diagram .ll-env { stroke: var(--t-env); } .diagram .ll-code { stroke: var(--t-code); } .diagram .ll-jev { stroke: var(--t-jev); }
+.diagram .ll-llm { stroke: var(--t-llm); } .diagram .ll-human { stroke: var(--t-human); }
+.diagram .m-env, .diagram .m-code, .diagram .m-jev, .diagram .m-llm, .diagram .m-human { stroke-width: 2; fill: none; }
+.diagram .m-env { stroke: var(--t-env); } .diagram .m-code { stroke: var(--t-code); } .diagram .m-jev { stroke: var(--t-jev); }
+.diagram .m-llm { stroke: var(--t-llm); } .diagram .m-human { stroke: var(--t-human); }
+.diagram .ah-env { fill: var(--t-env); } .diagram .ah-jev { fill: var(--t-jev); } .diagram .ah-llm { fill: var(--t-llm); } .diagram .ah-human { fill: var(--t-human); }
+.diagram .f-env { fill: var(--t-env); } .diagram .f-code { fill: var(--t-code); } .diagram .f-jev { fill: var(--t-jev); }
+.diagram .f-llm { fill: var(--t-llm); } .diagram .f-human { fill: var(--t-human); }
+.diagram .x-env { fill: var(--t-env); }
+.diagram .grid { stroke: var(--line); stroke-width: 1.2; }
+.diagram .band-watch { fill: var(--t-jev-soft); }
+.diagram .line-esc { stroke: var(--t-llm); stroke-width: 2.5; }

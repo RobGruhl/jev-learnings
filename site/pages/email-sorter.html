@@ -1,0 +1,98 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 3 of 4 · the sorter, built</p>
+    <h1>The sorter, built</h1>
+    <p class="lede">Good answers aren't yet a decision. This page follows the sorter that turns Jev's answers into "file it" or "show it": first hand-set thresholds, then a learned combiner that filed about twice as much at the same safety, then a test on two weeks of mail it had never seen. That test is where the most useful lessons came from.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span>
+    </div>
+
+    <h2>Per message, in pseudo-code</h2>
+<pre class="pc"><code><span class="l code"><span class="kw">for each</span> new message:</span><span class="l code">  raw = harvest(message)                <span class="cm"># raw bytes on disk; read-only, never retyped</span></span><span class="l code">  facts = rules(raw)                    <span class="cm"># sender kind, money ledger, account mail, injection…</span></span><span class="l code">  <span class="kw">if</span> facts.bad_input <span class="kw">or</span> facts.embedded_instructions:   needs_review; <span class="kw">stop</span></span><span class="l jev">  answers = jev(state = raw, questions = rubric)</span><span class="l jev">    <span class="cm"># one request: a category Choice and five Nouls</span></span><span class="l code">  p_act = sorter(answers, facts)        <span class="cm"># learned on labeled months</span></span><span class="l code">  <span class="kw">if</span> p_act &lt; threshold <span class="kw">and</span> no fact keeps it out of the zero-token buckets:</span><span class="l code">    file <span class="kw">or</span> drop                          <span class="cm"># zero LLM tokens</span></span><span class="l llm">  <span class="kw">else</span>:   Claude reads it in the session and writes it onto the page</span><span class="l human">the owner reads the page; notes and rulings go into records and rules</span></code></pre>
+    <p>The threshold is the one number that matters. It is chosen for a target recall (99.5% of action items) on mail the sorter didn't train on, then frozen before the month it's tested on.</p>
+
+    <h2>Step 1: hand thresholds</h2>
+    <p>The first version set thresholds on each answer by hand and was tested on three held-out months, each run with the rubric and thresholds frozen and committed first. Every filed message was labeled, so the misses are exact.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Held-out month</th><th class="num">Filed (0 LLM tokens)</th><th class="num">Missed actions</th><th class="num">Est. recall</th><th class="num">Escalations that mattered</th></tr></thead>
+      <tbody>
+        <tr><td>Month A</td><td class="num">27.8%</td><td class="num">7, all low-confidence labels</td><td class="num">~97%</td><td class="num">42.5%</td></tr>
+        <tr><td>Month B</td><td class="num">28.6%</td><td class="num">23</td><td class="num">~92%</td><td class="num">50.0%</td></tr>
+        <tr><td>Month C (latest config)</td><td class="num">29.7%</td><td class="num">5, all low-confidence</td><td class="num">~98%</td><td class="num">55.8%</td></tr>
+      </tbody>
+    </table></div>
+    <p>For scale: sending everything has 100% recall and files nothing; on an early 60-message set, simple conservative rules filed 20% and caught only 72% of actions. Each fix between months came from a specific miss pattern. Month B's misses were mostly money and accounts tied to the owner's projects, which a 4B model can't know about, so they became facts: a per-vendor money ledger, account-lifecycle mail and project relationships. Month C's few misses were quiet kinds, such as a billing-settings change, a payment receipt from a professional service, and new subscriptions. About half of escalations didn't need the owner, mostly marketing calls to action that read like obligations ("keep your streak", "rate your purchase").</p>
+
+    <h2>Step 2: answers as features</h2>
+    <p>The second version stopped hand-tuning. A small learned model (CatBoost) takes Jev's answers plus the rule facts and outputs one probability that the message needs action. It's validated leave-one-month-out: train on two labeled months, pick the threshold from out-of-fold scores, apply it once to the third.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Same mail, 244 action items</th><th class="num">Filed</th><th class="num">Missed</th><th class="num">Ceiling at 0 misses</th></tr></thead>
+      <tbody>
+        <tr><td>Hand thresholds (frozen)</td><td class="num">28.6%</td><td class="num">0</td><td class="num">—</td></tr>
+        <tr><td>Learned, local 4B answers</td><td class="num">46.8%</td><td class="num">0</td><td class="num">60.5%</td></tr>
+        <tr><td>Learned, hosted Jev answers</td><td class="num best">58.9%</td><td class="num">1</td><td class="num best">63.6%</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>How to read this:</strong> "filed" is the share of all mail set aside unread, so higher is better, and "missed" is how many of the 244 action items were among it. The ceiling is what a perfectly placed threshold would file with zero misses. A perfect sorter would file about 88%, everything but the action items. The longer explanation is on <a href="open-weights.html#sorter">Open weights caught up</a>.</p>
+    <p>The same answers, combined by a learned model instead of hand thresholds, filed about twice as much mail at the same safety. That matches what we saw on wine reviews: a decision model is at its weakest as a single judge and at its strongest as a source of features.</p>
+    <div class="callout warn"><p><strong>One method slip worth copying the fix for.</strong> The first combiner picked its threshold from in-sample scores. Those are overconfident, and recall on the held-out month collapsed to 68%. Thresholds must come from out-of-fold scores.</p></div>
+
+    <h2 id="floor">The local model's floor</h2>
+    <p>The hardest action items were consequential mail that looks routine: a free trial about to convert to a yearly charge, a cancellation after a failed payment, a failed or duplicate utility payment, a government-portal notice, an expiring download, a no-show fee. With the local model's answers these ranked only in the top 32–51% of mail, so catching them would have meant escalating half of everything.</p>
+    <p>We wrote ten targeted questions for exactly these kinds and ran them over all 2,075 messages (four hours on the laptop). They made the sorter <em>worse</em>: filing fell from 46.8% to 42.9% at zero misses. The questions pointed the right way but were weak; the 4B model gave "free trial converts to a yearly charge" a mean 0.16 on "a charge is coming". The local model safely files obvious noise and no more. Hidden consequences need a larger reader. Hosted Jev did better (the median of the 25 hardest items sat in its top 23% of mail, all within the top 40%), and the design hands everything the sorter doesn't file to Claude, who reads it. Claude subagents read all three months, 2,075 messages, in about ten minutes of wall time.</p>
+    <p>A sender-memory feature (how often each sender's past mail needed action) was also tried. It became the sorter's top feature and made results no better, and it risks burying the one important message from a noisy sender. Not adopted.</p>
+
+    <h2 id="window">Step 3: two weeks it had never seen</h2>
+    <p>Leave-one-month-out still reuses the same three months. The real test was the first live session: two new weeks, 460 messages, sorted by hosted Jev plus the sorter trained on all three labeled months, with the threshold frozen before any of the new mail was labeled. Claude read the 147 escalated messages and wrote the page; separately, a blind audit labeled all 460.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th><th class="num">Labeled months (leave-one-out)</th><th class="num">New window, frozen threshold</th></tr></thead>
+      <tbody>
+        <tr><td>Filed</td><td class="num">58.2%</td><td class="num">68.0%</td></tr>
+        <tr><td>Action items missed</td><td class="num">1 of 244</td><td class="num">2 of 55, both debatable</td></tr>
+        <tr><td>Ceiling at 0 misses</td><td class="num">63.5%</td><td class="num">45.7%</td></tr>
+        <tr><td>p(action) AUC</td><td class="num">—</td><td class="num">0.923</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>The score threshold transferred; the filter rate didn't.</strong> The new mail scored lower overall, so the same cut filed ten points more. The two misses were a billing-address update and an account-creation prompt for a service already in use. A drift guard per window belongs in the design: watch the share filed, not just the threshold.</li>
+      <li><strong>What the audit found among the filed mail was mostly not a model problem.</strong> Most of it was low-confidence judgment calls. Of the rest, three were from people the owner knows, three matched standing rulings about first charges from a vendor, and one updated an item the owner already had open. None of that is in the message; all of it is cheap to know.</li>
+      <li><strong>Readers and the blind audit agreed on "needs action" 76% of the time</strong>, and the disagreements sat in the same gray zones the labelers split on in part 1. The owner's rulings matter more than the choice of model.</li>
+    </ul>
+
+    <h2>More questions overfit; facts don't</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Fix tried for the filed-but-wanted mail</th><th>Leave-month-out</th><th>New window</th></tr></thead>
+      <tbody>
+        <tr><td>Add the best concept answers from <a href="email-questions.html">part 2</a> as more sorter features</td><td>+2.4 points filed</td><td><strong>6 actions missed</strong> (71.3% filed). Not adopted.</td></tr>
+        <tr><td>A gate: re-escalate filed mail if any concept Choice is ≥ 0.5</td><td>—</td><td>13 messages re-escalated, 1 of the 2 misses caught, −2.8 points filed</td></tr>
+        <tr><td>A fact: a known person's mail is never filed unread</td><td>—</td><td>All 3 filed known-person messages caught, at a cost of 3 messages</td></tr>
+      </tbody>
+    </table></div>
+    <p>More features made the sorter more confident on mail that didn't look like its training months. A single deterministic fact did as much as the model gate for a fraction of the cost. The rest of the remaining misses map to standing rulings (a ledger rule for the first charge from any vendor) and open records, which are facts too.</p>
+
+    <h2>Buckets map to channels</h2>
+    <p>A demo morning page, written by Claude from one busy held-out day, made a timing problem obvious. Two of that day's five "now" items were reminders for an event that same evening. By the next morning's page they were already past. A daily page can't carry "now":</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tier</th><th>Channel</th></tr></thead>
+      <tbody>
+        <tr><td>now</td><td>Same-day push</td></tr>
+        <tr><td>soon · brief</td><td>The session page</td></tr>
+        <tr><td>file · drop</td><td>Silent</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Other models on the same sorter</h2>
+    <p>The sorter harness later ran with other decision models' answers in place of Jev's. Same 2,075 messages and 244 action items, leave-one-month-out:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Answers from</th><th class="num">Filed (misses)</th><th class="num">Ceiling at 0 misses</th></tr></thead>
+      <tbody>
+        <tr><td>Hosted Jev 1.13</td><td class="num best">58.9% (1)</td><td class="num">63.6%</td></tr>
+        <tr><td>Claude Haiku 5.5</td><td class="num">57.1% (2)</td><td class="num best">64.8%</td></tr>
+        <tr><td>GEV-26B (open)</td><td class="num">57.8% (2)</td><td class="num">62.9%</td></tr>
+        <tr><td>Kev-27B (open)</td><td class="num">56.4% (0)</td><td class="num">63.3%</td></tr>
+        <tr><td>Local APUS 4B (open)</td><td class="num">46.8% (0)</td><td class="num">60.5%</td></tr>
+        <tr><td>Strands Decider 2B (open)</td><td class="num">44.1% (1)</td><td class="num">45.5%</td></tr>
+      </tbody>
+    </table></div>
+    <p>The top four are within a couple of points of each other. Model choice for this job comes down to cost, privacy and speed; see <a href="compare.html">Four ways compared</a>.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="email-beyond.html">Around the sorter</a>: cutting mail at the source, Jev as a step chooser in a browser, making "done" stick, and who ended up doing what.</p></div>

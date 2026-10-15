@@ -25,6 +25,10 @@ PAGES = [
     ("melvor-why.html", "2 · Why a game?", "Case", "Why a game is a good teacher", "Why Melvor Idle is a good place to learn the code, decision model, LLM, human cascade, and how it compares with the email project."),
     ("melvor-cascade.html", "3 · The cascade, built", "Case", "The Melvor cascade, built", "The Melvor agent's cascade: per-tick flow, the one-second guard, color-coded pseudo-code, the questions Jev answers and measured rates."),
     ("melvor-pushdowns.html", "4 · Push-downs", "Case", "Push-downs: how the cascade learned", "Fifty-one resolved escalations from the Melvor agent: who caught each one, where the fix landed, and the case studies behind the code."),
+    ("email.html", "1 · The testbed", "Case", "An inbox, the testbed", "The email case study's testbed: the goal, three months of labeled mail, the pipeline and the rules that keep evaluation honest."),
+    ("email-questions.html", "2 · Asking the right questions", "Case", "Asking the right questions", "What Jev can judge on real mail, the phrasing ladders, and the two things no wording fixes."),
+    ("email-sorter.html", "3 · The sorter, built", "Case", "The email sorter, built", "From hand thresholds to a learned sorter over Jev's answers, a test on a new window, and why facts beat more questions."),
+    ("email-beyond.html", "4 · Around the sorter", "Case", "Around the sorter", "Unsubscribing at the source, Jev as a browser step chooser, making done stick, the owner's rulings and who does what."),
     ("compare.html", "Four ways compared", "Data", "Four ways compared", "Jev, OpenAI's Decisions API, open-weight decision models and Claude Haiku 5.5 on the same benchmarks."),
     ("open-weights.html", "Open weights caught up", "Data", "Open weights caught up", "Six 26–27B open decision models against hosted Jev on the same private mail, wine and page harnesses, October 14, 2026."),
     ("cost.html", "Cost ladder", "Data", "The cost ladder", "Normalized cost from Jev to the Decisions API, Haiku, Sonnet, Opus, Fable and a human, with a calculator."),
@@ -36,6 +40,7 @@ NAV_GROUPS = [
     ("Learn", ["eli5.html", "101.html", "201.html", "301.html"]),
     ("Architecture", ["cascade.html", "novelty-and-doubt.html"]),
     ("Case study: Melvor", ["melvor.html", "melvor-why.html", "melvor-cascade.html", "melvor-pushdowns.html"]),
+    ("Case study: Email", ["email.html", "email-questions.html", "email-sorter.html", "email-beyond.html"]),
     ("Evidence", ["compare.html", "open-weights.html", "cost.html", "landscape.html"]),
     ("Build", ["build.html"]),
 ]

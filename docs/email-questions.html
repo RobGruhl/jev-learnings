@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asking the right questions · Decision Tier</title>
+<meta name="description" content="What Jev can judge on real mail, the phrasing ladders, and the two things no wording fixes.">
+<meta property="og:title" content="Asking the right questions · Decision Tier">
+<meta property="og:description" content="What Jev can judge on real mail, the phrasing ladders, and the two things no wording fixes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/email-questions.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html" aria-current="page">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 2 of 4 · asking the right questions</p>
+    <h1>Asking the right questions</h1>
+    <p class="lede">A decision model is only as good as the question it's asked. On this inbox the same concept scored anywhere from near chance to near perfect depending on wording. This page shows what Jev could judge on real mail, the phrasing experiments that showed how to ask, and the two things no wording fixes.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span>
+    </div>
+
+    <h2>What Jev can judge on real mail</h2>
+    <p>Each number is the AUC of the best question against its own concept: the chance that a random positive message scores above a random negative one (1.0 is perfect, 0.5 is a coin flip). Concept labels came from blind Claude labelers on a 564-message probe set, enriched for each concept and padded with a random slice of ordinary mail. All numbers are hosted <code>jev-1.13.0</code>.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Concept</th><th>Best question</th><th class="num">AUC</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>An action with a deadline</td><td>Contrastive Choice: deadline vs event vs offer vs informational date vs none</td><td class="num">0.980</td><td>51 positives</td></tr>
+        <tr><td>A payment failed, or a service is ending</td><td>Contrastive Choice: succeeded vs requested cancellation vs failed…</td><td class="num">0.997</td><td>24 positives; the exact Noul got 0.993</td></tr>
+        <tr><td>Someone is waiting on the owner's reply</td><td>Contrastive Choice</td><td class="num">0.986</td><td>50 positives; a Score of "how much does a person depend on the reply" got 0.982</td></tr>
+        <tr><td>A free trial converting to paid</td><td>Exact Noul, or a Choice</td><td class="num">1.00</td><td>Only 4 positives</td></tr>
+        <tr><td>A charge the owner may not realize is coming</td><td>Surprise framing</td><td class="num">0.96</td><td>About 20 positives</td></tr>
+        <tr><td>New mail is about the same matter as an open item</td><td>Noul over the pair</td><td class="num">0.980</td><td>628 pairs; the local 4B model got 0.955</td></tr>
+        <tr><td>New mail shows the open item is done</td><td>Noul over the pair</td><td class="num">0.933</td><td>Local 0.873</td></tr>
+        <tr><td>Which life area a message belongs to</td><td>Choice over 9 areas</td><td class="num">65% top-1</td><td>Local 60%: flat across models</td></tr>
+      </tbody>
+    </table></div>
+    <p>The concepts that matter most for "never miss the important" are learnable: deadlines, payment problems and people waiting all reach 0.98 or better with the right question. Area routing is the outlier. It was flat across models (65% hosted, 60% local), which points at the taxonomy, not the model: two catch-all areas held a third of the action items, and labelers themselves disagreed on where shopping, security alerts and activities belong.</p>
+
+    <h2>The phrasing ladder</h2>
+    <p>For each of three concepts we wrote one question per rung, from abstract to exact, plus a contrastive Choice, a Score and a set of surface-fact "atoms" combined by a learned model. All 6,225 requests took 9 minutes.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Rung</th><th class="num">Deadline</th><th class="num">Payment problem</th><th class="num">Waiting on reply</th></tr></thead>
+      <tbody>
+        <tr><td>Abstract ("involves a deadline", "account problem", "personal")</td><td class="num">0.955</td><td class="num">0.944</td><td class="num">0.744</td></tr>
+        <tr><td>Category</td><td class="num">0.939</td><td class="num">0.962</td><td class="num">0.911</td></tr>
+        <tr><td>Exact proposition</td><td class="num">0.944</td><td class="num">0.993</td><td class="num">0.980</td></tr>
+        <tr><td>Lexical: the narrowest surface fact</td><td class="num">0.946</td><td class="num">0.938</td><td class="num">0.931</td></tr>
+        <tr><td>Consequence ("if nothing is done…")</td><td class="num">0.893</td><td class="num">0.979</td><td class="num">0.978</td></tr>
+        <tr><td>Surprise ("easy to miss")</td><td class="num">0.908</td><td class="num">0.883</td><td class="num">0.924</td></tr>
+        <tr><td><strong>Contrastive Choice that names the near misses</strong></td><td class="num best">0.980</td><td class="num best">0.997</td><td class="num best">0.986</td></tr>
+        <tr><td>Score (expected level)</td><td class="num">0.766</td><td class="num">0.936</td><td class="num">0.982</td></tr>
+        <tr><td>Surface-fact atoms → learned model</td><td class="num">0.915</td><td class="num">0.996</td><td class="num">0.960</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Seven lessons about wording</h2>
+    <div class="tcards">
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>1. Name the near misses</h3>
+        <p>A Choice whose options spell out what the concept is <em>not</em> (an event isn't a deadline, a requested cancellation isn't a failed payment) was the best single question on every concept, and it held on the easy-to-miss positives (0.96–0.99). Describe "none" well: on the money set, a thin "none" option was right only 50% of the time.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>2. Exact propositions are best calibrated</h3>
+        <p>The exact payment Noul reached 88% precision at 0.5. Where a threshold must mean something on its own, use the narrowest true-or-false statement of the concept.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>3. Abstract wording ranks but over-fires</h3>
+        <p>"Involves a deadline" ranked well (0.955) but averaged 0.31 on mail with no deadline, for 29% precision at 0.5. It fails outright when abstraction changes the concept: "personal" isn't "someone is waiting" (0.744).</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>4. Framing is concept-specific</h3>
+        <p>"May not realize this is coming" won for hidden charges (0.96, where a flat "is this about money" got 0.65). The same surprise framing was the weakest rung for deadlines and payment failures. It helps only where the trap is not knowing something is coming.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span> <span class="tag code">Code</span>
+        <h3>5. Don't decompose what the model already grasps</h3>
+        <p>Splitting a concept into surface facts and learning to combine them lost 0.03–0.08 on deadlines and replies, and tied on payment. The atoms were weak alone ("names a date" 0.59) because the model understands these concepts whole. Decomposition fits concepts that really are conjunctions of checkable facts, like spam signals.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>6. Grade a question against its own concept</h3>
+        <p>"A charge is coming" looked like chance when graded against "needs action" (about 0.5), and was nearly dropped. Graded against the concept it actually asks about, the same idea scored 0.89. Build decisions from concept answers; don't judge a question by a target it wasn't asking about.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span> <span class="tag code">Code</span>
+        <h3>7. Batching is free</h3>
+        <p>Every question goes in one request, with the message sent once as shared state. A whole question set over three months of mail cost cents.</p>
+      </div>
+    </div>
+
+    <h2>Reading the argmax</h2>
+    <p>A Choice gives a distribution and a winner. The distribution ranked well everywhere; the winner was less even. Payment problems were classed right 90% of the time and waiting-on-reply 87%. The deadline Choice was right only 43% overall, because "none" and "informational date" blurred together, but when the answer was "action deadline" it was right 94% of the time. Read the probability of the classes you care about, not just the top class. (Fine-tuned open models <a href="open-weights.html">later reached 60–66%</a> on the same deadline argmax.)</p>
+
+    <h2>Two things no wording fixes</h2>
+    <div class="tcards">
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>It ranks; it doesn't measure</h3>
+        <p>Asked to size things on a Score, Jev ordered them loosely: rank correlation 0.28 against the real money at stake, and 0.15 against time to a deadline. It read a yearly charge of about $120 as "$10–100". Extract the parts (the amount, the date) and do the arithmetic in code.</p>
+      </div>
+      <div class="tcard human">
+        <span class="tag human">Human</span> <span class="tag code">Code</span>
+        <h3>It can't know what isn't in the message</h3>
+        <p>Who the owner knows, what is already open, what they've ruled before. The worst filed items in the first real session were all of this kind (<a href="email-sorter.html#window">part 3</a>). That knowledge belongs in rules and records, which are cheap and exact.</p>
+      </div>
+    </div>
+
+    <h2>Hosted against local</h2>
+    <p>The hosted model was stronger on judgment-heavy questions: routine-ness as a ranker for action mail (0.911 against 0.865), same-matter matching (0.980 against 0.955) and resolution (0.933 against 0.873). Some failures were shared: an early "charge coming" question was at chance on both, so the phrasing was at fault, not the model's size. Phrasing also didn't transfer cleanly to other models: on a 2B open decider, consequence and surprise framings for waiting-on-reply fell 0.20 AUC. Re-grade a question set for every model you move it to.</p>
+
+    <h2>The loop that found all this</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Step</th><th>Who</th></tr></thead>
+      <tbody>
+        <tr><td>Find a failing concept: a blind audit of each window's filed mail</td><td><span class="tag llm">LLM</span> Claude subagents</td></tr>
+        <tr><td>Propose a phrasing ladder and a contrastive Choice</td><td><span class="tag llm">LLM</span></td></tr>
+        <tr><td>Label concept gold: an enriched probe plus a seeded random slice, blind to scores</td><td><span class="tag llm">LLM</span> subagents; <span class="tag human">Human</span> spot-checks</td></tr>
+        <tr><td>Grade each rung against its own concept; test atoms against one good question</td><td><span class="tag code">Code</span></td></tr>
+        <tr><td>Decide the use (feature, gate or rule) and validate on a new window</td><td><span class="tag code">Code</span> + <span class="tag llm">LLM</span> judgment</td></tr>
+        <tr><td>Rule on the gray zones the disagreements expose</td><td><span class="tag human">Human</span> only</td></tr>
+      </tbody>
+    </table></div>
+    <p>The general version of these lessons is on <a href="201.html">201 · Asking well</a>.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="email-sorter.html">The sorter, built</a>: turning these answers into a decision about every message, and testing it on mail it had never seen.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="email.html"><span>Previous</span>An inbox, the testbed</a><a class="pager-next" href="email-sorter.html"><span>Next</span>The email sorter, built</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

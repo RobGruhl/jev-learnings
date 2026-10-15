@@ -1,0 +1,104 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 4 of 4 · around the sorter</p>
+    <h1>Around the sorter</h1>
+    <p class="lede">The sorter decides what one message deserves. Most of the gains, though, came from around it: stopping noise before it arrives, letting Jev drive the unsubscribe pages, remembering what's already done, and writing the owner's rulings down so nobody has to re-decide them. This page covers those layers, then who ended up doing what.</p>
+
+    <div class="tier-legend" aria-label="Color code">
+      <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span><span class="tag env">Environment</span>
+    </div>
+
+    <h2>Cut it at the source</h2>
+    <p>Noise was concentrated. Over the three labeled months, 50 senders sent nothing but noise (at least three messages each), 19% of all mail, and the top 30 senders made up 63% of the noise. The cheapest message to sort is the one that never arrives, so the layers run cheapest first:</p>
+    <div class="tier-stack">
+      <div class="tier-row code"><h4><span class="tag code">Code</span> L1 · Unsubscribe</h4><p>Senders that only ever sent noise. The owner approves the list.</p><div class="speed">once · per sender</div></div>
+      <div class="tier-row code"><h4><span class="tag code">Code</span> L2 · Filters</h4><p>Label and archive, never delete, for mixed senders' noisy patterns. One sender sent dozens of nudges and one invitation that mattered, so it gets a pattern filter, not a block.</p><div class="speed">once · per pattern</div></div>
+      <div class="tier-row jev"><h4><span class="tag jev">Jev</span> L3 · The sorter</h4><p>Files the obvious noise that's left.</p><div class="speed">every message · cents</div></div>
+      <div class="tier-row llm"><h4><span class="tag llm">LLM</span> L4 · Claude reads</h4><p>Everything else, in a session. The owner's notes feed new proposals back into L1–L3.</p><div class="speed">per session</div></div>
+    </div>
+    <p>Unsubscribing turned out to be almost entirely automatable without a browser. Of the 50 noise-only senders, 45 supported the standard one-click unsubscribe header (RFC 8058): one HTTPS POST, no page, no mail sent. 43 of those 45 were signed by the sender's own domain. None needed an unsubscribe-by-email or a landing page.</p>
+    <div class="statrow">
+      <div class="stat"><div class="k">Senders unsubscribed</div><div class="v">52</div><div class="s">each approved by the owner</div></div>
+      <div class="stat"><div class="k">By one-click POST</div><div class="v">46</div><div class="s">no browser at all</div></div>
+      <div class="stat"><div class="k">In a browser</div><div class="v">6</div><div class="s">all confirmed on the page, with screenshots</div></div>
+      <div class="stat"><div class="k">Filters left</div><div class="v">2</div><div class="s">for senders with no clean way out</div></div>
+    </div>
+    <p>The edge cases were standards, not judgment. A few servers answered the POST with a redirect that turned it into a GET, so those count as unconfirmed. One newsletter platform's header pointed at a custom domain that rejected the POST, while the link in the body worked. One site behind bot protection passed only in a visible browser.</p>
+
+    <h2>Jev as the step chooser in a browser</h2>
+    <p>Mixed senders need preference pages, and those come in endless wordings. That's what a decision model is good at. The loop keeps the decision model in a narrow job:</p>
+<pre class="pc"><code><span class="l code">snap = snapshot(page)               <span class="cm"># a table of controls with refs, plus the page text</span></span><span class="l code"><span class="kw">if</span> the title is a bot check <span class="kw">or</span> the page is blank:   handle in code first</span><span class="l jev">a = jev(state = snap, questions = {</span><span class="l jev">      page_state: Choice(confirmed, needs_action, blocked_bot, blocked_login, other),</span><span class="l jev">      next_click: Choice(control refs…, none = "nothing here should be clicked"),</span><span class="l jev">      confirmed:  Noul("the page confirms the unsubscribe") })</span><span class="l code"><span class="kw">if</span> confirmed:   done</span><span class="l code"><span class="kw">elif</span> blocked:   stop</span><span class="l code"><span class="kw">elif</span> next_click is confident:   click it; verify the page changed</span><span class="l llm"><span class="kw">else</span>:   escalate to Claude</span><span class="l human">bot walls that won't pass → the owner, by hand</span></code></pre>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Fixture set</th><th class="num">Jev</th><th class="num">Keywords + first checked box</th></tr></thead>
+      <tbody>
+        <tr><td>Real page states from the browser run (redacted)</td><td class="num">13/13</td><td class="num">13/13</td></tr>
+        <tr><td>Synthetic traps: a cookie banner beside an opt-out, a login wall, a post-unsubscribe survey, unsubscribe vs manage</td><td class="num">4/4</td><td class="num">4/4</td></tr>
+        <tr><td>Hard pages built to break keyword rules</td><td class="num best">8/8</td><td class="num">1/8</td></tr>
+        <tr><td><strong>Total</strong> (run twice, 0 escalations)</td><td class="num best">25/25</td><td class="num">18/25</td></tr>
+      </tbody>
+    </table></div>
+    <p>The real pages were mostly easy; keywords handled them. Jev earned its place on variety: a confirmation without the usual words, future tense ("you will be unsubscribed once you confirm"), which checked box to keep (security notices), a bare "Yes", pause versus unsubscribe, and opt-down radio buttons. It took about 0.6 s per page.</p>
+    <p>In a live run on six new senders, four were confirmed on the page with Jev choosing the steps. The other two escalated correctly. One form needed the address typed: Jev clicked Unsubscribe on the empty form, read "not recognized" and stopped, and Claude typed it. The other sat behind a bot check that never passed, so it went to the owner. The one real failure was a settings page whose switches were all labeled only "Toggle setting". The chooser flipped them back and forth until the step limit, which is risky because a flip can resubscribe. Claude checked afterwards that every switch was off. The fixes are code: attach nearby label text to unnamed controls, and never click the same control twice.</p>
+
+    <h2>Make "done" stick</h2>
+    <p>An assistant that resurfaces things you already handled isn't calm. So each action becomes a record, and later mail is matched against open records. Thread matching alone isn't enough: <strong>57% of same-matter follow-ups arrived in a different thread</strong>. On 628 labeled pairs of an open item and a later message:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Method</th><th class="num">Recall</th><th class="num">Precision</th></tr></thead>
+      <tbody>
+        <tr><td>Same thread only</td><td class="num">43%</td><td class="num best">88%</td></tr>
+        <tr><td>Jev "same matter?" at 0.5, local 4B (AUC 0.955)</td><td class="num">85%</td><td class="num">68%</td></tr>
+        <tr><td>Jev "same matter?" at 0.5, hosted (AUC 0.980)</td><td class="num best">93%</td><td class="num">77%</td></tr>
+      </tbody>
+    </table></div>
+    <p>At that precision a match shouldn't hide anything on its own. Jev proposes the link and Claude confirms it in the session, so a new obligation can't be buried under an old one. A second question ("does this mail show the item is done?") reached 0.933 hosted.</p>
+    <div class="callout warn"><p><strong>Silence isn't the state of the world.</strong> The audit surfaced a "last chance to return leased equipment" notice that the owner had in fact already handled. The mail never said so, so a mail-only assistant would have kept raising it. Obligations can't be inferred from mail alone: the assistant needs its own record and the owner's "done" written back to it. Code now refuses an open record without a next step and a link, and links come from the raw message, never from a model's retyping.</p></div>
+
+    <h2>Jev finds it, code reads it</h2>
+    <p>A subscription audit put the money Choice from <a href="email-questions.html">part 2</a> over about 1,300 subscription-flavored messages from two mailboxes, in about two minutes for roughly $0.10. It separated real billing (receipt, upcoming charge, trial conversion, failed payment, price change, bill due) from renewal-themed marketing well enough to review by sender. Then code took over: one store's receipts list the account, item, period, renewal date and price in fixed fields, and a 20-line parser read every one of them.</p>
+    <p>The first register still overstated what was live, in two ways. The question had no "cancelled or expiring" option, so cancellation mail landed in the nearest wrong class. And a register built from receipts alone misses cancellations: it has to take the <em>latest</em> state of each subscription across receipts, cancellations and expiry notices. (One app store sends no cancellation email at all, only an "expiring" notice about two weeks before the term ends.) Same lesson as the deadline Choice: name the near misses, including the one you forgot.</p>
+
+    <h2 id="rulings">Rulings are the cheapest accuracy</h2>
+    <p>A third of the labels were low-confidence, and the disagreements clustered on a few recurring patterns. The owner ruled on each once:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pattern</th><th>Labelers split</th><th>The owner's ruling</th></tr></thead>
+      <tbody>
+        <tr><td>New sign-in alerts</td><td>now / brief / file</td><td>File</td></tr>
+        <tr><td>Failing builds on the owner's own code</td><td>soon / file / brief</td><td>One standing "fix recurring errors" action per project: the first each month is soon, repeats are filed</td></tr>
+        <tr><td>Appointment reminders</td><td>brief / now</td><td>File; the original booking goes on an assistant calendar instead</td></tr>
+        <tr><td>Utility bills</td><td>file / soon</td><td>Surface only as an anomaly</td></tr>
+      </tbody>
+    </table></div>
+    <p>Those four rulings changed the action load by about a quarter (293 items to 244). They're stored as a reversible overlay on the labels, so the sorter can be retrained either way. Every session surfaces a few new gray zones, and they go on the page as questions, not guesses. Records keep the owner's own words, and code writes them; a model never regenerates them.</p>
+
+    <h2>Who ended up doing what</h2>
+    <div class="tcards">
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>Everything exact</h3>
+        <p>Byte-exact harvest, sender facts from headers, the money ledger, the sorter itself, link extraction, receipt parsing, one-click unsubscribes, the record store and its rules, and the gate that keeps private mail off unapproved backends.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span>
+        <h3>Bounded reads of every message</h3>
+        <p>Concept answers as sorter features, matching new mail to open records, sorting billing from marketing, and choosing the next step on an unsubscribe page. Hosted, for about $0.07 per thousand requests.</p>
+      </div>
+      <div class="tcard llm">
+        <span class="tag llm">LLM</span>
+        <h3>Reading and writing</h3>
+        <p>Claude reads every escalated message, writes the session page with next steps and links, groups by area, confirms record matches, and labels blind. It also proposes questions, phrasings and rules.</p>
+      </div>
+      <div class="tcard human">
+        <span class="tag human">Human</span>
+        <h3>Rulings and approvals</h3>
+        <p>The owner rules on gray zones, approves every unsubscribe and filter, writes "done", and sets the threshold by deciding how many misses they'll accept.</p>
+      </div>
+    </div>
+
+    <h2>What carries over</h2>
+    <ol>
+      <li><strong>Set the threshold by what a miss costs,</strong> count misses exactly, and report the filter rate at that miss count.</li>
+      <li><strong>Ask contrastive Choices that name the near misses,</strong> and grade each question against its own concept before using it.</li>
+      <li><strong>Combine answers with a learned model,</strong> pick thresholds out of fold, and validate on a new window. Watch the filter rate per window, because it drifts even when the threshold holds.</li>
+      <li><strong>When misses remain, add facts before questions.</strong> Known people, open records and standing rulings are cheap, exact and don't overfit.</li>
+      <li><strong>Cut volume at the source first.</strong> Senders that only ever sent noise accounted for nearly a fifth of all mail, and removing them cost one list review.</li>
+      <li><strong>Mail isn't the world.</strong> Keep your own records, with the owner's "done" written back.</li>
+    </ol>
+    <p>The same cascade, with very different stakes, is the <a href="melvor.html">Melvor case study</a>; <a href="melvor-why.html">Why a game?</a> compares the two side by side.</p>

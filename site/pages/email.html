@@ -1,0 +1,99 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 1 of 4 · the testbed</p>
+    <h1>An inbox, the testbed</h1>
+    <p class="lede">The other half of this site's evidence comes from one personal inbox. The goal was to never miss mail that needs action, especially mail with a deadline, without the owner having to read an inbox at all. A decision model asks bounded questions of every message, code adds the facts it can't know, a learned sorter decides how much attention each message gets, and Claude reads what's left. This four-part case study shows how that was built and measured, and what it taught. It reports counts and rates only. No mail, senders or people appear here.</p>
+
+    <div class="tier-legend" aria-label="Color code used in this case study">
+      <span><span class="tag code">Code</span> deterministic code: harvest, rules, ledgers, the sorter, link and receipt parsing</span>
+      <span><span class="tag jev">Jev</span> the decision model: concept questions on every message</span>
+      <span><span class="tag llm">LLM</span> Claude: reads escalated mail, writes the page, labels blind</span>
+      <span><span class="tag human">Human</span> the owner: rulings, approvals and how many misses to tolerate</span>
+    </div>
+
+    <div class="cards">
+      <a class="card" href="email.html"><span class="tag">Part 1</span><h3>The testbed</h3><p>The goal, what three months of mail look like, the pipeline and the rules that keep it honest.</p></a>
+      <a class="card" href="email-questions.html"><span class="tag">Part 2</span><h3>Asking the right questions</h3><p>What Jev can judge on real mail, and the phrasing ladders that showed how to ask.</p></a>
+      <a class="card" href="email-sorter.html"><span class="tag">Part 3</span><h3>The sorter, built</h3><p>From hand thresholds to a learned sorter, a new window that tested it, and what still slips through.</p></a>
+      <a class="card" href="email-beyond.html"><span class="tag">Part 4</span><h3>Around the sorter</h3><p>Cutting volume at the source, Jev in a browser, making "done" stick, and who does what.</p></a>
+    </div>
+
+    <h2>The goal</h2>
+    <p>The owner's brief was short: <strong>less email, file what doesn't need action for reference, and never miss the important.</strong> The model for success was a good human assistant. They read everything, bring you the few things that need you with what to do next, and keep the rest filed where you can find it. The owner stays in the loop, and nothing is automated until they say a judgment is settled.</p>
+    <p>That makes the cost of errors lopsided. Showing the owner an extra newsletter costs a few seconds. Filing a failed payment or a deadline unread can cost real money and is noticed late. Every number in this case study is set by that asymmetry: <strong>misses are counted exactly, and the filter rate is what you get at the number of misses you'll tolerate.</strong></p>
+
+    <h2>What three months of mail look like</h2>
+    <p>Three full months were labeled message by message (2,075 messages). Blind Claude labelers asked what a good assistant would do with each one, never seeing a model score:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>What an assistant would do</th><th class="num">Share</th><th>Examples of the kind</th></tr></thead>
+      <tbody>
+        <tr><td><strong>now</strong>: tell the owner today</td><td class="num">5%</td><td>A payment that failed, something due today</td></tr>
+        <tr><td><strong>soon</strong>: needs action this week or so</td><td class="num">9%</td><td>A form to return, a person waiting on a reply</td></tr>
+        <tr><td><strong>brief</strong>: worth a line in the summary</td><td class="num">11%</td><td>A shipment, a change of terms, news from a known person</td></tr>
+        <tr><td><strong>file</strong>: keep, but no attention</td><td class="num">42%</td><td>Receipts, statements, routine notices</td></tr>
+        <tr><td><strong>drop</strong>: noise</td><td class="num">33%</td><td>Marketing, nudges, digests nobody reads</td></tr>
+      </tbody>
+    </table></div>
+    <div class="statrow">
+      <div class="stat"><div class="k">Messages labeled</div><div class="v">2,075</div><div class="s">three full months, every message</div></div>
+      <div class="stat"><div class="k">Need nothing from the owner</div><div class="v">~75%</div><div class="s">file + drop</div></div>
+      <div class="stat"><div class="k">Action items</div><div class="v">244</div><div class="s">about 2.6 a day after the owner's rulings</div></div>
+      <div class="stat"><div class="k">State a deadline</div><div class="v">101 of 293</div><div class="s">most action mail never says when</div></div>
+    </div>
+    <p>Two things stood out early. First, a third of the labels were low-confidence, and the labelers split on the same recurring patterns: sign-in alerts, failing builds on the owner's own code, appointment reminders and utility bills where autopay was unclear. Those aren't model questions; they're the owner's to rule on. Their rulings moved the action count from 293 to 244, about a quarter of the action load (<a href="email-beyond.html#rulings">part 4</a>). Second, noise is concentrated: 50 senders sent only noise over the three months, 19% of all mail.</p>
+
+    <h2>How the pipeline is wired</h2>
+    <div class="archmap" role="img" aria-label="Harvest writes raw mail to disk; rules and Jev run in parallel over each message; a learned sorter combines them.">
+      <div class="tcard code"><span class="tag code">Code</span><h4>Harvest</h4><p>A read-only exporter writes each message's raw bytes to disk. Nothing is retyped by an agent; everything downstream reads the same bytes.</p></div>
+      <div class="link"><b>⇄</b>each<br>message</div>
+      <div class="tcard code"><span class="tag code">Code</span><h4>Rules (facts)</h4><p>Sender kind from real headers, known people, money facts from a local ledger, account-lifecycle mail, bad input and embedded instructions.</p></div>
+      <div class="link"><b>∥</b>in<br>parallel</div>
+      <div class="tcard jev"><span class="tag jev">Jev</span><h4>Concept questions</h4><p>One request per message: a category Choice and a handful of Nouls (obligation, change, personal, missing info, routine), all sharing the message as state.</p></div>
+    </div>
+    <div class="archmap" role="img" aria-label="The sorter combines facts and answers into buckets; Claude reads the escalated mail; the owner rules and approves.">
+      <div class="tcard code"><span class="tag code">Code</span><h4>Sorter</h4><p>A learned model over Jev's answers and the rule facts. It assigns a bucket, and the bucket sets how much LLM attention the message gets.</p></div>
+      <div class="link"><b>⇄</b>escalated<br>mail</div>
+      <div class="tcard llm"><span class="tag llm">LLM</span><h4>Claude</h4><p>Reads every escalated message in a desktop session and writes one page: actions with next steps and links, a short summary, and open questions.</p></div>
+      <div class="link"><b>⇄</b>notes and<br>rulings</div>
+      <div class="tcard human"><span class="tag human">Human</span><h4>The owner</h4><p>Reads the page, gives notes and rulings, approves every unsubscribe and filter. Their words go into records that code keeps.</p></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Bucket</th><th>What it gets</th></tr></thead>
+      <tbody>
+        <tr><td>must respond · action · needs review</td><td>A full read by Claude</td></tr>
+        <tr><td>fyi</td><td>A one-line summary</td></tr>
+        <tr><td>auto-handled · cleanup</td><td>Zero LLM tokens: filed or dropped</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Four rules that kept it honest</h2>
+    <div class="tcards">
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>Mail is private, gated in code</h3>
+        <p>Mail, labels and run logs live only in a private folder that version control ignores. Any backend that isn't on the local machine refuses private mail unless an explicit flag is set, and the hosted model saw this mail only after the owner approved it. Write-ups report counts and rates.</p>
+      </div>
+      <div class="tcard code">
+        <span class="tag code">Code</span>
+        <h3>Read-only, and no retyping</h3>
+        <p>Nothing in the lab changes a mailbox. Unsubscribes and filters go through a separate tool, behind the owner's approval. Agents never transcribe mail: the harvest is byte-exact, and links are taken from the raw message by code, so a reader names the link text and code resolves the URL.</p>
+      </div>
+      <div class="tcard jev">
+        <span class="tag jev">Jev</span> <span class="tag code">Code</span>
+        <h3>Rules are facts, not overrides</h3>
+        <p>Only bad input and embedded instructions force a message to review. Every other rule can only keep mail <em>out of</em> the zero-token buckets. The model's category never suppresses a message on its own. An early "doesn't look bulk" protection was demoted after three labeled sets showed it saved nothing and cost filtering.</p>
+      </div>
+      <div class="tcard human">
+        <span class="tag human">Human</span> <span class="tag llm">LLM</span>
+        <h3>Honest evaluation</h3>
+        <p>The question set and thresholds were frozen and committed before each held-out month ran. Every filed message was labeled, so misses are exact; a seeded sample of escalated mail gave precision. Labels were made blind. Anything tuned on a month counts as in-sample, and the owner's rulings override provisional labels.</p>
+      </div>
+    </div>
+
+    <div class="statrow">
+      <div class="stat"><div class="k">Hosted Jev cost</div><div class="v">$0.55</div><div class="s">7,753 requests over the three months</div></div>
+      <div class="stat"><div class="k">Per 1,000 requests</div><div class="v">~$0.07</div><div class="s">questions batched, the message sent once</div></div>
+      <div class="stat"><div class="k">Hosted speed</div><div class="v">~15 min</div><div class="s">all three months, 6 requests in flight</div></div>
+      <div class="stat"><div class="k">Local 4B model</div><div class="v">~5 s</div><div class="s">per message on a laptop, about an hour a month</div></div>
+    </div>
+    <p>Two models were measured on this mail: the hosted Jev (<code>jev-1.13.0</code>) and a local 4B open-weight model behind a Jev-compatible gateway. The local model mattered early, because it let real mail stay on the laptop. It runs hot, though, and it hit a quality floor (<a href="email-sorter.html#floor">part 3</a>). Later, other models ran through the same harnesses; see <a href="compare.html">Four ways compared</a> and <a href="open-weights.html">Open weights caught up</a>.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="email-questions.html">Asking the right questions</a>: what Jev can and can't judge on real mail, and how the wording of a question moved its accuracy.</p></div>

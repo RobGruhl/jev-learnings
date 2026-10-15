@@ -2,6 +2,12 @@
     <h1>Open weights caught up</h1>
     <p class="lede">In early October the open decision models we tried were a step behind Jev. Two weeks later a wave of 26–27B open models arrived, so we rented a GPU and ran six of them through the same harnesses. Most now match hosted Jev on our private tasks, and the best edge it out. What's left is the cost of hardware and, for some, speed.</p>
 
+    <div class="callout note"><p><strong>The pick: Kev-27B.</strong> It is the only open model that matched hosted Jev in the full runs as well as the screen. It ties Jev on the mail sorter (ceiling 63.3% against 63.6%) and on wine with 38 questions (1.83 against 1.86), and it beats Jev asking for the wine score directly (2.13 against 2.31). It also named the exact deadline class most often (66% against 43%), and it answers a mail message in about 0.4 s on one H100.</p>
+    <ul>
+      <li><strong>If you need a true 26B model, or the most speed:</strong> GEV-26B-Decide is a mixture of experts with about 4B parameters active, at about 0.3 s per message. It is level with Jev within noise, just behind Kev.</li>
+      <li><strong>Highest public benchmark score:</strong> pplx-decider v1.1 had the top JevBench score (207 of 231) and d3 the best mail AUCs. Both take 4–5 s per message on their published NVIDIA serving path, so they didn't get the full runs.</li>
+    </ul></div>
+
     <div class="callout warn"><p><strong>Approximate by design.</strong> This was a screen, not a full replication: every model got the public benchmark, the page fixtures and the mail concept probes, and only the two fastest got the full mail sorter and wine runs. Single runs, one GPU, BF16 weights. The mail and wine sets are private, so they can't have leaked into training. JevBench is public and might have.</p></div>
 
     <h2>What we ran</h2>

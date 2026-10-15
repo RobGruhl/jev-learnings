@@ -11,7 +11,7 @@ This repo holds only generalized findings: rates, AUCs and patterns. It contains
 - **Learn:** [ELI5](https://robgruhl.github.io/jev-learnings/eli5.html), [101](https://robgruhl.github.io/jev-learnings/101.html), [201](https://robgruhl.github.io/jev-learnings/201.html), [301](https://robgruhl.github.io/jev-learnings/301.html).
 - **Architecture:** [the cascade](https://robgruhl.github.io/jev-learnings/cascade.html) and [novelty and doubt](https://robgruhl.github.io/jev-learnings/novelty-and-doubt.html).
 - **Case study:** the Melvor agent in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/melvor.html), [why a game](https://robgruhl.github.io/jev-learnings/melvor-why.html), [the cascade, built](https://robgruhl.github.io/jev-learnings/melvor-cascade.html) with color-coded pseudo-code, and [push-downs](https://robgruhl.github.io/jev-learnings/melvor-pushdowns.html) (65 resolved escalations and where each fix landed).
-- **Evidence:** [four ways compared](https://robgruhl.github.io/jev-learnings/compare.html) (Jev, OpenAI's Decisions API, open-weight decision models, Claude Haiku 5.5), [the cost ladder](https://robgruhl.github.io/jev-learnings/cost.html) with a calculator, and an [October 2026 landscape refresh](https://robgruhl.github.io/jev-learnings/landscape.html).
+- **Evidence:** [four ways compared](https://robgruhl.github.io/jev-learnings/compare.html) (Jev, OpenAI's Decisions API, open-weight decision models, Claude Haiku 5.5), [open weights caught up](https://robgruhl.github.io/jev-learnings/open-weights.html) (six 26–27B open models against Jev, October 14), [the cost ladder](https://robgruhl.github.io/jev-learnings/cost.html) with a calculator, and an [October 2026 landscape refresh](https://robgruhl.github.io/jev-learnings/landscape.html).
 - **Build:** [the Decision Skeleton](https://robgruhl.github.io/jev-learnings/build.html), a facilitated Claude Code tutorial in [`tutorial/`](tutorial/101-decision-skeleton.md). Run `cd tutorial && claude` to start it.
 
 The site source is `site/` (page fragments plus a template). `python3 site/build.py` writes `docs/`, which GitHub Pages serves, and fails on any broken relative link.
@@ -45,7 +45,7 @@ The song is Suno-generated (voice and piano). The animation was made with Claude
 - [questions.md](questions.md): how to phrase questions for Jev. Choices that name near misses, exact Nouls, when not to decompose.
 - [using-answers.md](using-answers.md): answers as features rather than judges, gates, and why facts beat more questions.
 - [evaluation.md](evaluation.md): honest evaluation. Freeze before held-out runs, label blind, validate on a new window.
-- [models.md](models.md): hosted Jev against a local open-weights Jev, a 2B decider model, and a small general LLM on the same tasks. The site's [four-way comparison](https://robgruhl.github.io/jev-learnings/compare.html) adds OpenAI's Decisions API and Claude Haiku 5.5.
+- [models.md](models.md): hosted Jev against a local open-weights Jev, a 2B decider model, a 27B open decision model, and a small general LLM on the same tasks. The site's [four-way comparison](https://robgruhl.github.io/jev-learnings/compare.html) adds OpenAI's Decisions API and Claude Haiku 5.5.
 
 ## The ten-line version
 

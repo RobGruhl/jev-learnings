@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open weights caught up · Decision Tier</title>
+<meta name="description" content="Six 26–27B open decision models against hosted Jev on the same private mail, wine and page harnesses, October 14, 2026.">
+<meta property="og:title" content="Open weights caught up · Decision Tier">
+<meta property="og:description" content="Six 26–27B open decision models against hosted Jev on the same private mail, wine and page harnesses, October 14, 2026.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/open-weights.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html" aria-current="page">Open weights caught up</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 14, 2026</p>
+    <h1>Open weights caught up</h1>
+    <p class="lede">In early October the open decision models we tried were a step behind Jev. Two weeks later a wave of 26–27B open models arrived, so we rented a GPU and ran six of them through the same harnesses. Most now match hosted Jev on our private tasks, and the best edge it out. What's left is the cost of hardware and, for some, speed.</p>
+
+    <div class="callout warn"><p><strong>Approximate by design.</strong> This was a screen, not a full replication: every model got the public benchmark, the page fixtures and the mail concept probes, and only the two fastest got the full mail sorter and wine runs. Single runs, one GPU, BF16 weights. The mail and wine sets are private, so they can't have leaked into training. JevBench is public and might have.</p></div>
+
+    <h2>What we ran</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th>Base</th><th>License</th><th>How it serves</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Kev-27B</strong> (jaredpalmer)</td><td>Qwen3.8-27B, fine-tuned</td><td>Apache-2.0</td><td>Its own server, native <code>/v1/systemone</code></td></tr>
+        <tr><td><strong>d3</strong> (vLLM Semantic Router, Decision 3.0)</td><td>Qwen3.8-27B</td><td>Apache-2.0</td><td>Package server, native <code>/v1/systemone</code></td></tr>
+        <tr><td><strong>pplx-decider v1.1</strong> (Perplexity)</td><td>Qwen3.8-27B</td><td>Apache-2.0</td><td>Bundled inference code; we wrapped it in a Jev-shaped server</td></tr>
+        <tr><td><strong>JEV-27B-VL</strong> (AutoTrust)</td><td>Qwen3.8-27B + LoRA head</td><td>Apache-2.0</td><td>vLLM with a <code>/v1/decide</code> endpoint, one question per call; we added a Jev-shaped proxy</td></tr>
+        <tr><td><strong>GEV-26B-Decide</strong> (AutoTrust)</td><td>Gemma 4 26B-A4B (mixture of experts, ~4B active) + LoRA head</td><td>Apache-2.0 adapters, Gemma terms for the base</td><td>Same as JEV-27B-VL, plus a vLLM patch</td></tr>
+        <tr><td><strong>OpenJev</strong> (razorback16)</td><td>Frozen DiffusionGemma 26B-A4B, 4-bit, no fine-tune</td><td>Apache-2.0 server</td><td>Docker image, native <code>/v1/systemone</code></td></tr>
+      </tbody>
+    </table></div>
+    <p>Hardware: one rented <strong>H100 80 GB</strong> at $3.29 an hour, two at once at the end. The cloud we tried first had no capacity for the GPU class these need. The whole screen cost about $24 in GPU time.</p>
+
+    <h2>The screen</h2>
+    <p>Mail columns are the best question's AUC for each concept on a 564-message labeled probe set (higher is better). "Choice acc." is how often the contrastive Choice named the exact deadline class.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th class="num">JevBench (231)</th><th class="num">Pages (12)</th><th class="num">Deadline</th><th class="num">Payment</th><th class="num">Reply</th><th class="num">Deadline Choice acc.</th></tr></thead>
+      <tbody>
+        <tr><td>Hosted Jev 1.13 (reference)</td><td class="num">200</td><td class="num best">12</td><td class="num">0.980</td><td class="num">0.997</td><td class="num">0.986</td><td class="num">43%</td></tr>
+        <tr><td>pplx-decider v1.1</td><td class="num best">207</td><td class="num best">12</td><td class="num">0.992*</td><td class="num">—</td><td class="num">0.989</td><td class="num">60%*</td></tr>
+        <tr><td>d3</td><td class="num">205</td><td class="num best">12</td><td class="num">0.986</td><td class="num best">0.999</td><td class="num best">0.990</td><td class="num">65%</td></tr>
+        <tr><td>Kev-27B</td><td class="num">204</td><td class="num best">12</td><td class="num best">0.987</td><td class="num">0.998</td><td class="num">0.989</td><td class="num best">66%</td></tr>
+        <tr><td>JEV-27B-VL</td><td class="num">199</td><td class="num best">12</td><td class="num">0.979</td><td class="num">0.998</td><td class="num">0.986</td><td class="num">47%</td></tr>
+        <tr><td>GEV-26B-Decide</td><td class="num">198</td><td class="num best">12</td><td class="num">0.982</td><td class="num">0.994</td><td class="num">0.980</td><td class="num">59%</td></tr>
+        <tr><td>OpenJev (frozen base)</td><td class="num">189</td><td class="num">11</td><td class="num">0.941</td><td class="num">0.961†</td><td class="num">0.972</td><td class="num">63%</td></tr>
+        <tr><td><em>Early October, for contrast:</em> Strands Decider 2B</td><td class="num">167</td><td class="num">7</td><td class="num">0.932</td><td class="num">0.984</td><td class="num">0.973</td><td class="num">42%</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:14px">* pplx-decider's deadline probe stopped at a random 180 of the 564 messages (Jev on the same 180: 0.987, 42%); its payment probe wasn't run. † OpenJev's payment probe used a random 300 (7 positives). AUC differences in the third decimal are within noise: each concept has 24–51 positives.</p>
+
+    <h2>The full runs</h2>
+    <p>The two fastest models also got the harnesses that matter most to us: the mail <strong>sorter</strong> (questions as features in a learned combiner, leave-one-month-out over 2,075 messages and 244 real action items) and the <strong>wine cookbook</strong> (RMSE in critic points, lower is better).</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Harness</th><th class="num">Hosted Jev</th><th class="num">Kev-27B</th><th class="num">GEV-26B</th></tr></thead>
+      <tbody>
+        <tr><td>Sorter: filtered at ~0–1 misses</td><td class="num best">58.9% (1)</td><td class="num">56.4% (0)</td><td class="num">57.8% (2)</td></tr>
+        <tr><td>Sorter: ceiling with a perfect threshold (0 misses)</td><td class="num best">63.6%</td><td class="num">63.3%</td><td class="num">62.9%</td></tr>
+        <tr><td>Wine: 38 questions → CatBoost</td><td class="num">1.86</td><td class="num best">1.83</td><td class="num">1.90</td></tr>
+        <tr><td>Wine: ask the score directly</td><td class="num">2.31</td><td class="num best">2.13</td><td class="num">2.30</td></tr>
+        <tr><td>Wine cookbook, 38 questions (held-out / fresh)</td><td class="num">1.75 / 1.72</td><td class="num best">1.71 / 1.71</td><td class="num">1.78 / 1.78</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>Kev ties Jev with 38 questions</strong> (−0.03 RMSE, 95% CI −0.07 to +0.01) and <strong>beats it asking for the score directly</strong> (−0.18, CI −0.25 to −0.11). Its answers track Jev's closely (median per-question correlation 0.93), and adding them to Jev's helps a little (1.82).</li>
+      <li><strong>As a feature source for the sorter</strong>, Kev's ceiling is within a third of a point of Jev's. That's the gap that sank the earlier open models: the 2B decider's ceiling was 18 points below.</li>
+      <li><strong>GEV-26B is a hair behind Kev and level with Jev</strong>: +0.04 RMSE with 38 questions (CI −0.01 to +0.09) and −0.01 directly, both ties; its sorter ceiling is 0.7 points under Jev's. It is the fastest of the fine-tuned models, and adding its answers to Jev's gives 1.83.</li>
+    </ul>
+
+    <h2>Speed is now the difference</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model, one H100</th><th class="num">Mail probe, per message (14 questions)</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>OpenJev</td><td class="num best">~0.2 s</td><td>4-bit weights, vLLM batching</td></tr>
+        <tr><td>GEV-26B</td><td class="num">~0.3 s</td><td>Mixture of experts: only ~4B parameters work per token</td></tr>
+        <tr><td>Kev-27B</td><td class="num">~0.4 s</td><td>Fused kernels, prefix cache</td></tr>
+        <tr><td>JEV-27B-VL</td><td class="num">~1.8 s</td><td>One call per question; at most 8 in flight (more gives wrong probabilities, per its card)</td></tr>
+        <tr><td>d3, pplx-decider</td><td class="num">~4–5 s</td><td>Their published NVIDIA path is plain transformers behind a one-request lock</td></tr>
+        <tr><td>Hosted Jev</td><td class="num">~0.05 s</td><td>8 requests in flight, someone else's GPUs</td></tr>
+      </tbody>
+    </table></div>
+    <p>These are bench timings through an SSH tunnel, not tuned serving. d3's authors report 27 requests a second through a batching engine on AMD hardware, which we didn't try. The point stands: the serving path matters as much as the model, and you find out only by running it.</p>
+
+    <h2>What this changes</h2>
+    <ol>
+      <li><strong>Quality is no longer the reason to pay for hosted.</strong> On our private tasks Kev-27B, d3 and pplx-decider are at or slightly above Jev. Choose on privacy, volume, latency and operations instead.</li>
+      <li><strong>The fine-tune matters more than the base.</strong> OpenJev, the only model here without decision training, trailed every fine-tuned model on mail despite being the fastest.</li>
+      <li><strong>Exact-class answers improved most.</strong> Concept AUCs barely moved, but the best open models named the right deadline class 60–66% of the time against Jev's 43%. If you read the argmax, not just a probability, that's the biggest change.</li>
+      <li><strong>Count the hardware.</strong> Each model wants an 80 GB GPU at full precision. At $3.29 an hour, one GPU-hour buys about 50,000 typical hosted Jev requests (about 1.5k tokens each), so open weights pay off at steady high volume or when data can't leave your hands, not for occasional use.</li>
+      <li><strong>Re-grade and refit on switch.</strong> Phrasing still transfers imperfectly (OpenJev's best reply question was a Score, not the Choice every other model preferred), and thresholds belong to a model, runtime and rubric triple.</li>
+    </ol>
+    <p>Earlier results, and how these fit beside OpenAI's Decisions API and Claude Haiku 5.5, are on <a href="compare.html">Four ways compared</a>. What the field looked like before this run is on <a href="landscape.html">Landscape</a>.</p>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="compare.html"><span>Previous</span>Four ways compared</a><a class="pager-next" href="cost.html"><span>Next</span>The cost ladder</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

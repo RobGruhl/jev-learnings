@@ -154,11 +154,12 @@
 
     <h2 id="local">7. Local and open weights: what to plan for</h2>
     <ul>
-      <li><strong>Speed.</strong> APUS-OpenJev-4B on an M4 Pro took 5–18 s per message, serially, at about 5.4 GB peak memory. Strands Decider 2B was 2.1 s per request on the same Mac and 0.32–0.40 s on an NVIDIA L4.</li>
+      <li><strong>Speed.</strong> APUS-OpenJev-4B on an M4 Pro took 5–18 s per message, serially, at about 5.4 GB peak memory. Strands Decider 2B was 2.1 s per request on the same Mac and 0.32–0.40 s on an NVIDIA L4. On one rented H100, the 26–27B models ranged from 0.2–0.4 s per mail message (OpenJev, GEV-26B, Kev-27B) to 4–5 s (d3 and pplx-decider on their published path): the serving path mattered as much as the model.</li>
       <li><strong>Calibration.</strong> The local 4B's probabilities were unbiased but 16–28% more spread out than hosted. The 2B decider squeezed its Score answers toward the middle (spread 0.30 levels against Jev's 0.85).</li>
       <li><strong>Shared-prefix caching</strong> made batching six questions over ~10k tokens 3.5× faster. Make sure it's bit-identical before trusting thresholds across it.</li>
       <li><strong>Privacy</strong> is the strongest reason to go local: the data never leaves the machine.</li>
-      <li>The open field is moving fast. Larger open models released in October report JevBench scores at or above Jev's. See <a href="landscape.html">Landscape</a>, and run your own harness before you switch.</li>
+      <li><strong>The open field caught up.</strong> On October 14, five fine-tuned 26–27B open models screened at Jev's level on our private mail, and Kev-27B tied it in the full runs. See <a href="open-weights.html">Open weights caught up</a>, and still run your own harness before you switch.</li>
+      <li><strong>Count rented hardware by the hour.</strong> An H100 at $3.29 an hour comes to about 4–6× Jev per request only while it's kept busy; idle hours cost the same. See the <a href="cost.html">cost ladder</a>.</li>
       <li><strong>Size the machine before the model.</strong> Weights take about parameters × bytes per parameter (0.5 at 4-bit, 1 at 8-bit, 2 at BF16) plus a few GB of cache. A 26B mixture-of-experts at 4-bit is borderline on a 24 GB laptop; a 31B dense model wants a 32 GB+ machine at 4-bit and an 80 GB GPU at BF16. Details on <a href="landscape.html#hardware">Landscape</a>.</li>
     </ul>
 

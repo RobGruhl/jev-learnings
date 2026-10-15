@@ -66,7 +66,7 @@
       <li><strong>On a 24 GB Apple-silicon laptop</strong> (our test machine): the 2B–4B models run comfortably, and 9B–12B fit if a quantized build exists. The 26B-A4B at 4-bit is borderline, because macOS lets the GPU use only part of unified memory by default (roughly two-thirds to three-quarters). 31B dense and 35B-A3B don't realistically fit. Downloads are large too: budget the model's size in free disk, twice over while converting.</li>
       <li><strong>Check the runtime, not just the size.</strong> Some decider servers run on PyTorch, which on a Mac means BF16 on the GPU unless someone publishes a quantized MLX or GGUF build. A 12B in BF16 (~24 GB) won't fit a 24 GB Mac.</li>
       <li><strong>Quantizing changes the answers.</strong> 4-bit weights shift probabilities. Treat a quantized model as a new model: re-grade your questions and re-fit thresholds (they belong to a model, runtime and rubric triple).</li>
-      <li><strong>Rented GPUs have a price too.</strong> An 80 GB H100 rents for several dollars an hour. At our measured hosted price, Jev answers tens of thousands of typical requests for that. Open weights win on privacy and at high, steady volume, not automatically on cost.</li>
+      <li><strong>Rented GPUs have a price too.</strong> We paid $3.29 an hour for an 80 GB H100. At our measured hosted price, Jev answers about 52,000 typical requests for that, and a busy H100 running Kev-27B or GEV-26B answered 9,000–12,000, so about 4–6× Jev per request (see the <a href="cost.html">cost ladder</a>). Open weights win on privacy and at high, steady volume, not automatically on cost.</li>
     </ul>
 
     <h3>The JevBench Capability board</h3>

@@ -17,7 +17,7 @@ All comparisons used the same tasks: concept AUCs on labeled mail and a "sorter"
 - **Open weights caught up (October 14).** Six 26–27B open decision models ran on the same harnesses on a rented H100. The five fine-tuned ones (Kev-27B, d3, pplx-decider v1.1, JEV-27B-VL, GEV-26B) screened at hosted Jev's level on the mail concepts, went 12/12 on the page chooser and scored 198–207 of 231 on JevBench (Jev 200).
   - Kev-27B, run in full, ties Jev on the sorter's ceiling (63.3% against 63.6%) and on wine with 38 questions (1.83 against 1.86), and beats it asking for the wine score directly (2.13 against 2.31).
   - The open models name the exact deadline class far more often: 59–66% against Jev's 43%.
-  - The costs that remain: an 80 GB GPU per model, and speed that depends on the serving path (0.2–0.4 s per mail message for OpenJev, GEV-26B and Kev; 4–5 s for d3 and pplx-decider on their published NVIDIA path).
+  - The costs that remain: an 80 GB GPU per model (rented at $3.29 an hour, about 4–6× Jev per request while kept busy), and speed that depends on the serving path (0.2–0.4 s per mail message for OpenJev, GEV-26B and Kev; 4–5 s for d3 and pplx-decider on their published NVIDIA path).
   - The one model without decision training (OpenJev, a frozen DiffusionGemma) trailed all of them.
   - Details: the site's [Open weights caught up](https://robgruhl.github.io/jev-learnings/open-weights.html).
 

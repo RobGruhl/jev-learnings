@@ -36,7 +36,7 @@
     <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
   </nav>
   <main id="main" class="content">
-    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026 · open 26–27B models added October 15</p>
     <h1>The cost ladder</h1>
     <p class="lede">The same judgment costs wildly different amounts depending on who makes it. With Jev as 1×, here's what one decision costs as you climb from decision models to small LLMs, to frontier LLMs, to a person.</p>
 
@@ -51,7 +51,9 @@
       <div class="cost-row"><span class="name">Jev 1.13</span><span class="track"><span class="fill decision" style="width:7%"></span></span><span class="mult">1×</span></div>
       <div class="cost-row"><span class="name">Open 2B, rented L4, kept busy</span><span class="track"><span class="fill decision" style="width:8%"></span></span><span class="mult">≈1.1×</span></div>
       <div class="cost-row"><span class="name">OpenAI Decisions API</span><span class="track"><span class="fill decision" style="width:15.8%"></span></span><span class="mult">2.4×</span></div>
+      <div class="cost-row"><span class="name">Open 26–27B, rented H100, kept busy</span><span class="track"><span class="fill decision" style="width:23.3%"></span></span><span class="mult">≈4–6×</span></div>
       <div class="cost-row"><span class="name">Claude Haiku 5.5 (low)</span><span class="track"><span class="fill small" style="width:25.1%"></span></span><span class="mult">5–7×</span></div>
+      <div class="cost-row"><span class="name">Open 27B, slow serving path</span><span class="track"><span class="fill decision" style="width:49.2%"></span></span><span class="mult">~60–70×</span></div>
       <div class="cost-row"><span class="name">Claude Sonnet 5.5</span><span class="track"><span class="fill llm" style="width:56.9%"></span></span><span class="mult">~140×</span></div>
       <div class="cost-row"><span class="name">Claude Opus 5.5</span><span class="track"><span class="fill llm" style="width:64.2%"></span></span><span class="mult">~290×</span></div>
       <div class="cost-row"><span class="name">Claude Fable 5.1</span><span class="track"><span class="fill llm" style="width:73.3%"></span></span><span class="mult">~710×</span></div>
@@ -72,6 +74,8 @@
         <tr><td>Claude Fable 5.1</td><td>$10 / $50</td><td>Estimated, same shape</td><td class="num">$0.045</td><td class="num">~710×</td></tr>
         <tr><td>Open weights on your Mac</td><td>—</td><td>No per-call charge; electricity and 2–18 s per request</td><td class="num">≈$0</td><td class="num">≈0×</td></tr>
         <tr><td>Open 2B on a rented NVIDIA L4</td><td>~$0.80 per GPU-hour</td><td>Estimated: 0.32 s per request serially, ~11,000 requests an hour, only if kept busy</td><td class="num">≈$0.00007</td><td class="num">≈1.1×</td></tr>
+        <tr><td>Open 26–27B (GEV-26B, Kev-27B) on a rented H100</td><td>$3.29 per GPU-hour</td><td>Measured throughput: 0.3–0.4 s per mail message (14 questions) on one 80 GB H100, so 9,000–12,000 an hour, only if kept busy. Quality matched Jev (<a href="open-weights.html">details</a>)</td><td class="num">≈$0.0003</td><td class="num">≈4–6×</td></tr>
+        <tr><td>Open 27B (d3, pplx-decider) on their published NVIDIA path</td><td>$3.29 per GPU-hour</td><td>Measured: 4–5 s per message, one request at a time, 720–900 an hour. The same weights behind a batching server would cost far less</td><td class="num">≈$0.004</td><td class="num">~60–70×</td></tr>
         <tr><td>A person</td><td>—</td><td>Illustrative: 30 seconds at $60 an hour</td><td class="num">$0.50</td><td class="num">~7,900×</td></tr>
       </tbody>
     </table></div>
@@ -86,13 +90,15 @@
       <tbody>
         <tr><td>Jev 1.13</td><td class="num">$0.06</td><td class="num">$63</td></tr>
         <tr><td>OpenAI Decisions API</td><td class="num">$0.15</td><td class="num">$150</td></tr>
+        <tr><td>Open 26–27B, rented H100 kept busy</td><td class="num">$0.27–0.37</td><td class="num">$270–370</td></tr>
         <tr><td>Claude Haiku 5.5 (low)</td><td class="num">$0.40</td><td class="num">$400</td></tr>
         <tr><td>Claude Sonnet 5.5 (est.)</td><td class="num">$9</td><td class="num">$9,000</td></tr>
         <tr><td>Claude Opus 5.5 (est.)</td><td class="num">$18</td><td class="num">$18,000</td></tr>
         <tr><td>Claude Fable 5.1 (est.)</td><td class="num">$45</td><td class="num">$45,000</td></tr>
       </tbody>
     </table></div>
-    <p>For scale: the operations agent's decision model cost <strong>under $0.10 per overnight session</strong>. A full day of wine-cookbook runs, including tests, came to $0.54 on Jev. The whole Haiku benchmark (15,039 calls) cost $7.57; the Decisions API benchmark (9,314 calls) cost $1.78.</p>
+    <p>For scale: the operations agent's decision model cost <strong>under $0.10 per overnight session</strong>. A full day of wine-cookbook runs, including tests, came to $0.54 on Jev. The whole Haiku benchmark (15,039 calls) cost $7.57; the Decisions API benchmark (9,314 calls) cost $1.78. Screening six open 26–27B models on rented H100s took about $24 of GPU time.</p>
+    <p><strong>Rented hardware is priced by the hour, not the request.</strong> The open rows assume the GPU is kept busy. At $3.29 an hour, an idle hour buys nothing, while the same money buys about 52,000 typical Jev requests. A rented open model beats hosted Jev on cost only if you own the GPU already or keep it near full; its stronger reasons are privacy and control.</p>
 
     <h2 id="calculator">Calculator: what does your cascade cost?</h2>
     <p>Set how many decisions you make a day and where they end up. Every decision that leaves code is asked of the decision model first; escalations also pay for the LLM, and the person tier pays for both plus the person.</p>
@@ -103,7 +109,7 @@
       <label><span>Escalated to LLM</span><input type="range" id="cc-llm" min="0" max="100" step="0.5" value="4.5" aria-label="share escalated to the LLM"><output data-for="cc-llm"></output></label>
       <label><span>Escalated to a person</span><input type="range" id="cc-human" min="0" max="20" step="0.1" value="0.5" aria-label="share escalated to a person"><output data-for="cc-human"></output></label>
       <label><span>Decision model</span>
-        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option></select><span></span></label>
+        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option><option value="open27">Open 26–27B, rented H100 (kept busy)</option></select><span></span></label>
       <label><span>LLM tier</span>
         <select id="cc-lmodel" aria-label="LLM tier model"><option value="sonnet">Claude Sonnet 5.5</option><option value="opus" selected>Claude Opus 5.5</option><option value="fable">Claude Fable 5.1</option><option value="haiku">Claude Haiku 5.5</option></select><span></span></label>
       <label><span>LLM request size</span><input type="range" id="cc-llmsize" min="1" max="20" step="1" value="10" aria-label="LLM request size multiple"><output data-for="cc-llmsize"></output></label>
@@ -119,7 +125,7 @@
 
     <p>Latency climbs a similar ladder. Hook Chain's <a href="https://robgruhl.github.io/claude-mod-learnings/latency.html">latency ladder</a> normalizes to one pass-through Claude Code hook (about 42 µs): a call to Jev is about 14,000× that, and Haiku about 60,000×.</p>
 
-    <div class="callout note"><p><strong>Choosing by cost alone is a mistake.</strong> Haiku costs 6× Jev but wins on reasoning-heavy judgments; the Decisions API costs 2.4× but is the fastest hosted option. See <a href="compare.html#when">when to use which</a>.</p></div>
+    <div class="callout note"><p><strong>Choosing by cost alone is a mistake.</strong> Haiku costs 6× Jev but wins on reasoning-heavy judgments; the Decisions API costs 2.4× but is the fastest hosted option; a rented open 27B costs about 5× Jev but keeps the data in your hands. See <a href="compare.html#when">when to use which</a>.</p></div>
 
 <nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="open-weights.html"><span>Previous</span>Open weights caught up</a><a class="pager-next" href="landscape.html"><span>Next</span>Landscape, October 2026</a></nav>
     <footer class="footer">

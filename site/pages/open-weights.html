@@ -43,6 +43,13 @@
 
     <h2>The full runs</h2>
     <p>The two fastest models also got the harnesses that matter most to us: the mail <strong>sorter</strong> (questions as features in a learned combiner, leave-one-month-out over 2,075 messages and 244 real action items) and the <strong>wine cookbook</strong> (RMSE in critic points, lower is better).</p>
+    <div class="callout note" id="sorter"><p><strong>How to read the sorter numbers.</strong> They are not accuracy, and higher is better. The sorter's job is to set aside as much mail as it can without hiding anything that needs action. Of 2,075 real messages, 244 (about 12%) needed action: pay a bill, reply, meet a deadline.</p>
+    <ul>
+      <li><strong>Filtered</strong> is the share of all mail set aside, using the threshold the sorter chose for itself. The number in parentheses is how many of the 244 action messages slipped into the set-aside pile. Those misses are the only outright errors.</li>
+      <li><strong>Ceiling</strong> is the share it could set aside with the best possible threshold and zero misses. You can only find that threshold after seeing the answers, so it measures how good the model's signals are, not what you'd get in practice.</li>
+      <li><strong>The rest still comes to you for review.</strong> At Jev's 63.6% ceiling, that's 36.4% of mail. About 12 points of it are the real action messages, which is correct. The other ~24 points, roughly 500 messages, didn't need you, but the sorter wasn't sure enough to set them aside. That's caution, not error: hiding a real bill is far worse than showing you an extra newsletter.</li>
+      <li><strong>A perfect sorter would reach about 88%</strong>, setting aside everything except the 244. Jev and Kev get a bit more than two thirds of the way there. The earlier 2B open model topped out at 45.5%.</li>
+    </ul></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Harness</th><th class="num">Hosted Jev</th><th class="num">Kev-27B</th><th class="num">GEV-26B</th></tr></thead>
       <tbody>

@@ -70,16 +70,16 @@
     </ol>
 
     <h3>A worked example</h3>
-    <p>Here's the shape of the contrastive Choice that won on deadlines. The near misses (an event, an offer) are named so that "there's a date in it" doesn't pull everything toward <em>deadline</em>:</p>
-<pre><code>"deadline_kind": {
+    <p>Here's the contrastive Choice that won on deadlines, exactly as it was sent (it calls the inbox owner "the recipient"). The near misses (an event, an offer, a date that's only information) are named so that "there's a date in it" doesn't pull everything toward <em>action_deadline</em>:</p>
+<pre><code>"d_choice": {
   "type": "choice",
-  "instructions": "What does this message ask of the reader, if anything, with respect to time?",
+  "instructions": "What is the most important date or time element in this email for the recipient?",
   "criteria": {
-    "deadline":      "The reader must do something by a stated date or time, or lose something.",
-    "event":         "A scheduled happening the reader may attend; nothing is lost by not acting.",
-    "offer":         "A promotion or sale that expires; ignoring it costs nothing.",
-    "informational": "Dates appear, but nothing is asked of the reader.",
-    "none":          "No date, time or time pressure is involved at all."
+    "action_deadline":    "A date or time by which the recipient or a family member must do something: reply, pay, register, return, sign, submit, book, or confirm.",
+    "event_time":         "The time of an event, appointment, class, reservation, or delivery that the recipient attends or receives; nothing has to be done by a cutoff.",
+    "offer_expiry":       "A sale, discount, promotion, or marketing offer that ends on a date.",
+    "informational_date": "A date is mentioned (a past event, a statement period, a shipping estimate), but nothing is expected of the recipient.",
+    "none":               "The email contains no date or time that matters to the recipient."
   }
 }</code></pre>
 

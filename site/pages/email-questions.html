@@ -6,6 +6,18 @@
       <span class="tag code">Code</span><span class="tag jev">Jev</span><span class="tag llm">LLM</span><span class="tag human">Human</span>
     </div>
 
+    <h2>Three ways to ask</h2>
+    <p>Every question sent to Jev takes one of three shapes (<a href="101.html">101</a> has more). The examples are real questions from this project. They call the inbox owner "the recipient".</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Shape</th><th>What you write</th><th>What comes back</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Noul</strong></td><td>A statement about the message that is true or false</td><td>The probability that it's true, 0 to 1</td><td>"This email asks the recipient a question."</td></tr>
+        <tr><td><strong>Score</strong></td><td>A question and a short ladder of levels</td><td>Where the message sits on the ladder</td><td>"How much does a real person depend on the recipient replying to this email?" Four levels, from "No one is waiting" to "Someone is blocked until he answers".</td></tr>
+        <tr><td><strong>Choice</strong></td><td>A question and several named answers, each with a one-line description</td><td>A probability for each answer</td><td>"Who, if anyone, is waiting for a reply from the recipient?" with five answers (shown in full <a href="#word-for-word">below</a>)</td></tr>
+      </tbody>
+    </table></div>
+    <p>A <strong>contrastive Choice</strong> is a Choice whose wrong answers are the look-alikes: the things most easily mistaken for the concept you care about. To find mail where someone is waiting on the owner's reply, you don't ask "is someone waiting, yes or no?" You ask "who is waiting?" and give the look-alikes answers of their own: a group email that asks everyone to RSVP, and a system asking him to rate a delivery. A message that only resembles the real thing then has a better place to land than "yes". This shape was the best question for every concept we tested.</p>
+
     <h2>What Jev can judge on real mail</h2>
     <p>Each number is the AUC of the best question against its own concept: the chance that a random positive message scores above a random negative one (1.0 is perfect, 0.5 is a coin flip). Concept labels came from blind Claude labelers on a 564-message probe set, enriched for each concept and padded with a random slice of ordinary mail. All numbers are hosted <code>jev-1.13.0</code>.</p>
     <div class="table-wrap"><table>
@@ -40,37 +52,66 @@
       </tbody>
     </table></div>
 
+    <h3 id="word-for-word">One ladder, word for word</h3>
+    <p>Here is every rung of the "waiting on reply" ladder exactly as it was sent. It had the widest spread: the same idea scored anywhere from 0.744 to 0.986 depending on the sentence.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Rung</th><th>Exact wording</th><th class="num">AUC</th></tr></thead>
+      <tbody>
+        <tr><td>Abstract</td><td>"This email is personal."</td><td class="num">0.744</td></tr>
+        <tr><td>Category</td><td>"This email asks the recipient a question."</td><td class="num">0.911</td></tr>
+        <tr><td>Exact proposition</td><td>"A real person wrote this email to the recipient and is waiting for his answer, decision, or confirmation before they can go ahead."</td><td class="num">0.980</td></tr>
+        <tr><td>Lexical</td><td>"This email contains a question addressed to the recipient, or a phrase such as 'let me know', 'can you', 'please confirm', 'what do you think', or 'get back to me'."</td><td class="num">0.931</td></tr>
+        <tr><td>Consequence</td><td>"If the recipient never replies, a real person will be left waiting, or a plan that involves him will stall."</td><td class="num">0.978</td></tr>
+        <tr><td>Surprise</td><td>"Someone is waiting for the recipient's reply, but this is easy to miss because the question is buried, the email is long, or it looks like a group or automated message."</td><td class="num">0.924</td></tr>
+        <tr><td>Score</td><td>"How much does a real person depend on the recipient replying to this email?" No one is waiting / A reply would be polite but nothing depends on it / Someone needs his answer / Someone is blocked until he answers</td><td class="num">0.982</td></tr>
+        <tr><td><strong>Contrastive Choice</strong></td><td>"Who, if anyone, is waiting for a reply from the recipient?" with the five answers below</td><td class="num best">0.986</td></tr>
+      </tbody>
+    </table></div>
+    <p>"Personal" sounds close but is a different concept. A friend's chatty update is personal and asks nothing, while a contractor asking which tile to order isn't personal and is waiting. "Asks a question" is closer, but plenty of mail asks a question nobody needs answered. The exact proposition and the Choice both describe the real situation, and both land near 0.98. Here is the winning Choice in full:</p>
+<pre><code>"r_choice": {
+  "type": "choice",
+  "instructions": "Who, if anyone, is waiting for a reply from the recipient?",
+  "criteria": {
+    "specific_person":  "An individual (family, friend, colleague, teacher, neighbour) who wrote to him personally and expects his answer.",
+    "business_human":   "A real person at a company or office (a contractor, agent, support rep, landlord) who expects his answer.",
+    "group_or_list":    "The organiser of a group or list email who asks everyone to respond, not him in particular.",
+    "automated_prompt": "An automated system asks him to confirm, rate, review, or click; no person is waiting.",
+    "nobody":           "No one expects a reply: notifications, receipts, newsletters, marketing, or mail that only informs."
+  }
+}</code></pre>
+    <p>The first two answers are the concept. The other three are the look-alikes, each named and described: an organiser asking everyone to sign up, the store asking for a review, and the receipt. Without those answers they would all pull toward "someone wants a reply". The deadline Choice works the same way. Its answers are an action deadline, plus three look-alikes that also contain a date: an event time ("nothing has to be done by a cutoff"), an offer expiry ("a sale, discount, promotion, or marketing offer that ends on a date") and an informational date ("a past event, a statement period, a shipping estimate"). The fifth answer is none.</p>
+
     <h2>Seven lessons about wording</h2>
     <div class="tcards">
       <div class="tcard jev">
         <span class="tag jev">Jev</span>
         <h3>1. Name the near misses</h3>
-        <p>A Choice whose options spell out what the concept is <em>not</em> (an event isn't a deadline, a requested cancellation isn't a failed payment) was the best single question on every concept, and it held on the easy-to-miss positives (0.96–0.99). Describe "none" well: on the money set, a thin "none" option was right only 50% of the time.</p>
+        <p>A Choice whose options spell out what the concept is <em>not</em> (an event isn't a deadline, a requested cancellation isn't a failed payment) was the best single question on every concept, and it held on the easy-to-miss positives (0.96–0.99). Describe "none" well. On the money set it was one line, <code>"none": "No money event."</code>, and it was right only 50% of the time. The payment Choice spelled it out: "Nothing about payments failing or services ending: marketing, win-back offers, news, personal mail, or anything else."</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span>
         <h3>2. Exact propositions are best calibrated</h3>
-        <p>The exact payment Noul reached 88% precision at 0.5. Where a threshold must mean something on its own, use the narrowest true-or-false statement of the concept.</p>
+        <p>The exact payment Noul reached 88% precision at 0.5: "This email says a payment by the recipient failed, was declined, or could not be processed, or that a service, subscription, or account of his is being cancelled, suspended, or closed without his asking." Where a threshold must mean something on its own, use the narrowest true-or-false statement of the concept.</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span>
         <h3>3. Abstract wording ranks but over-fires</h3>
-        <p>"Involves a deadline" ranked well (0.955) but averaged 0.31 on mail with no deadline, for 29% precision at 0.5. It fails outright when abstraction changes the concept: "personal" isn't "someone is waiting" (0.744).</p>
+        <p>"This email involves a deadline." ranked well (0.955) but averaged 0.31 on mail with no deadline, for 29% precision at 0.5. It fails outright when abstraction changes the concept: "personal" isn't "someone is waiting" (0.744).</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span>
         <h3>4. Framing is concept-specific</h3>
-        <p>"May not realize this is coming" won for hidden charges (0.96, where a flat "is this about money" got 0.65). The same surprise framing was the weakest rung for deadlines and payment failures. It helps only where the trap is not knowing something is coming.</p>
+        <p>"This email warns about a charge the recipient may not realize is coming, such as a trial ending, an annual renewal, or a price increase." won for hidden charges (0.96). A flat "This email is about money: a payment, charge, bill, refund, or price." got 0.65. The same surprise framing was the weakest rung for deadlines and payment failures. It helps only where the trap is not knowing something is coming.</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span> <span class="tag code">Code</span>
         <h3>5. Don't decompose what the model already grasps</h3>
-        <p>Splitting a concept into surface facts and learning to combine them lost 0.03–0.08 on deadlines and replies, and tied on payment. The atoms were weak alone ("names a date" 0.59) because the model understands these concepts whole. Decomposition fits concepts that really are conjunctions of checkable facts, like spam signals.</p>
+        <p>Splitting a concept into surface facts and learning to combine them lost 0.03–0.08 on deadlines and replies, and tied on payment. The atoms were weak alone ("This email names a specific calendar date, day of the week, or clock time." got 0.59) because the model understands these concepts whole. Decomposition fits concepts that really are conjunctions of checkable facts, like spam signals.</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span>
         <h3>6. Grade a question against its own concept</h3>
-        <p>"A charge is coming" looked like chance when graded against "needs action" (about 0.5), and was nearly dropped. Graded against the concept it actually asks about, the same idea scored 0.89. Build decisions from concept answers; don't judge a question by a target it wasn't asking about.</p>
+        <p>"The email says the recipient will be charged or a charge will change: a free trial ending, a subscription converting to paid, a price increase, or an upcoming renewal." looked like chance when graded against "needs action" (about 0.5), and was nearly dropped. Graded against the concept it actually asks about, the same idea ("This email says the recipient will be charged money in the future.") scored 0.89. Build decisions from concept answers; don't judge a question by a target it wasn't asking about.</p>
       </div>
       <div class="tcard jev">
         <span class="tag jev">Jev</span> <span class="tag code">Code</span>

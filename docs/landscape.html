@@ -32,14 +32,14 @@
 <div class="layout">
   <nav id="sidenav" class="sidenav" aria-label="Site">
     <a class="nav-start" href="index.html">Start here</a>
-    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html" aria-current="page">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="nimble.html">Nimble takes the lead</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html" aria-current="page">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
     <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
   </nav>
   <main id="main" class="content">
-    <p class="eyebrow"><span class="badge data">Evidence</span> Checked October 12, 2026</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Checked October 12, 2026 · Bespoke Labs and OpenAI updated October 27</p>
     <h1>Landscape, October 2026</h1>
     <p class="lede">Decision models went from one vendor to a crowded field in about a month. Here's what changed since our benchmark runs in early October: the Claude lineup, OpenAI's Decisions API, and the open-weight models that, by their own published numbers, may no longer be mid.</p>
-    <div class="callout warn"><p><strong>Provenance.</strong> Our own measurements are on <a href="compare.html">Four ways compared</a>. Everything on this page comes from vendor documentation, release notes, public leaderboards and press as of October 12, 2026, and we haven't reproduced it. Vendor benchmark claims are marked as claims. The field changes daily.</p></div>
+    <div class="callout warn"><p><strong>Provenance.</strong> Our own measurements are on <a href="compare.html">Four ways compared</a>, <a href="open-weights.html">Open weights caught up</a> and <a href="nimble.html">Nimble takes the lead</a>. Everything on this page comes from vendor documentation, release notes, public leaderboards and press as of October 12, 2026, and we haven't reproduced it. Vendor benchmark claims are marked as claims. The field changes daily.</p></div>
 
     <h2 id="claude">The Claude lineup</h2>
     <p>Three new Claude models shipped in the last four weeks. All have a 1M-token context window and up to 128K output tokens.</p>
@@ -68,10 +68,22 @@
       <li>Source: <a href="https://docs.typesafe.ai/models">docs.typesafe.ai/models</a>.</li>
     </ul>
 
-    <h2 id="openai">OpenAI: Decisions API and Luna</h2>
+    <h2 id="nimble">Bespoke Labs: Nimble, a second hosted decision model</h2>
+    <ul>
+      <li><strong>Hosted at <code>api.bespokelabs.ai/v1/systemone</code></strong>, in Jev's own request and response shape, so the TypeSafe SDK and our harnesses ran against it unchanged. $0.04 per million input tokens, output free; failed requests aren't charged.</li>
+      <li><strong>One model is served: <code>nimble-v4-max</code></strong> (27B, per the launch announcement). <code>nimble-v4</code> is deprecated and, like <code>nimble-latest</code>, points to it; <code>nimble-v3</code> is deprecated. An older docs table still lists <code>nimble-v4</code> as a separate fast, cheap model; on October 27 it returned max's answers, token counts and latency. Ask for <code>nimble-v4-max</code> by name; there is no revision selector.</li>
+      <li><strong>Limits:</strong> 1 to 64 questions per request, 256k prompt tokens per question (never truncated: an over-long request is an error), a 1 MiB body, and 4 concurrent requests until an organization first buys credit, then 100.</li>
+      <li><strong>Open weights too, but not v4's.</strong> Bespoke publishes <code>Bespoke-Nimble-9B</code> (a LoRA adapter over Qwen3.5-9B, Sept 18) and its v2 and v3, <code>Bespoke-Nimble-27B-v3</code> (Oct 9) and <code>Nimble-v4-max</code> (Oct 18) on Hugging Face. There is no v4 9B checkpoint. The official MLX scorer refuses quantized weights, so the 9B wants about 19 GB at BF16 plus a merged copy on disk.</li>
+      <li><strong>Our result:</strong> v4-max led every harness we ran except the mail sorter. See <a href="nimble.html">Nimble takes the lead</a>.</li>
+      <li>Sources: <a href="https://docs.bespokelabs.ai/nimble/overview">Nimble overview</a>, <a href="https://docs.bespokelabs.ai/nimble/pricing">pricing</a>, <a href="https://docs.bespokelabs.ai/nimble/limits-and-errors">limits and errors</a>, <a href="https://huggingface.co/bespokelabs">huggingface.co/bespokelabs</a>.</li>
+    </ul>
+
+    <h2 id="openai">OpenAI: Decisions API, Luna and Terra</h2>
     <ul>
       <li><strong>Decisions API</strong> has been in public beta since October 6, with GA promised "in the coming weeks." Still only <code>gpt-6-luna</code> and no pinned snapshot. Still $0.10 per million input tokens, with no charge for output or caching. It accepts images as inline base64. Rate limits aren't documented.</li>
       <li><strong>Luna is also a general model.</strong> <code>gpt-6-luna</code> (Sept 22) is OpenAI's cheapest general text model: $0.10 in, $0.50 out per million, 1.05M context, on Chat Completions, Responses and Batch. Its predecessor <code>gpt-5.6-luna</code> is still listed at $0.20 / $1.20.</li>
+      <li><strong>The general lineup, as of October 27:</strong> GPT-6 Astra ($10 / $50), GPT-6.1 Sol ($2 / $10), <strong>GPT-6.1 Terra</strong> ($1 / $5, knowledge cutoff June 1, 2026) and GPT-6 Luna ($0.10 / $0.50, cutoff May 18). All have a 1.05M context and 128K output. Luna and Terra take strict structured outputs at effort <code>low</code>; they return token log-probabilities only at effort <code>none</code>.</li>
+      <li><strong>Asked like Haiku, Luna is a different judge.</strong> Through the Responses API with a structured-output schema it tied Nimble on wine and Jev on the mail sorter, at Haiku's cost and with Haiku's re-ask wobble. Terra is steadier and costs 10× more per token. See <a href="nimble.html">Nimble takes the lead</a>.</li>
       <li>OpenAI has not adopted the <code>/v1/systemone</code> request shape that others are converging on; you still need an adapter.</li>
       <li>Sources: <a href="https://developers.openai.com/api/docs/guides/decisions">Decisions guide</a>, <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">gpt-6-luna</a>, <a href="https://developers.openai.com/api/docs/changelog">changelog</a>.</li>
     </ul>
@@ -130,7 +142,7 @@
     <h2 id="others">Other entrants and the emerging standard</h2>
     <ul>
       <li><strong>Microsoft Decision-1</strong> (Foundry, Oct 9): hosted only, text only, 32K context, priced like Jev at $0.042 per million input tokens. Microsoft claims best accuracy on 36 benchmarks.</li>
-      <li><strong><code>/v1/systemone</code> is becoming a de facto API.</strong> Reports say AWS, Upstage and Ollama have aligned on TypeSafe's request shape. Ollama v0.35+ and llama.cpp's server can serve it locally, and Pydantic AI has a <code>SystemOneModel</code>. A decision model you can swap without an adapter is now realistic for everyone except OpenAI.</li>
+      <li><strong><code>/v1/systemone</code> is becoming a de facto API.</strong> Reports say AWS, Upstage and Ollama have aligned on TypeSafe's request shape. Ollama v0.35+ and llama.cpp's server can serve it locally, and Pydantic AI has a <code>SystemOneModel</code>. Bespoke Labs' hosted Nimble speaks it natively. A decision model you can swap without an adapter is now realistic for everyone except OpenAI.</li>
       <li><strong>Other hosted decision APIs</strong> are appearing (Upstage Solar Decide, Perplexity, and others) from single-source announcements; treat them as unverified.</li>
       <li>Google, Meta, Mistral and Nvidia have no first-party decision model yet; Gemma 4 and Qwen 3.5/3.8 are the common bases for others' fine-tunes.</li>
     </ul>
@@ -141,6 +153,8 @@
       <li><strong>Re-test open weights before calling them mid.</strong> If a 12B–26B open model matches Jev on your data, privacy and zero marginal cost become free wins. On ours, the 26–27B models did (<a href="open-weights.html">results</a>).</li>
       <li><strong>Haiku 5.5 changed the "small LLM" math.</strong> At $0.10 / $0.50, the price gap to decision models is now 5–7×, not 50×. Repeatability, latency and calibration, not price, are the reasons to prefer a decision model.</li>
       <li><strong>Pin what you can.</strong> More vendors means more silent model updates. Thresholds belong to a (model, runtime, rubric) triple.</li>
+      <li><strong>Jev has hosted competition at its own price.</strong> Nimble v4-max took Jev's request shape unchanged and beat it on wine and mail concepts (<a href="nimble.html">results</a>). Evaluate both on your data, refit thresholds, and check repeatability before you freeze one.</li>
+      <li><strong>Test the call path, not just the model.</strong> The same <code>gpt-6-luna</code> went from Jev's level to the top of the wine table when we asked it as a chat model instead of through the Decisions API.</li>
     </ol>
 
 <nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="cost.html"><span>Previous</span>The cost ladder</a><a class="pager-next" href="build.html"><span>Next</span>Build your own decision skeleton</a></nav>

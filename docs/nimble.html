@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nimble takes the lead · Decision Tier</title>
+<meta name="description" content="Bespoke Labs&#x27; hosted Nimble v4-max, and OpenAI&#x27;s Luna and Terra asked like Haiku, against Jev on the same private harnesses, October 27, 2026.">
+<meta property="og:title" content="Nimble takes the lead · Decision Tier">
+<meta property="og:description" content="Bespoke Labs&#x27; hosted Nimble v4-max, and OpenAI&#x27;s Luna and Terra asked like Haiku, against Jev on the same private harnesses, October 27, 2026.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/nimble.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="nimble.html" aria-current="page">Nimble takes the lead</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 27, 2026</p>
+    <h1>Nimble takes the lead</h1>
+    <p class="lede">Two weeks after the open models caught up, a hosted decision model went past Jev. Bespoke Labs' <strong>Nimble v4-max</strong> speaks Jev's own API, costs slightly less per token, answers in under half a second, and led every harness we ran except the mail sorter. On the same day we asked OpenAI's <strong>GPT-6 Luna</strong> and <strong>GPT-6.1 Terra</strong> the way we ask Claude Haiku 5.5. Asked that way, Luna becomes a top-tier judge, at a general model's price in speed and repeatability.</p>
+
+    <div class="callout note"><p><strong>The pick: Nimble v4-max for text judgments at volume.</strong> It is the best wine model we have measured on every arm, it leads all three mail concepts, and it holds up under rough phrasing better than any model we've counted (at or above Jev on 37 of 42 question variants, Haiku 36). It costs about what Jev costs and runs at p50 0.37 s. Two catches: it is not perfectly repeatable, and its mail sorter missed one more action than Jev's at the deployable threshold.</p>
+    <ul>
+      <li><strong>If you want the best mail sorter:</strong> Jev and GPT-6 Luna asked like Haiku are tied, at 58.9% and 59.0% of mail set aside with one missed action each.</li>
+      <li><strong>If the question needs reasoning</strong> (dates, numbers, long policies): the general models. GPT-6.1 Terra scored 230 of 231 on JevBench and Luna 226, against Nimble's 209 and Jev's 200.</li>
+    </ul></div>
+
+    <div class="callout warn"><p><strong>Single runs, same harnesses, same grading.</strong> The mail and wine sets are private; JevBench is public and may be in any model's training data. Mail AUCs are on the 564-message labeled probe set; the sorter runs on all 2,075 messages with 244 actions, leave-one-month-out. Terra's 38-question wine arm ran on a budgeted subset, so it has no held-out result.</p></div>
+
+    <h2>What we ran</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Model</th><th>What it is</th><th>Price per M tokens (in / out)</th><th>How we called it</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Nimble v4-max</strong> (Bespoke Labs)</td><td>Hosted decision model, 27B. <code>nimble-v4</code> and <code>nimble-latest</code> both point to it; there is no hosted 9B</td><td>$0.04 / free</td><td>Its own <code>/v1/systemone</code>, Jev's request shape; a thin proxy added the key, a spend cap and retries</td></tr>
+        <tr><td><strong>GPT-6 Luna</strong>, asked like Haiku</td><td>OpenAI's cheapest general model, the same <code>gpt-6-luna</code> that sits behind the Decisions API</td><td>$0.10 / $0.50</td><td>Responses API, effort <code>low</code>, a strict structured-output schema: the Haiku adapter's prompt with a different model</td></tr>
+        <tr><td><strong>GPT-6.1 Terra</strong>, asked like Haiku</td><td>OpenAI's mid-tier general model</td><td>$1.00 / $5.00</td><td>Same adapter</td></tr>
+      </tbody>
+    </table></div>
+    <p>Total spend for the day: $1.03 for Nimble (9,253 wine and page calls, 8,300 mail calls, 231 JevBench tasks) and $29.6 for the two OpenAI models, $24 of it Terra.</p>
+
+    <h2>The scoreboard</h2>
+    <p>Bold is the best in each row. Wine is RMSE in critic points (lower is better); mail concepts are the best question's AUC (higher is better).</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Harness</th><th class="num">Jev</th><th class="num">Nimble v4-max</th><th class="num">Luna, Haiku-style</th><th class="num">Terra, Haiku-style</th><th class="num">Haiku 5.5</th><th class="num">Kev-27B</th></tr></thead>
+      <tbody>
+        <tr><td>Wine, 38 questions → model (5-fold × 3 CV, 1,189 wines)</td><td class="num">1.86</td><td class="num best">1.76</td><td class="num">1.77</td><td class="num">1.76‡</td><td class="num">1.80</td><td class="num">1.83</td></tr>
+        <tr><td>Wine, ask the score directly (CV)</td><td class="num">2.31</td><td class="num best">1.92</td><td class="num">1.93</td><td class="num">2.08‡</td><td class="num">2.01</td><td class="num">2.13</td></tr>
+        <tr><td>Wine held-out / fresh, 38 questions (fit on dev, scored once)</td><td class="num">1.75 / 1.72</td><td class="num best">1.66 / 1.67</td><td class="num">1.71 / 1.67</td><td class="num">—</td><td class="num">1.78 / 1.83</td><td class="num">1.71 / 1.71</td></tr>
+        <tr><td>Wine held-out / fresh, direct score</td><td class="num">2.20 / 1.98</td><td class="num">1.83 / 1.72</td><td class="num best">1.82 / 1.62</td><td class="num">1.96 / 1.87</td><td class="num">1.98 / 1.86</td><td class="num">2.08 / 1.82</td></tr>
+        <tr><td>Mail: action deadline</td><td class="num">0.980</td><td class="num best">0.988</td><td class="num">0.977</td><td class="num">0.965</td><td class="num">0.964</td><td class="num">0.987</td></tr>
+        <tr><td>Mail: payment failed or ending</td><td class="num">0.997</td><td class="num">0.998</td><td class="num best">0.999</td><td class="num">0.998</td><td class="num">0.995</td><td class="num">0.998</td></tr>
+        <tr><td>Mail: someone waiting on a reply</td><td class="num">0.986</td><td class="num">0.993</td><td class="num">0.992</td><td class="num best">0.996</td><td class="num">0.986</td><td class="num">0.989</td></tr>
+        <tr><td>Mail: Choice named the exact deadline class</td><td class="num">43%</td><td class="num">67%</td><td class="num best">69%</td><td class="num">62%</td><td class="num">68%</td><td class="num">66%</td></tr>
+        <tr><td>Mail: ladder variants at or above Jev (of 42)</td><td class="num">—</td><td class="num best">37</td><td class="num">28</td><td class="num">24</td><td class="num">36</td><td class="num">—</td></tr>
+        <tr><td id="sorter">Mail sorter: filtered (missed actions of 244)</td><td class="num best">58.9% (1)</td><td class="num">61.1% (2)</td><td class="num best">59.0% (1)</td><td class="num">57.1% (1)</td><td class="num">57.1% (2)</td><td class="num">56.4% (0)</td></tr>
+        <tr><td>Mail sorter: ceiling at zero misses</td><td class="num">63.6%</td><td class="num">57.9%</td><td class="num">63.0%</td><td class="num">59.1%</td><td class="num best">64.8%</td><td class="num">63.3%</td></tr>
+        <tr><td>JevBench public, 231 tasks*</td><td class="num">200</td><td class="num">209</td><td class="num">226</td><td class="num best">230</td><td class="num">224</td><td class="num">204</td></tr>
+        <tr><td>Browser page chooser (12 synthetic pages)</td><td class="num best">12/12</td><td class="num">11/12†</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td></tr>
+        <tr><td>Latency p50 per request (mail where measured)</td><td class="num">0.59 s</td><td class="num best">0.38 s</td><td class="num">3.1 s</td><td class="num">3.0 s</td><td class="num">2.1 s</td><td class="num">1.6 s (H100, 6 in flight)</td></tr>
+        <tr><td>Same answer on re-ask (60 wine requests)</td><td class="num best">Always</td><td class="num">Mostly; up to 0.17 moves</td><td class="num">16%</td><td class="num">36%</td><td class="num">33%</td><td class="num">Not tested</td></tr>
+        <tr><td>Cost per mail request, Jev = 1×</td><td class="num">1×</td><td class="num best">≈0.95×</td><td class="num">≈5×</td><td class="num">~40×</td><td class="num">5–7×</td><td class="num">≈4–6× on a busy rented H100</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:14px">* JevBench is on GitHub, so general models in particular may have seen it. † Nimble rejects the one page that asks a one-option Choice (the documented minimum is two options); the Decisions API and the Strands Decider reject it too. ‡ Terra's 38-question arm ran on 610 dev wines, where Jev scored 1.88, Nimble 1.78 and Luna and Haiku 1.79: all of them within noise of each other and ahead of Jev. Its direct-score CV figure is on all 1,200 dev wines. Nimble's re-ask figure is from repeated spot checks, not the 60-request protocol. Jev's latency is per wine request.</p>
+
+    <h2>Nimble v4-max: a better Jev at Jev's price</h2>
+    <ul>
+      <li><strong>Wine, every arm.</strong> Against Jev on the held-out protocol it is −0.09 RMSE with 38 questions (95% CI −0.15 to −0.03) and −0.37 asking for the score directly (−0.45 to −0.29). On the 300 fresh wines the 38-question gap is a tie. Its answers agree with Jev's more than any challenger's but Kev's (median per-question correlation 0.92), so it is a better version of the same judge, not a different one.</li>
+      <li><strong>Mail concepts.</strong> It leads deadline (0.988) and is at the top on payment and reply. It names the right class far more often than Jev (67% against 43% on deadlines, 96% against 90% on payments) and holds up when the wording is rough: the attribute-style variants Jev handles worst gained the most, one of them from 0.52 to 0.90.</li>
+      <li><strong>The one miss: the sorter.</strong> At the deployable threshold it sets aside the most mail of any model (61.1%) but misses two actions to Jev's one, and its zero-miss ceiling is lower (57.9% against 63.6%). One or two real actions look more routine to it than most of the mail does. Refit the sorter on Nimble before trusting it, and look at those misses on development data first.</li>
+      <li><strong>JevBench: best decision model, same blind spots.</strong> 209 of 231, ahead of every decision model we've run. Its misses cluster where Jev's do: temporal and numeric questions (0.33, Jev 0.27) and long policies (0.68, Jev 0.63). Keep arithmetic and dates in code.</li>
+      <li><strong>Speed and cost.</strong> p50 0.37 s for a 13-question wine request, 44 requests a second at 16 in flight without a single 429. The entire wine corpus (9,228 requests) took 208 seconds and cost $0.47.</li>
+      <li><strong>Watch out for:</strong> re-asks are not always identical (answers flip between two or three nearby states, so keep thresholds out of the busy part of the distribution); the model name is the only pin (no revision selector); and the aliases. A table in Bespoke's launch docs describes <code>nimble-v4</code> as a separate fast model, but today it returns max's answers, tokens and latency. Ask for <code>nimble-v4-max</code> by name.</li>
+    </ul>
+
+    <h2>Luna and Terra, asked the way we ask Haiku</h2>
+    <p>Same model, different door. Through the Decisions API on October 7, <code>gpt-6-luna</code> was a near-twin of Jev. Asked through the Responses API to write probabilities into a schema, the way our Haiku adapter works, it got markedly better and took on the general models' costs.</p>
+    <ul>
+      <li><strong>Luna, Haiku-style, ties Nimble on wine</strong> and has the best direct score yet on held-out and fresh wines (1.82 and 1.62). Against Luna through the Decisions API it is 0.41 better asking for the score directly.</li>
+      <li><strong>It ties Jev on the mail sorter,</strong> the only challenger to do that: 59.0% set aside with one missed action, against Jev's 58.9% with one. The gap is two messages in 2,075.</li>
+      <li><strong>But it is less robust to phrasing</strong> than Nimble or Haiku: at or above Jev on 28 of 42 question variants.</li>
+      <li><strong>It is the least repeatable model we've measured.</strong> Only 16% of re-asked wine requests came back identical, against 100% through the Decisions API. A frozen threshold will wobble; average two or three calls, or keep thresholds away from the busy part of the distribution.</li>
+      <li><strong>Terra is steadier and more expensive, not better.</strong> It is within noise of the leaders on 38 wine questions, behind Luna and Nimble on the direct score by about 0.16, and level with Jev on mail. It is the most repeatable of the general models (36% identical, 5% of argmaxes flipped) and tops JevBench at 230 of 231. It costs about 40× Jev per mail request.</li>
+      <li><strong>Both answer the one-option Choice</strong> the decision endpoints reject, and both went 12/12 on the page chooser in both runs.</li>
+    </ul>
+
+    <h2>What this changes</h2>
+    <ol>
+      <li><strong>The hosted decision tier is no longer one vendor.</strong> Nimble takes Jev's request shape unchanged, so switching costs a re-grade and a threshold refit, not a rewrite. Thresholds belong to a (model, runtime, rubric) triple: refit them.</li>
+      <li><strong>How you call a model matters as much as which model.</strong> The same <code>gpt-6-luna</code> moved from Jev's level to the top of the wine table by changing the endpoint. Test the call path, not just the model name.</li>
+      <li><strong>The cascade's shape holds.</strong> Decision models (now Jev and Nimble) are still the fast, cheap, mostly repeatable tier; the general models still win where reasoning steps matter and still cost 5–40× more with answers that wobble. See the <a href="cost.html">cost ladder</a> and <a href="compare.html#when">when to use which</a>.</li>
+    </ol>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="open-weights.html"><span>Previous</span>Open weights caught up</a><a class="pager-next" href="cost.html"><span>Next</span>The cost ladder</a></nav>
+    <footer class="footer">
+      <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -31,6 +31,7 @@ PAGES = [
     ("email-beyond.html", "4 · Around the sorter", "Case", "Around the sorter", "Unsubscribing at the source, Jev as a browser step chooser, making done stick, the owner's rulings and who does what."),
     ("compare.html", "Four ways compared", "Data", "Four ways compared", "Jev, OpenAI's Decisions API, open-weight decision models and Claude Haiku 5.5 on the same benchmarks."),
     ("open-weights.html", "Open weights caught up", "Data", "Open weights caught up", "Six 26–27B open decision models against hosted Jev on the same private mail, wine and page harnesses, October 14, 2026."),
+    ("nimble.html", "Nimble takes the lead", "Data", "Nimble takes the lead", "Bespoke Labs' hosted Nimble v4-max, and OpenAI's Luna and Terra asked like Haiku, against Jev on the same private harnesses, October 27, 2026."),
     ("cost.html", "Cost ladder", "Data", "The cost ladder", "Normalized cost from Jev to the Decisions API, Haiku, Sonnet, Opus, Fable and a human, with a calculator."),
     ("landscape.html", "Landscape · Oct 2026", "Data", "Landscape, October 2026", "A refresh of the decision-model landscape: latest Claude releases, OpenAI Decisions and open weights."),
     ("build.html", "Build your own", "Build", "Build your own decision skeleton", "A facilitated, module-by-module tutorial for building your own decision cascade with Claude Code."),
@@ -41,7 +42,7 @@ NAV_GROUPS = [
     ("Architecture", ["cascade.html", "novelty-and-doubt.html"]),
     ("Case study: Melvor", ["melvor.html", "melvor-why.html", "melvor-cascade.html", "melvor-pushdowns.html"]),
     ("Case study: Email", ["email.html", "email-questions.html", "email-sorter.html", "email-beyond.html"]),
-    ("Evidence", ["compare.html", "open-weights.html", "cost.html", "landscape.html"]),
+    ("Evidence", ["compare.html", "open-weights.html", "nimble.html", "cost.html", "landscape.html"]),
     ("Build", ["build.html"]),
 ]
 

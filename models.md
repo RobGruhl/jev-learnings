@@ -2,17 +2,19 @@
 
 All comparisons used the same tasks: concept AUCs on labeled mail and a "sorter" that files mail at a fixed number of missed actions.
 
-| | Hosted Jev | Local open-weights Jev (4B) | 2B decider model | Open 27B decision model (Kev-27B, one H100) | Small general LLM (low effort) |
-| --- | --- | --- | --- | --- | --- |
-| Deadline (best question AUC) | 0.980 | — | 0.932 | **0.987** | 0.964 |
-| Payment failed or ending | 0.997 | — | 0.984 | **0.998** | 0.995 |
-| Waiting on a reply | 0.986 | — | 0.973 | **0.989** | 0.986 |
-| Sorter filtered | **58.9%** at 1 miss | 46.8% at 0 misses | 44.1% at 1 miss | 56.4% at 0 misses | 57.1% at 2 misses |
-| Routine-ness | 0.911 | 0.865 | | | |
-| Matching an open record | 0.980 | 0.955 | | | |
-| Resolution of a record | 0.933 | 0.873 | | | |
+| | Hosted Jev | Hosted Nimble v4-max | Local open-weights Jev (4B) | 2B decider model | Open 27B decision model (Kev-27B, one H100) | Small general LLM (low effort) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Deadline (best question AUC) | 0.980 | **0.988** | — | 0.932 | 0.987 | 0.964 |
+| Payment failed or ending | 0.997 | **0.998** | — | 0.984 | **0.998** | 0.995 |
+| Waiting on a reply | 0.986 | **0.993** | — | 0.973 | 0.989 | 0.986 |
+| Sorter filtered | **58.9%** at 1 miss | 61.1% at 2 misses | 46.8% at 0 misses | 44.1% at 1 miss | 56.4% at 0 misses | 57.1% at 2 misses |
+| Routine-ness | 0.911 | **0.916** | 0.865 | | | |
+| Matching an open record | 0.980 | | 0.955 | | | |
+| Resolution of a record | 0.933 | | 0.873 | | | |
 
 ## Notes
+
+- **A hosted decision model went past Jev (October 27).** Bespoke Labs' Nimble v4-max (27B, Jev's request shape, $0.04 per million input tokens) led the wine cookbook on every arm and all three mail concepts (0.988, 0.998, 0.993), and scored 209 of 231 on JevBench. Its sorter set aside 61.1% of mail but missed 2 actions to Jev's 1, and re-asks aren't always identical. The same day, GPT-6 Luna asked like a small general LLM (structured outputs, effort low) tied Jev's sorter at 59.0% with one miss, at about 5× Jev per request and with answers that matched on re-ask only 16% of the time. Details: the site's [Nimble takes the lead](https://robgruhl.github.io/jev-learnings/nimble.html).
 
 - **Open weights caught up (October 14).** Six 26–27B open decision models ran on the same harnesses on a rented H100. The five fine-tuned ones (Kev-27B, d3, pplx-decider v1.1, JEV-27B-VL, GEV-26B) screened at hosted Jev's level on the mail concepts, went 12/12 on the page chooser and scored 198–207 of 231 on JevBench (Jev 200).
   - Kev-27B, run in full, ties Jev on the sorter's ceiling (63.3% against 63.6%) and on wine with 38 questions (1.83 against 1.86), and beats it asking for the wine score directly (2.13 against 2.31).

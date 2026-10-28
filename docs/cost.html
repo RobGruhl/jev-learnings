@@ -32,11 +32,11 @@
 <div class="layout">
   <nav id="sidenav" class="sidenav" aria-label="Site">
     <a class="nav-start" href="index.html">Start here</a>
-    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="cost.html" aria-current="page">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="nimble.html">Nimble takes the lead</a></li><li><a href="cost.html" aria-current="page">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
     <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
   </nav>
   <main id="main" class="content">
-    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026 · open 26–27B models added October 15</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026 · open 26–27B models added October 15 · Nimble, Luna and Terra added October 27</p>
     <h1>The cost ladder</h1>
     <p class="lede">The same judgment costs wildly different amounts depending on who makes it. With Jev as 1×, here's what one decision costs as you climb from decision models to small LLMs, to frontier LLMs, to a person.</p>
 
@@ -48,11 +48,14 @@
     <p>Bars use a logarithmic scale, from 0.5× to 10,000×, so equal lengths mean equal multiples.</p>
     <div class="widget" style="padding-top:12px">
       <div class="cost-row"><span class="name">Open weights, own machine</span><span class="track"><span class="fill decision" style="width:1%"></span></span><span class="mult">≈0×</span></div>
+      <div class="cost-row"><span class="name">Nimble v4-max (Bespoke Labs)</span><span class="track"><span class="fill decision" style="width:6.5%"></span></span><span class="mult">≈0.95×</span></div>
       <div class="cost-row"><span class="name">Jev 1.13</span><span class="track"><span class="fill decision" style="width:7%"></span></span><span class="mult">1×</span></div>
       <div class="cost-row"><span class="name">Open 2B, rented L4, kept busy</span><span class="track"><span class="fill decision" style="width:8%"></span></span><span class="mult">≈1.1×</span></div>
       <div class="cost-row"><span class="name">OpenAI Decisions API</span><span class="track"><span class="fill decision" style="width:15.8%"></span></span><span class="mult">2.4×</span></div>
       <div class="cost-row"><span class="name">Open 26–27B, rented H100, kept busy</span><span class="track"><span class="fill decision" style="width:23.3%"></span></span><span class="mult">≈4–6×</span></div>
+      <div class="cost-row"><span class="name">GPT-6 Luna, asked like Haiku</span><span class="track"><span class="fill small" style="width:23.3%"></span></span><span class="mult">≈5×</span></div>
       <div class="cost-row"><span class="name">Claude Haiku 5.5 (low)</span><span class="track"><span class="fill small" style="width:25.1%"></span></span><span class="mult">5–7×</span></div>
+      <div class="cost-row"><span class="name">GPT-6.1 Terra, asked like Haiku</span><span class="track"><span class="fill small" style="width:44.2%"></span></span><span class="mult">~40×</span></div>
       <div class="cost-row"><span class="name">Open 27B, slow serving path</span><span class="track"><span class="fill decision" style="width:49.2%"></span></span><span class="mult">~60–70×</span></div>
       <div class="cost-row"><span class="name">Claude Sonnet 5.5</span><span class="track"><span class="fill llm" style="width:56.9%"></span></span><span class="mult">~140×</span></div>
       <div class="cost-row"><span class="name">Claude Opus 5.5</span><span class="track"><span class="fill llm" style="width:64.2%"></span></span><span class="mult">~290×</span></div>
@@ -67,8 +70,11 @@
       <thead><tr><th>Option</th><th>Price per million tokens (in / out)</th><th>Basis</th><th class="num">Per decision</th><th class="num">Multiple</th></tr></thead>
       <tbody>
         <tr><td>Jev 1.13</td><td>$0.042 / free</td><td>Measured: ~$0.00006 per mail request, ~$0.0001 per 13-question wine request</td><td class="num">$0.000063</td><td class="num">1×</td></tr>
+        <tr><td>Nimble v4-max (Bespoke Labs)</td><td>$0.04 / free</td><td>Measured: 8,300 mail requests cost $0.55, so $0.000057 for a six-question rubric request (~1,180 tokens) and $0.000070 for a 14-question ladder (~1,490); ~$0.00007 per 13-question wine request. At Jev's 1,500-token reference, $0.00006</td><td class="num">$0.00006</td><td class="num">≈0.95×</td></tr>
         <tr><td>OpenAI Decisions (<code>gpt-6-luna</code>)</td><td>$0.10 / free</td><td>Measured: 9,314 calls, 17.8M tokens, $1.78; tokens per request matched Jev's on the same wines</td><td class="num">$0.00015</td><td class="num">2.4×</td></tr>
         <tr><td>Claude Haiku 5.5, effort low</td><td>$0.10 / $0.50</td><td>Measured: ~$0.0004 per mail request (2.5k in), ~$0.00055 per wine request (3.5k in, ~400 out). Requests run ~2× Jev's tokens (framing plus a newer tokenizer), and output is billed</td><td class="num">$0.0004</td><td class="num">5–7×</td></tr>
+        <tr><td>GPT-6 Luna, asked like Haiku (Responses API, effort low)</td><td>$0.10 / $0.50</td><td>Measured: 5,278 mail requests cost $1.61, $0.00031 each (1,360–1,760 tokens in, ~220 out including reasoning); $0.00056 per wine request</td><td class="num">$0.0003</td><td class="num">≈5×</td></tr>
+        <tr><td>GPT-6.1 Terra, asked like Haiku</td><td>$1.00 / $5.00</td><td>Measured: 5,278 mail requests cost $13.94, $0.0026 each (same input, 100–190 out); $0.0042 per wine request</td><td class="num">$0.0026</td><td class="num">~40×</td></tr>
         <tr><td>Claude Sonnet 5.5</td><td>$2 / $10</td><td>Estimated: Haiku's request shape (2,500 in, 400 out) at Sonnet prices</td><td class="num">$0.009</td><td class="num">~140×</td></tr>
         <tr><td>Claude Opus 5.5</td><td>$4 / $20</td><td>Estimated, same shape</td><td class="num">$0.018</td><td class="num">~290×</td></tr>
         <tr><td>Claude Fable 5.1</td><td>$10 / $50</td><td>Estimated, same shape</td><td class="num">$0.045</td><td class="num">~710×</td></tr>
@@ -89,15 +95,18 @@
       <thead><tr><th>Option</th><th class="num">1,000 decisions</th><th class="num">1 million decisions</th></tr></thead>
       <tbody>
         <tr><td>Jev 1.13</td><td class="num">$0.06</td><td class="num">$63</td></tr>
+        <tr><td>Nimble v4-max</td><td class="num">$0.06</td><td class="num">$60</td></tr>
         <tr><td>OpenAI Decisions API</td><td class="num">$0.15</td><td class="num">$150</td></tr>
         <tr><td>Open 26–27B, rented H100 kept busy</td><td class="num">$0.27–0.37</td><td class="num">$270–370</td></tr>
+        <tr><td>GPT-6 Luna, asked like Haiku</td><td class="num">$0.31</td><td class="num">$305</td></tr>
         <tr><td>Claude Haiku 5.5 (low)</td><td class="num">$0.40</td><td class="num">$400</td></tr>
+        <tr><td>GPT-6.1 Terra, asked like Haiku</td><td class="num">$2.60</td><td class="num">$2,600</td></tr>
         <tr><td>Claude Sonnet 5.5 (est.)</td><td class="num">$9</td><td class="num">$9,000</td></tr>
         <tr><td>Claude Opus 5.5 (est.)</td><td class="num">$18</td><td class="num">$18,000</td></tr>
         <tr><td>Claude Fable 5.1 (est.)</td><td class="num">$45</td><td class="num">$45,000</td></tr>
       </tbody>
     </table></div>
-    <p>For scale: the operations agent's decision model cost <strong>under $0.10 per overnight session</strong>. A full day of wine-cookbook runs, including tests, came to $0.54 on Jev. The whole Haiku benchmark (15,039 calls) cost $7.57; the Decisions API benchmark (9,314 calls) cost $1.78. Screening six open 26–27B models on rented H100s took about $24 of GPU time.</p>
+    <p>For scale: the operations agent's decision model cost <strong>under $0.10 per overnight session</strong>. A full day of wine-cookbook runs, including tests, came to $0.54 on Jev. The whole Haiku benchmark (15,039 calls) cost $7.57; the Decisions API benchmark (9,314 calls) cost $1.78. Screening six open 26–27B models on rented H100s took about $24 of GPU time. On October 27, Nimble's full wine, mail, page and JevBench runs cost $1.03 together; the same runs through Luna and Terra asked like Haiku cost $5.59 and $24.</p>
     <p><strong>Rented hardware is priced by the hour, not the request.</strong> The open rows assume the GPU is kept busy. At $3.29 an hour, an idle hour buys nothing, while the same money buys about 52,000 typical Jev requests. A rented open model beats hosted Jev on cost only if you own the GPU already or keep it near full; its stronger reasons are privacy and control.</p>
 
     <h2 id="calculator">Calculator: what does your cascade cost?</h2>
@@ -109,7 +118,7 @@
       <label><span>Escalated to LLM</span><input type="range" id="cc-llm" min="0" max="100" step="0.5" value="4.5" aria-label="share escalated to the LLM"><output data-for="cc-llm"></output></label>
       <label><span>Escalated to a person</span><input type="range" id="cc-human" min="0" max="20" step="0.1" value="0.5" aria-label="share escalated to a person"><output data-for="cc-human"></output></label>
       <label><span>Decision model</span>
-        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option><option value="open27">Open 26–27B, rented H100 (kept busy)</option></select><span></span></label>
+        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option><option value="open27">Open 26–27B, rented H100 (kept busy)</option><option value="nimble">Nimble v4-max</option><option value="lunafaux">GPT-6 Luna, asked like Haiku</option><option value="terrafaux">GPT-6.1 Terra, asked like Haiku</option></select><span></span></label>
       <label><span>LLM tier</span>
         <select id="cc-lmodel" aria-label="LLM tier model"><option value="sonnet">Claude Sonnet 5.5</option><option value="opus" selected>Claude Opus 5.5</option><option value="fable">Claude Fable 5.1</option><option value="haiku">Claude Haiku 5.5</option></select><span></span></label>
       <label><span>LLM request size</span><input type="range" id="cc-llmsize" min="1" max="20" step="1" value="10" aria-label="LLM request size multiple"><output data-for="cc-llmsize"></output></label>
@@ -125,9 +134,9 @@
 
     <p>Latency climbs a similar ladder. Hook Chain's <a href="https://robgruhl.github.io/claude-mod-learnings/latency.html">latency ladder</a> normalizes to one pass-through Claude Code hook (about 42 µs): a call to Jev is about 14,000× that, and Haiku about 60,000×.</p>
 
-    <div class="callout note"><p><strong>Choosing by cost alone is a mistake.</strong> Haiku costs 6× Jev but wins on reasoning-heavy judgments; the Decisions API costs 2.4× but is the fastest hosted option; a rented open 27B costs about 5× Jev but keeps the data in your hands. See <a href="compare.html#when">when to use which</a>.</p></div>
+    <div class="callout note"><p><strong>Choosing by cost alone is a mistake.</strong> Haiku costs 6× Jev but wins on reasoning-heavy judgments; the Decisions API costs 2.4× but is the fastest hosted option; a rented open 27B costs about 5× Jev but keeps the data in your hands; Nimble costs what Jev costs and beat it on most of our tests, but isn't perfectly repeatable. See <a href="compare.html#when">when to use which</a>.</p></div>
 
-<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="open-weights.html"><span>Previous</span>Open weights caught up</a><a class="pager-next" href="landscape.html"><span>Next</span>Landscape, October 2026</a></nav>
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="nimble.html"><span>Previous</span>Nimble takes the lead</a><a class="pager-next" href="landscape.html"><span>Next</span>Landscape, October 2026</a></nav>
     <footer class="footer">
       <p>Findings from two projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, and a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days. Generalized rates, AUCs and patterns only; no mail, no personal data. Measured September–October 2026; prices as of October 12, 2026.</p>
       <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>

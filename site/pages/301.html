@@ -67,7 +67,7 @@
     <p>Rounds of question tuning on a small local model weren't worth running. Concepts that depend on hidden consequences needed the hosted model or the LLM reader.</p>
 
     <h2 id="adapters">4. Adapters: one contract, many backends</h2>
-    <p>Write your code against one decision contract and put a thin adapter in front of each backend. We used Jev's <code>POST /v1/systemone</code> shape as the contract and ran OpenAI's Decisions API, Claude Haiku 5.5 and a local open-weight model behind it. The official TypeSafe SDK and every harness then ran unchanged. As of October 2026 the <code>/v1/systemone</code> shape is becoming a de facto standard: Ollama and llama.cpp serve it locally, and AWS's Strands Decider speaks it natively. OpenAI's endpoint does not.</p>
+    <p>Write your code against one decision contract and put a thin adapter in front of each backend. We used Jev's <code>POST /v1/systemone</code> shape as the contract and ran OpenAI's Decisions API, Claude Haiku 5.5 and a local open-weight model behind it. The official TypeSafe SDK and every harness then ran unchanged. As of October 2026 the <code>/v1/systemone</code> shape is becoming a de facto standard: Ollama and llama.cpp serve it locally, AWS's Strands Decider speaks it natively, and Bespoke Labs' hosted Nimble needed only a key and a model name. OpenAI's endpoint does not.</p>
     <div class="table-wrap"><table>
       <thead><tr><th></th><th>Jev <code>/v1/systemone</code></th><th>OpenAI <code>/v1/decisions</code></th></tr></thead>
       <tbody>
@@ -100,6 +100,9 @@
         <tr><td>OpenAI Decisions (<code>gpt-6-luna</code>)</td><td>Identical (759 re-asked answers)</td><td>Stays put, until OpenAI ships an unpinned change</td></tr>
         <tr><td>Strands Decider 2B</td><td>Identical across runs</td><td>Stays put</td></tr>
         <tr><td>Claude Haiku 5.5 (effort low)</td><td>33% identical; yes-probabilities moved 0.10 at p90 (0.60 max); 13% of Choice argmaxes flipped</td><td>Keep thresholds away from the busy part of the distribution, or average 2–3 calls at 2–3× the cost</td></tr>
+        <tr><td>Nimble v4-max</td><td>Mostly identical; spot re-asks flipped between two or three nearby states, moving an answer by up to 0.17</td><td>Keep thresholds out of the busy part of the distribution</td></tr>
+        <tr><td>GPT-6 Luna, asked like Haiku</td><td>16% identical; yes-probabilities moved 0.11 at p90 (0.96 max); 12% of argmaxes flipped</td><td>Haiku's problem, slightly worse. The same model through the Decisions API was identical every time</td></tr>
+        <tr><td>GPT-6.1 Terra, asked like Haiku</td><td>36% identical; 0.03 at p90 (0.26 max); 5% of argmaxes flipped</td><td>The steadiest general model, at about 40× Jev per request</td></tr>
       </tbody>
     </table></div>
 

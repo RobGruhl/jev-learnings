@@ -1,4 +1,4 @@
-    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 2–14, 2026</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 2–14, 2026 · Nimble and Luna-as-a-chat-model added October 27</p>
     <h1>Four ways compared</h1>
     <p class="lede">We ran the same harnesses against four ways of getting a typed judgment: <strong>Jev</strong> (TypeSafe, hosted), <strong>OpenAI's Decisions API</strong>, <strong>open-weight decision models</strong> you run yourself, and a <strong>small general LLM</strong> (Claude Haiku 5.5) asked to fill in the same answer shapes. Same questions, same labels, same grading.</p>
 
@@ -11,37 +11,45 @@
       <thead><tr><th>Way</th><th>What we ran</th><th>Price</th><th>Kind</th></tr></thead>
       <tbody>
         <tr><td><strong>1. Jev</strong></td><td><code>jev-1.13.0</code>, hosted</td><td>$0.042 / M input tokens; output free</td><td>Decision model</td></tr>
+        <tr><td><strong>1b. Nimble</strong> (Bespoke Labs, from Oct 27)</td><td><code>nimble-v4-max</code> (27B), hosted, Jev's own <code>/v1/systemone</code> shape (<a href="nimble.html">details</a>)</td><td>$0.04 / M input tokens; output free</td><td>Decision model</td></tr>
         <tr><td><strong>2. OpenAI Decisions API</strong></td><td><code>gpt-6-luna</code> on <code>POST /v1/decisions</code> (public beta), through a Jev-shaped adapter</td><td>$0.10 / M input; output free</td><td>Decision endpoint</td></tr>
         <tr><td><strong>3. Open weights</strong></td><td>APUS-OpenJev-v1-4B (MLX 8-bit, M4 Pro) and AWS Strands Decider 2B (NVIDIA L4); on October 14, six 26–27B models on a rented H100, led by Kev-27B (<a href="open-weights.html">details</a>)</td><td>$0 per call; your hardware</td><td>Decision model</td></tr>
-        <tr><td><strong>4. Small general LLM</strong></td><td>Claude Haiku 5.5, effort <code>low</code>, structured outputs, through a Jev-shaped adapter</td><td>$0.10 / M input, $0.50 / M output</td><td>Language model</td></tr>
+        <tr><td><strong>4. Small general LLM</strong></td><td>Claude Haiku 5.5, effort <code>low</code>, structured outputs, through a Jev-shaped adapter. On October 27, GPT-6 Luna and GPT-6.1 Terra through the same adapter on OpenAI's Responses API</td><td>$0.10 / M input, $0.50 / M output (Terra: $1 / $5)</td><td>Language model</td></tr>
       </tbody>
     </table></div>
-    <div class="callout note"><p><strong>A note on "Luna."</strong> <code>gpt-6-luna</code> is two things at OpenAI: the only model behind the Decisions API, and OpenAI's cheapest general-purpose text model on Chat Completions and Responses ($0.10 in / $0.50 out per million, released September 22, 2026). Called through <code>/v1/decisions</code>, it behaves like a decision model: deterministic, input-only pricing. Called as a chat model, it's in the same family as Haiku 5.5, a small general LLM. We measured the Decisions endpoint.</p></div>
+    <div class="callout note"><p><strong>A note on "Luna."</strong> <code>gpt-6-luna</code> is two things at OpenAI: the only model behind the Decisions API, and OpenAI's cheapest general-purpose text model on Chat Completions and Responses ($0.10 in / $0.50 out per million, released September 22, 2026). Called through <code>/v1/decisions</code>, it behaves like a decision model: deterministic, input-only pricing. Called as a chat model, it's in the same family as Haiku 5.5, a small general LLM. We measured the Decisions endpoint first; on October 27 we also asked it as a chat model, the way we ask Haiku, and it got markedly better on wine and mail at Haiku's costs ("Luna, Haiku-style" below; <a href="nimble.html">details</a>).</p></div>
 
     <h2>The scoreboard</h2>
     <p>Bold is the best in each row. "—" means not run.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Harness</th><th class="num">Jev</th><th class="num">Decisions API</th><th class="num">APUS 4B</th><th class="num">Decider 2B</th><th class="num">Kev-27B</th><th class="num">Haiku 5.5</th></tr></thead>
+      <thead><tr><th>Harness</th><th class="num">Jev</th><th class="num">Nimble v4-max</th><th class="num">Decisions API</th><th class="num">APUS 4B</th><th class="num">Decider 2B</th><th class="num">Kev-27B</th><th class="num">Haiku 5.5</th><th class="num">Luna, Haiku-style</th></tr></thead>
       <tbody>
-        <tr><td>JevBench public, 231 tasks (accuracy)</td><td class="num">0.866</td><td class="num">—</td><td class="num">—</td><td class="num">0.723</td><td class="num">0.883</td><td class="num best">0.970*</td></tr>
-        <tr><td>Wine, 38 questions → model (RMSE, lower is better)</td><td class="num">1.86</td><td class="num">1.84</td><td class="num">1.96</td><td class="num">2.05</td><td class="num">1.83</td><td class="num best">1.80</td></tr>
-        <tr><td>Wine, ask the score directly (RMSE)</td><td class="num">2.31</td><td class="num">2.34</td><td class="num">2.83</td><td class="num">2.25</td><td class="num">2.13</td><td class="num best">2.01</td></tr>
-        <tr><td>Mail: action deadline (best AUC)</td><td class="num">0.980</td><td class="num">—</td><td class="num">—</td><td class="num">0.932</td><td class="num best">0.987</td><td class="num">0.964</td></tr>
-        <tr><td>Mail: payment failed or ending</td><td class="num">0.997</td><td class="num">—</td><td class="num">—</td><td class="num">0.984</td><td class="num best">0.998</td><td class="num">0.995</td></tr>
-        <tr><td>Mail: someone waiting on a reply</td><td class="num">0.986</td><td class="num">—</td><td class="num">—</td><td class="num">0.973</td><td class="num best">0.989</td><td class="num">0.986</td></tr>
-        <tr><td>Mail sorter: filtered at ~1 miss (of 244 actions)</td><td class="num best">58.9% (1)</td><td class="num">—</td><td class="num">46.8% (0)</td><td class="num">44.1% (1)</td><td class="num">56.4% (0)</td><td class="num">57.1% (2)</td></tr>
-        <tr><td>Browser page chooser (12 synthetic pages)</td><td class="num best">12/12</td><td class="num">10/12†</td><td class="num">—</td><td class="num">7/12</td><td class="num best">12/12</td><td class="num best">12/12</td></tr>
-        <tr><td>Latency p50 per request</td><td class="num">0.59 s</td><td class="num best">0.30 s</td><td class="num">5.5 s (Mac)</td><td class="num">0.40 s (L4) · 2.1 s (Mac)</td><td class="num">1.6 s (H100, 6 in flight)</td><td class="num">2–3 s</td></tr>
-        <tr><td>Same answer on re-ask</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Not tested</td><td class="num">33% of the time</td></tr>
-        <tr><td>Pinned model version</td><td class="num">Yes</td><td class="num">No</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td></tr>
-        <tr><td>Cost per request, Jev = 1×</td><td class="num best">1×</td><td class="num">2.4×</td><td class="num">≈0×</td><td class="num">≈0×</td><td class="num">≈4–6× on a rented H100 kept busy</td><td class="num">5–7×</td></tr>
+        <tr><td>JevBench public, 231 tasks (accuracy)</td><td class="num">0.866</td><td class="num">0.905</td><td class="num">—</td><td class="num">—</td><td class="num">0.723</td><td class="num">0.883</td><td class="num">0.970*</td><td class="num best">0.978*</td></tr>
+        <tr><td>Wine, 38 questions → model (RMSE, lower is better)</td><td class="num">1.86</td><td class="num best">1.76</td><td class="num">1.84</td><td class="num">1.96</td><td class="num">2.05</td><td class="num">1.83</td><td class="num">1.80</td><td class="num">1.77</td></tr>
+        <tr><td>Wine, ask the score directly (RMSE)</td><td class="num">2.31</td><td class="num best">1.92</td><td class="num">2.34</td><td class="num">2.83</td><td class="num">2.25</td><td class="num">2.13</td><td class="num">2.01</td><td class="num">1.93</td></tr>
+        <tr><td>Mail: action deadline (best AUC)</td><td class="num">0.980</td><td class="num best">0.988</td><td class="num">—</td><td class="num">—</td><td class="num">0.932</td><td class="num">0.987</td><td class="num">0.964</td><td class="num">0.977</td></tr>
+        <tr><td>Mail: payment failed or ending</td><td class="num">0.997</td><td class="num">0.998</td><td class="num">—</td><td class="num">—</td><td class="num">0.984</td><td class="num">0.998</td><td class="num">0.995</td><td class="num best">0.999</td></tr>
+        <tr><td>Mail: someone waiting on a reply</td><td class="num">0.986</td><td class="num best">0.993</td><td class="num">—</td><td class="num">—</td><td class="num">0.973</td><td class="num">0.989</td><td class="num">0.986</td><td class="num">0.992</td></tr>
+        <tr><td>Mail sorter: filtered at ~1 miss (of 244 actions)</td><td class="num best">58.9% (1)</td><td class="num">61.1% (2)</td><td class="num">—</td><td class="num">46.8% (0)</td><td class="num">44.1% (1)</td><td class="num">56.4% (0)</td><td class="num">57.1% (2)</td><td class="num best">59.0% (1)</td></tr>
+        <tr><td>Browser page chooser (12 synthetic pages)</td><td class="num best">12/12</td><td class="num">11/12‡</td><td class="num">10/12†</td><td class="num">—</td><td class="num">7/12</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td></tr>
+        <tr><td>Latency p50 per request</td><td class="num">0.59 s</td><td class="num">0.37 s</td><td class="num best">0.30 s</td><td class="num">5.5 s (Mac)</td><td class="num">0.40 s (L4) · 2.1 s (Mac)</td><td class="num">1.6 s (H100, 6 in flight)</td><td class="num">2–3 s</td><td class="num">3–6 s</td></tr>
+        <tr><td>Same answer on re-ask</td><td class="num">Yes</td><td class="num">Mostly (moves up to 0.17)</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Not tested</td><td class="num">33% of the time</td><td class="num">16% of the time</td></tr>
+        <tr><td>Pinned model version</td><td class="num">Yes</td><td class="num">By name only</td><td class="num">No</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">Yes</td><td class="num">No</td></tr>
+        <tr><td>Cost per request, Jev = 1×</td><td class="num">1×</td><td class="num best">≈0.95×</td><td class="num">2.4×</td><td class="num">≈0×</td><td class="num">≈0×</td><td class="num">≈4–6× on a rented H100 kept busy</td><td class="num">5–7×</td><td class="num">≈5×</td></tr>
       </tbody>
     </table></div>
-    <p style="font-size:14px">* The JevBench public set is on GitHub, so a general model may have seen it. The wine and mail sets are private and don't share that risk. † One of the two misses was a forbidden click: it unticked "Account alerts and security notices" instead of the marketing boxes. Mail was not run through the Decisions API for this comparison. The mail sorter row is the share of 2,075 messages safely set aside, with missed action messages (of 244) in parentheses; it isn't accuracy, and higher is better (<a href="open-weights.html#sorter">how to read it</a>). Wine RMSE is 5-fold × 3 cross-validation on the same 1,189 wines; mail AUCs are on a 564-message probe set. Kev-27B is the best of six 26–27B open models we ran on October 14; d3 and pplx-decider screened as well or better but are too slow on their published NVIDIA path for the full runs. See <a href="open-weights.html">Open weights caught up</a>.</p>
+    <p style="font-size:14px">* The JevBench public set is on GitHub, so a general model may have seen it. The wine and mail sets are private and don't share that risk. † One of the two misses was a forbidden click: it unticked "Account alerts and security notices" instead of the marketing boxes. Mail was not run through the Decisions API for this comparison. The mail sorter row is the share of 2,075 messages safely set aside, with missed action messages (of 244) in parentheses; it isn't accuracy, and higher is better (<a href="open-weights.html#sorter">how to read it</a>). Wine RMSE is 5-fold × 3 cross-validation on the same 1,189 wines; mail AUCs are on a 564-message probe set. Kev-27B is the best of six 26–27B open models we ran on October 14; d3 and pplx-decider screened as well or better but are too slow on their published NVIDIA path for the full runs. See <a href="open-weights.html">Open weights caught up</a>. ‡ Nimble rejects the page with a one-option Choice, as the Decisions API does. Nimble and "Luna, Haiku-style" were measured on October 27 on the same harnesses; Nimble's latency is per 13-question wine request, Luna's 3 s per mail request and 6 s per wine request (<a href="nimble.html">Nimble takes the lead</a>).</p>
 
     <h2>What each one is</h2>
     <h3>1. Jev: the reference</h3>
     <p>Strongest on real judgment where it matters most to us (mail concept detection and the sorter), fast, deterministic, pinnable, and the cheapest per token of any hosted option. Weak spots match its published jaggedness: temporal and numeric reasoning (0.27 on that JevBench family), long policies (0.63), multi-hop (0.83). Keep arithmetic and dates in code and it's hard to beat.</p>
+
+    <h3>1b. Nimble v4-max: a better Jev at Jev's price</h3>
+    <ul>
+      <li><strong>Best wine model on every arm</strong> (1.76 with 38 questions, 1.92 directly), and on top of all three mail concepts. It names the exact deadline class 67% of the time (Jev 43%) and holds up under rough phrasing: at or above Jev on 37 of 42 question variants, against Haiku's 36.</li>
+      <li><strong>Jev's request shape, unchanged,</strong> at $0.04 per million input tokens and p50 0.37 s.</li>
+      <li><strong>Risks:</strong> its mail sorter missed one more action than Jev's, re-asks are not always identical, the model name is the only pin, and the <code>nimble-v4</code> and <code>nimble-latest</code> aliases point to the same model (there is no hosted 9B). See <a href="nimble.html">Nimble takes the lead</a>.</li>
+    </ul>
 
     <h3>2. OpenAI Decisions API: a near-twin, faster, a bit pricier</h3>
     <ul>
@@ -68,6 +76,7 @@
       <li><strong>Best single ranker:</strong> "obligation" alone reached AUC 0.941 for ranking mail that needs action (Jev 0.799).</li>
       <li><strong>Costs:</strong> 5–7× Jev per request (still under $0.001), 3–5× the latency, and <strong>answers that wobble</strong>: a third of re-asks identical, yes-probabilities moving 0.10 at p90, 13% of Choice argmaxes flipping.</li>
       <li>Its probabilities are numbers it writes down, not measured ones. It spreads them less than Jev (median Noul spread 0.16 against 0.22).</li>
+      <li><strong>Luna and Terra, asked the same way (October 27):</strong> GPT-6 Luna ties Nimble on wine and Jev on the mail sorter (59.0% with one miss) at Haiku's price, but re-asks match only 16% of the time. GPT-6.1 Terra is steadier and tops JevBench (230/231) but costs about 40× Jev. See <a href="nimble.html">Nimble takes the lead</a>.</li>
     </ul>
 
     <h2 id="when">When to use a small LLM (Haiku, or Luna as a chat model) instead of a decision model</h2>
@@ -97,6 +106,7 @@
       <thead><tr><th>If you need…</th><th>Use</th></tr></thead>
       <tbody>
         <tr><td>Best quality per dollar on bounded text judgments, pinned and deterministic</td><td>Jev</td></tr>
+        <tr><td>The best measured quality on bounded text judgments at Jev's price, where small re-ask shifts are tolerable</td><td>Nimble v4-max. Refit thresholds and re-check the sorter first.</td></tr>
         <tr><td>Lowest hosted latency, image inputs, or a second opinion that adds information to Jev</td><td>OpenAI Decisions API</td></tr>
         <tr><td>Privacy, or steady high volume on your own GPU</td><td>An open 26–27B decision model: Kev-27B or d3 for quality, GEV-26B for speed. Re-grade your questions and refit thresholds first.</td></tr>
         <tr><td>Robustness to rough questions, reasoning-heavy judgments, best single ranker</td><td>Claude Haiku 5.5</td></tr>

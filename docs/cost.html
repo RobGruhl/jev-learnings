@@ -36,7 +36,7 @@
     <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
   </nav>
   <main id="main" class="content">
-    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026 · open 26–27B models added October 15 · Nimble, Luna and Terra added October 27</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Prices as of October 12, 2026 · open 26–27B models added October 15 · Nimble, Luna and Terra added October 27 · Nimble 9B added October 28</p>
     <h1>The cost ladder</h1>
     <p class="lede">The same judgment costs wildly different amounts depending on who makes it. With Jev as 1×, here's what one decision costs as you climb from decision models to small LLMs, to frontier LLMs, to a person.</p>
 
@@ -55,6 +55,7 @@
       <div class="cost-row"><span class="name">Open 26–27B, rented H100, kept busy</span><span class="track"><span class="fill decision" style="width:23.3%"></span></span><span class="mult">≈4–6×</span></div>
       <div class="cost-row"><span class="name">GPT-6 Luna, asked like Haiku</span><span class="track"><span class="fill small" style="width:23.3%"></span></span><span class="mult">≈5×</span></div>
       <div class="cost-row"><span class="name">Claude Haiku 5.5 (low)</span><span class="track"><span class="fill small" style="width:25.1%"></span></span><span class="mult">5–7×</span></div>
+      <div class="cost-row"><span class="name">Nimble 9B, rented H100, kept busy</span><span class="track"><span class="fill decision" style="width:36.2%"></span></span><span class="mult">≈18×</span></div>
       <div class="cost-row"><span class="name">GPT-6.1 Terra, asked like Haiku</span><span class="track"><span class="fill small" style="width:44.2%"></span></span><span class="mult">~40×</span></div>
       <div class="cost-row"><span class="name">Open 27B, slow serving path</span><span class="track"><span class="fill decision" style="width:49.2%"></span></span><span class="mult">~60–70×</span></div>
       <div class="cost-row"><span class="name">Claude Sonnet 5.5</span><span class="track"><span class="fill llm" style="width:56.9%"></span></span><span class="mult">~140×</span></div>
@@ -81,6 +82,7 @@
         <tr><td>Open weights on your Mac</td><td>—</td><td>No per-call charge; electricity and 2–18 s per request</td><td class="num">≈$0</td><td class="num">≈0×</td></tr>
         <tr><td>Open 2B on a rented NVIDIA L4</td><td>~$0.80 per GPU-hour</td><td>Estimated: 0.32 s per request serially, ~11,000 requests an hour, only if kept busy</td><td class="num">≈$0.00007</td><td class="num">≈1.1×</td></tr>
         <tr><td>Open 26–27B (GEV-26B, Kev-27B) on a rented H100</td><td>$3.29 per GPU-hour</td><td>Measured throughput: 0.3–0.4 s per mail message (14 questions) on one 80 GB H100, so 9,000–12,000 an hour, only if kept busy. Quality matched Jev (<a href="open-weights.html">details</a>)</td><td class="num">≈$0.0003</td><td class="num">≈4–6×</td></tr>
+        <tr><td>Bespoke-Nimble-9B on a rented H100</td><td>$3.29 per GPU-hour</td><td>Measured: 2,075 six-question mail requests in 43.9 minutes at 8 in flight, about 2,840 an hour, only if kept busy. Its scorer reads the whole prompt once per question, so a 13-question wine request (~30k tokens) ran at 0.32 a second. Quality: at Jev's level on many questions, behind as a single judge (<a href="nimble.html#nimble-9b">details</a>)</td><td class="num">≈$0.0012</td><td class="num">≈18×</td></tr>
         <tr><td>Open 27B (d3, pplx-decider) on their published NVIDIA path</td><td>$3.29 per GPU-hour</td><td>Measured: 4–5 s per message, one request at a time, 720–900 an hour. The same weights behind a batching server would cost far less</td><td class="num">≈$0.004</td><td class="num">~60–70×</td></tr>
         <tr><td>A person</td><td>—</td><td>Illustrative: 30 seconds at $60 an hour</td><td class="num">$0.50</td><td class="num">~7,900×</td></tr>
       </tbody>
@@ -100,6 +102,7 @@
         <tr><td>Open 26–27B, rented H100 kept busy</td><td class="num">$0.27–0.37</td><td class="num">$270–370</td></tr>
         <tr><td>GPT-6 Luna, asked like Haiku</td><td class="num">$0.31</td><td class="num">$305</td></tr>
         <tr><td>Claude Haiku 5.5 (low)</td><td class="num">$0.40</td><td class="num">$400</td></tr>
+        <tr><td>Nimble 9B, rented H100 kept busy</td><td class="num">$1.16</td><td class="num">$1,160</td></tr>
         <tr><td>GPT-6.1 Terra, asked like Haiku</td><td class="num">$2.60</td><td class="num">$2,600</td></tr>
         <tr><td>Claude Sonnet 5.5 (est.)</td><td class="num">$9</td><td class="num">$9,000</td></tr>
         <tr><td>Claude Opus 5.5 (est.)</td><td class="num">$18</td><td class="num">$18,000</td></tr>
@@ -118,7 +121,7 @@
       <label><span>Escalated to LLM</span><input type="range" id="cc-llm" min="0" max="100" step="0.5" value="4.5" aria-label="share escalated to the LLM"><output data-for="cc-llm"></output></label>
       <label><span>Escalated to a person</span><input type="range" id="cc-human" min="0" max="20" step="0.1" value="0.5" aria-label="share escalated to a person"><output data-for="cc-human"></output></label>
       <label><span>Decision model</span>
-        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option><option value="open27">Open 26–27B, rented H100 (kept busy)</option><option value="nimble">Nimble v4-max</option><option value="lunafaux">GPT-6 Luna, asked like Haiku</option><option value="terrafaux">GPT-6.1 Terra, asked like Haiku</option></select><span></span></label>
+        <select id="cc-dmodel" aria-label="decision model"><option value="jev">Jev 1.13</option><option value="luna">OpenAI Decisions</option><option value="haiku">Claude Haiku 5.5</option><option value="local">Open weights, local</option><option value="open27">Open 26–27B, rented H100 (kept busy)</option><option value="nimble">Nimble v4-max</option><option value="lunafaux">GPT-6 Luna, asked like Haiku</option><option value="terrafaux">GPT-6.1 Terra, asked like Haiku</option><option value="nimble9b">Nimble 9B, rented H100 (kept busy)</option></select><span></span></label>
       <label><span>LLM tier</span>
         <select id="cc-lmodel" aria-label="LLM tier model"><option value="sonnet">Claude Sonnet 5.5</option><option value="opus" selected>Claude Opus 5.5</option><option value="fable">Claude Fable 5.1</option><option value="haiku">Claude Haiku 5.5</option></select><span></span></label>
       <label><span>LLM request size</span><input type="range" id="cc-llmsize" min="1" max="20" step="1" value="10" aria-label="LLM request size multiple"><output data-for="cc-llmsize"></output></label>

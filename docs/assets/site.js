@@ -77,7 +77,7 @@
   // Cost calculator. Per-decision costs for one reference decision (see cost.html for the basis).
   const COST = {
     jev: 0.000063, luna: 0.000151, haiku: 0.00038, local: 0.0, open27: 0.00032,
-    nimble: 0.00006, lunafaux: 0.000305, terrafaux: 0.00264,
+    nimble: 0.00006, lunafaux: 0.000305, terrafaux: 0.00264, nimble9b: 0.00116,
     sonnet: 0.009, opus: 0.018, fable: 0.045, human: 0.50,
   };
   const calc = $("#cost-calc");

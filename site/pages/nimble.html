@@ -1,4 +1,4 @@
-    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 27, 2026</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 27, 2026 · open-weights Nimble 9B added October 28</p>
     <h1>Nimble takes the lead</h1>
     <p class="lede">Two weeks after the open models caught up, a hosted decision model went past Jev. Bespoke Labs' <strong>Nimble v4-max</strong> speaks Jev's own API, costs slightly less per token, answers in under half a second, and led every harness we ran except the mail sorter. On the same day we asked OpenAI's <strong>GPT-6 Luna</strong> and <strong>GPT-6.1 Terra</strong> the way we ask Claude Haiku 5.5. Asked that way, Luna becomes a top-tier judge, at a general model's price in speed and repeatability.</p>
 
@@ -17,34 +17,35 @@
         <tr><td><strong>Nimble v4-max</strong> (Bespoke Labs)</td><td>Hosted decision model, 27B. <code>nimble-v4</code> and <code>nimble-latest</code> both point to it; there is no hosted 9B</td><td>$0.04 / free</td><td>Its own <code>/v1/systemone</code>, Jev's request shape; a thin proxy added the key, a spend cap and retries</td></tr>
         <tr><td><strong>GPT-6 Luna</strong>, asked like Haiku</td><td>OpenAI's cheapest general model, the same <code>gpt-6-luna</code> that sits behind the Decisions API</td><td>$0.10 / $0.50</td><td>Responses API, effort <code>low</code>, a strict structured-output schema: the Haiku adapter's prompt with a different model</td></tr>
         <tr><td><strong>GPT-6.1 Terra</strong>, asked like Haiku</td><td>OpenAI's mid-tier general model</td><td>$1.00 / $5.00</td><td>Same adapter</td></tr>
+        <tr><td><strong>Bespoke-Nimble-9B</strong> (open weights)</td><td>A LoRA adapter over Qwen3.5-9B on Hugging Face: the launch tag <code>original-2676</code>, and the current <code>main</code> release for wine and the sorter</td><td>Free weights; $3.29 per H100-hour</td><td>Bespoke's own scorer, BF16 on one rented H100, behind a Jev-shaped front over an SSH tunnel</td></tr>
       </tbody>
     </table></div>
-    <p>Total spend for the day: $1.03 for Nimble (9,253 wine and page calls, 8,300 mail calls, 231 JevBench tasks) and $29.6 for the two OpenAI models, $24 of it Terra.</p>
+    <p>Total spend for the day: $1.03 for Nimble (9,253 wine and page calls, 8,300 mail calls, 231 JevBench tasks) and $29.6 for the two OpenAI models, $24 of it Terra. The 9B's H100 cost about $16.4 for five hours.</p>
 
     <h2 id="wine-chart">Wine, at a glance</h2>
     <p>Each row is one model. The circle is the error when 38 small questions feed a fitted model; the diamond is the error when the model is simply asked for the score. Both are fit on 1,200 development wines and scored once on 800 held-out wines. Hover a mark for its value; the table below has every number.</p>
     <div class="diagram scroll-x">
-<svg viewBox="0 0 720 404" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="wine-title wine-desc" class="wine-chart">
+<svg viewBox="0 0 720 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="wine-title wine-desc" class="wine-chart">
 <title id="wine-title">Wine score error on 800 held-out wines, by model</title>
 <desc id="wine-desc">Dot plot of RMSE in critic points, lower is better, for two ways of using each model: 38 questions feeding a CatBoost model, and asking for the score directly. Nimble v4-max is lowest on 38 questions (1.66) and second lowest asking directly (1.83, behind GPT-6 Luna asked Haiku-style at 1.82). Exact values are in the scoreboard table below.</desc>
 <g class="wine-legend" font-size="13"><circle cx="228" cy="20" r="5" class="m-q"/><text x="240" y="24">38 questions → CatBoost</text><path d="M428,14 l6,6 l-6,6 l-6,-6 z" class="m-d"/><text x="440" y="24">Ask for the score directly</text></g>
-<line x1="222.0" y1="50" x2="222.0" y2="340" class="grid"/>
-<text x="222.0" y="358" text-anchor="middle" font-size="12" class="muted">1.6</text>
-<line x1="290.3" y1="50" x2="290.3" y2="340" class="grid"/>
-<text x="290.3" y="358" text-anchor="middle" font-size="12" class="muted">1.7</text>
-<line x1="358.6" y1="50" x2="358.6" y2="340" class="grid"/>
-<text x="358.6" y="358" text-anchor="middle" font-size="12" class="muted">1.8</text>
-<line x1="426.9" y1="50" x2="426.9" y2="340" class="grid"/>
-<text x="426.9" y="358" text-anchor="middle" font-size="12" class="muted">1.9</text>
-<line x1="495.1" y1="50" x2="495.1" y2="340" class="grid"/>
-<text x="495.1" y="358" text-anchor="middle" font-size="12" class="muted">2.0</text>
-<line x1="563.4" y1="50" x2="563.4" y2="340" class="grid"/>
-<text x="563.4" y="358" text-anchor="middle" font-size="12" class="muted">2.1</text>
-<line x1="631.7" y1="50" x2="631.7" y2="340" class="grid"/>
-<text x="631.7" y="358" text-anchor="middle" font-size="12" class="muted">2.2</text>
-<line x1="700.0" y1="50" x2="700.0" y2="340" class="grid"/>
-<text x="700.0" y="358" text-anchor="middle" font-size="12" class="muted">2.3</text>
-<text x="461" y="382" text-anchor="middle" font-size="13" class="muted">RMSE in critic points on 800 held-out wines · lower is better</text>
+<line x1="222.0" y1="50" x2="222.0" y2="376" class="grid"/>
+<text x="222.0" y="394" text-anchor="middle" font-size="12" class="muted">1.6</text>
+<line x1="290.3" y1="50" x2="290.3" y2="376" class="grid"/>
+<text x="290.3" y="394" text-anchor="middle" font-size="12" class="muted">1.7</text>
+<line x1="358.6" y1="50" x2="358.6" y2="376" class="grid"/>
+<text x="358.6" y="394" text-anchor="middle" font-size="12" class="muted">1.8</text>
+<line x1="426.9" y1="50" x2="426.9" y2="376" class="grid"/>
+<text x="426.9" y="394" text-anchor="middle" font-size="12" class="muted">1.9</text>
+<line x1="495.1" y1="50" x2="495.1" y2="376" class="grid"/>
+<text x="495.1" y="394" text-anchor="middle" font-size="12" class="muted">2.0</text>
+<line x1="563.4" y1="50" x2="563.4" y2="376" class="grid"/>
+<text x="563.4" y="394" text-anchor="middle" font-size="12" class="muted">2.1</text>
+<line x1="631.7" y1="50" x2="631.7" y2="376" class="grid"/>
+<text x="631.7" y="394" text-anchor="middle" font-size="12" class="muted">2.2</text>
+<line x1="700.0" y1="50" x2="700.0" y2="376" class="grid"/>
+<text x="700.0" y="394" text-anchor="middle" font-size="12" class="muted">2.3</text>
+<text x="461" y="418" text-anchor="middle" font-size="13" class="muted">RMSE in critic points on 800 held-out wines · lower is better</text>
 <rect x="8" y="47" width="704" height="34" rx="8" class="hero-band"/>
 <text x="208" y="69" text-anchor="end" font-size="14" font-weight="700">Nimble v4-max</text>
 <line x1="260.9" y1="64" x2="379.7" y2="64" class="link"/>
@@ -79,33 +80,36 @@
 <text x="208" y="321" text-anchor="end" font-size="14">GPT-6.1 Terra, Haiku-style</text>
 <text x="226" y="321" font-size="12" class="muted">38 questions: subset only</text>
 <g class="pt"><circle cx="465.1" cy="316" r="11" class="hit"/><path d="M465.1,309 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>GPT-6.1 Terra, Haiku-style: direct score 1.96</title></g>
+<text x="208" y="357" text-anchor="end" font-size="14">Nimble 9B (rented H100)</text>
+<text x="226" y="357" font-size="12" class="muted">38 questions: subset only</text>
+<g class="pt"><circle cx="693.9" cy="352" r="11" class="hit"/><path d="M693.9,345 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Nimble 9B (rented H100): direct score 2.29</title></g>
 </svg>
     </div>
 
     <h2>The scoreboard</h2>
     <p>Bold is the best in each row. Wine is RMSE in critic points (lower is better); mail concepts are the best question's AUC (higher is better).</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Harness</th><th class="num">Jev</th><th class="num">Nimble v4-max</th><th class="num">Luna, Haiku-style</th><th class="num">Terra, Haiku-style</th><th class="num">Haiku 5.5</th><th class="num">Kev-27B</th></tr></thead>
+      <thead><tr><th>Harness</th><th class="num">Jev</th><th class="num">Nimble v4-max</th><th class="num">Luna, Haiku-style</th><th class="num">Terra, Haiku-style</th><th class="num">Haiku 5.5</th><th class="num">Kev-27B</th><th class="num">Nimble 9B (H100)</th></tr></thead>
       <tbody>
-        <tr><td>Wine, 38 questions → model (5-fold × 3 CV, 1,189 wines)</td><td class="num">1.86</td><td class="num best">1.76</td><td class="num">1.77</td><td class="num">1.76‡</td><td class="num">1.80</td><td class="num">1.83</td></tr>
-        <tr><td>Wine, ask the score directly (CV)</td><td class="num">2.31</td><td class="num best">1.92</td><td class="num">1.93</td><td class="num">2.08‡</td><td class="num">2.01</td><td class="num">2.13</td></tr>
-        <tr><td>Wine held-out / fresh, 38 questions (fit on dev, scored once)</td><td class="num">1.75 / 1.72</td><td class="num best">1.66 / 1.67</td><td class="num">1.71 / 1.67</td><td class="num">—</td><td class="num">1.78 / 1.83</td><td class="num">1.71 / 1.71</td></tr>
-        <tr><td>Wine held-out / fresh, direct score</td><td class="num">2.20 / 1.98</td><td class="num">1.83 / 1.72</td><td class="num best">1.82 / 1.62</td><td class="num">1.96 / 1.87</td><td class="num">1.98 / 1.86</td><td class="num">2.08 / 1.82</td></tr>
-        <tr><td>Mail: action deadline</td><td class="num">0.980</td><td class="num best">0.988</td><td class="num">0.977</td><td class="num">0.965</td><td class="num">0.964</td><td class="num">0.987</td></tr>
-        <tr><td>Mail: payment failed or ending</td><td class="num">0.997</td><td class="num">0.998</td><td class="num best">0.999</td><td class="num">0.998</td><td class="num">0.995</td><td class="num">0.998</td></tr>
-        <tr><td>Mail: someone waiting on a reply</td><td class="num">0.986</td><td class="num">0.993</td><td class="num">0.992</td><td class="num best">0.996</td><td class="num">0.986</td><td class="num">0.989</td></tr>
-        <tr><td>Mail: Choice named the exact deadline class</td><td class="num">43%</td><td class="num">67%</td><td class="num best">69%</td><td class="num">62%</td><td class="num">68%</td><td class="num">66%</td></tr>
-        <tr><td>Mail: ladder variants at or above Jev (of 42)</td><td class="num">—</td><td class="num best">37</td><td class="num">28</td><td class="num">24</td><td class="num">36</td><td class="num">—</td></tr>
-        <tr><td id="sorter">Mail sorter: filtered (missed actions of 244)</td><td class="num best">58.9% (1)</td><td class="num">61.1% (2)</td><td class="num best">59.0% (1)</td><td class="num">57.1% (1)</td><td class="num">57.1% (2)</td><td class="num">56.4% (0)</td></tr>
-        <tr><td>Mail sorter: ceiling at zero misses</td><td class="num">63.6%</td><td class="num">57.9%</td><td class="num">63.0%</td><td class="num">59.1%</td><td class="num best">64.8%</td><td class="num">63.3%</td></tr>
-        <tr><td>JevBench public, 231 tasks*</td><td class="num">200</td><td class="num">209</td><td class="num">226</td><td class="num best">230</td><td class="num">224</td><td class="num">204</td></tr>
-        <tr><td>Browser page chooser (12 synthetic pages)</td><td class="num best">12/12</td><td class="num">11/12†</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td></tr>
-        <tr><td>Latency p50 per request (mail where measured)</td><td class="num">0.59 s</td><td class="num best">0.38 s</td><td class="num">3.1 s</td><td class="num">3.0 s</td><td class="num">2.1 s</td><td class="num">1.6 s (H100, 6 in flight)</td></tr>
-        <tr><td>Same answer on re-ask (60 wine requests)</td><td class="num best">Always</td><td class="num">Mostly; up to 0.17 moves</td><td class="num">16%</td><td class="num">36%</td><td class="num">33%</td><td class="num">Not tested</td></tr>
-        <tr><td>Cost per mail request, Jev = 1×</td><td class="num">1×</td><td class="num best">≈0.95×</td><td class="num">≈5×</td><td class="num">~40×</td><td class="num">5–7×</td><td class="num">≈4–6× on a busy rented H100</td></tr>
+        <tr><td>Wine, 38 questions → model (5-fold × 3 CV, 1,189 wines)</td><td class="num">1.86</td><td class="num best">1.76</td><td class="num">1.77</td><td class="num">1.76‡</td><td class="num">1.80</td><td class="num">1.83</td><td class="num">1.91‡</td></tr>
+        <tr><td>Wine, ask the score directly (CV)</td><td class="num">2.31</td><td class="num best">1.92</td><td class="num">1.93</td><td class="num">2.08‡</td><td class="num">2.01</td><td class="num">2.13</td><td class="num">2.39</td></tr>
+        <tr><td>Wine held-out / fresh, 38 questions (fit on dev, scored once)</td><td class="num">1.75 / 1.72</td><td class="num best">1.66 / 1.67</td><td class="num">1.71 / 1.67</td><td class="num">—</td><td class="num">1.78 / 1.83</td><td class="num">1.71 / 1.71</td><td class="num">—</td></tr>
+        <tr><td>Wine held-out / fresh, direct score</td><td class="num">2.20 / 1.98</td><td class="num">1.83 / 1.72</td><td class="num best">1.82 / 1.62</td><td class="num">1.96 / 1.87</td><td class="num">1.98 / 1.86</td><td class="num">2.08 / 1.82</td><td class="num">2.29 / 2.16</td></tr>
+        <tr><td>Mail: action deadline</td><td class="num">0.980</td><td class="num best">0.988</td><td class="num">0.977</td><td class="num">0.965</td><td class="num">0.964</td><td class="num">0.987</td><td class="num">0.967</td></tr>
+        <tr><td>Mail: payment failed or ending</td><td class="num">0.997</td><td class="num">0.998</td><td class="num best">0.999</td><td class="num">0.998</td><td class="num">0.995</td><td class="num">0.998</td><td class="num">0.993</td></tr>
+        <tr><td>Mail: someone waiting on a reply</td><td class="num">0.986</td><td class="num">0.993</td><td class="num">0.992</td><td class="num best">0.996</td><td class="num">0.986</td><td class="num">0.989</td><td class="num">0.976</td></tr>
+        <tr><td>Mail: Choice named the exact deadline class</td><td class="num">43%</td><td class="num">67%</td><td class="num best">69%</td><td class="num">62%</td><td class="num">68%</td><td class="num">66%</td><td class="num">42%</td></tr>
+        <tr><td>Mail: ladder variants at or above Jev (of 42)</td><td class="num">—</td><td class="num best">37</td><td class="num">28</td><td class="num">24</td><td class="num">36</td><td class="num">—</td><td class="num">22</td></tr>
+        <tr><td id="sorter">Mail sorter: filtered (missed actions of 244)</td><td class="num best">58.9% (1)</td><td class="num">61.1% (2)</td><td class="num best">59.0% (1)</td><td class="num">57.1% (1)</td><td class="num">57.1% (2)</td><td class="num">56.4% (0)</td><td class="num">34.1% (0)§</td></tr>
+        <tr><td>Mail sorter: ceiling at zero misses</td><td class="num">63.6%</td><td class="num">57.9%</td><td class="num">63.0%</td><td class="num">59.1%</td><td class="num best">64.8%</td><td class="num">63.3%</td><td class="num">58.0%§</td></tr>
+        <tr><td>JevBench public, 231 tasks*</td><td class="num">200</td><td class="num">209</td><td class="num">226</td><td class="num best">230</td><td class="num">224</td><td class="num">204</td><td class="num">181</td></tr>
+        <tr><td>Browser page chooser (12 synthetic pages)</td><td class="num best">12/12</td><td class="num">11/12†</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num best">12/12</td><td class="num">9/12</td></tr>
+        <tr><td>Latency p50 per request (mail where measured)</td><td class="num">0.59 s</td><td class="num best">0.38 s</td><td class="num">3.1 s</td><td class="num">3.0 s</td><td class="num">2.1 s</td><td class="num">1.6 s (H100, 6 in flight)</td><td class="num">0.36 s alone; ~10 s at 8 in flight</td></tr>
+        <tr><td>Same answer on re-ask (60 wine requests)</td><td class="num best">Always</td><td class="num">Mostly; up to 0.17 moves</td><td class="num">16%</td><td class="num">36%</td><td class="num">33%</td><td class="num">Not tested</td><td class="num">Not tested</td></tr>
+        <tr><td>Cost per mail request, Jev = 1×</td><td class="num">1×</td><td class="num best">≈0.95×</td><td class="num">≈5×</td><td class="num">~40×</td><td class="num">5–7×</td><td class="num">≈4–6× on a busy rented H100</td><td class="num">≈18× on a busy rented H100</td></tr>
       </tbody>
     </table></div>
-    <p style="font-size:14px">* JevBench is on GitHub, so general models in particular may have seen it. † Nimble rejects the one page that asks a one-option Choice (the documented minimum is two options); the Decisions API and the Strands Decider reject it too. ‡ Terra's 38-question arm ran on 610 dev wines, where Jev scored 1.88, Nimble 1.78 and Luna and Haiku 1.79: all of them within noise of each other and ahead of Jev. Its direct-score CV figure is on all 1,200 dev wines. Nimble's re-ask figure is from repeated spot checks, not the 60-request protocol. Jev's latency is per wine request.</p>
+    <p style="font-size:14px">* JevBench is on GitHub, so general models in particular may have seen it. † Nimble rejects the one page that asks a one-option Choice (the documented minimum is two options); the Decisions API and the Strands Decider reject it too. ‡ Terra's 38-question arm ran on 610 dev wines, where Jev scored 1.88, Nimble 1.78 and Luna and Haiku 1.79: all of them within noise of each other and ahead of Jev. Its direct-score CV figure is on all 1,200 dev wines. The 9B's 38-question figure is on those same 610 wines (Jev 1.88 there). § The 9B was scored on 2,073 messages: two are over its 8,192-token limit and are escalated (neither is an action). On those 2,073 Jev sets aside 57.7%, with a 63.5% ceiling. Nimble's re-ask figure is from repeated spot checks, not the 60-request protocol. Jev's latency is per wine request.</p>
 
     <h2>Nimble v4-max: a better Jev at Jev's price</h2>
     <ul>
@@ -115,6 +119,15 @@
       <li><strong>JevBench: best decision model, same blind spots.</strong> 209 of 231, ahead of every decision model we've run. Its misses cluster where Jev's do: temporal and numeric questions (0.33, Jev 0.27) and long policies (0.68, Jev 0.63). Keep arithmetic and dates in code.</li>
       <li><strong>Speed and cost.</strong> p50 0.37 s for a 13-question wine request, 44 requests a second at 16 in flight without a single 429. The entire wine corpus (9,228 requests) took 208 seconds and cost $0.47.</li>
       <li><strong>Watch out for:</strong> re-asks are not always identical (answers flip between two or three nearby states, so keep thresholds out of the busy part of the distribution); the model name is the only pin (no revision selector); and the aliases. A table in Bespoke's launch docs describes <code>nimble-v4</code> as a separate fast model, but today it returns max's answers, tokens and latency. Ask for <code>nimble-v4-max</code> by name.</li>
+    </ul>
+
+    <h2 id="nimble-9b">Nimble 9B on a rented H100: Jev's level on many questions, not more</h2>
+    <p>Bespoke also publishes a 9B open-weights Nimble: a LoRA adapter over Qwen3.5-9B. It is not v4; there is no v4 9B. We served the repo's launch checkpoint, and its current <code>main</code> release for two arms, with Bespoke's own scorer at BF16 on one H100.</p>
+    <ul>
+      <li><strong>Wine: ties Jev with many questions, trails as a single judge.</strong> With 38 questions, on 610 dev wines, it scored 1.91 against Jev's 1.88 (gap +0.03, 95% CI −0.05 to +0.10). Asked for the score directly it is 0.09 behind Jev (CI +0.01 to +0.17) and 0.47 behind v4-max. The current release is worse again: 0.16 behind the launch checkpoint on the direct score.</li>
+      <li><strong>Mail: good rankings, a timid sorter.</strong> Best-question AUCs are just under Jev's (0.976, 0.967 and 0.993 against 0.986, 0.980 and 0.997), and it is at or above Jev on 22 of 42 question variants. The sorter missed no action but set aside only 34% of mail at the deployable threshold, though 58% was available at zero misses. The current release set aside 41%.</li>
+      <li><strong>Elsewhere it trails.</strong> 181 of 231 on JevBench, and 9 of 12 on the page chooser in both runs.</li>
+      <li><strong>Cheap weights, not cheap answers.</strong> Its scorer reads the whole prompt once per question, so a 13-question wine request is ~30k tokens of work. A busy H100 answered about 2,800 six-question mail requests an hour, about 18× Jev's price per request (<a href="cost.html">cost ladder</a>). A single request takes 0.36 s. ggml-org's Q8 GGUF of a later 9B (the separate v3 repo) runs on a 24 GB Mac through Ollama, at ~13 GB and ~7.5 s per wine request.</li>
     </ul>
 
     <h2>Luna and Terra, asked the way we ask Haiku</h2>

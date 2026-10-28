@@ -1,4 +1,4 @@
-    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 27, 2026 · open-weights Nimble 9B added October 28</p>
+    <p class="eyebrow"><span class="badge data">Evidence</span> Measured October 27, 2026 · open-weights Nimble 9B and effort <code>none</code> added October 28</p>
     <h1>Nimble takes the lead</h1>
     <p class="lede">Two weeks after the open models caught up, a hosted decision model went past Jev. Bespoke Labs' <strong>Nimble v4-max</strong> speaks Jev's own API, costs slightly less per token, answers in under half a second, and led every harness we ran except the mail sorter. On the same day we asked OpenAI's <strong>GPT-6 Luna</strong> and <strong>GPT-6.1 Terra</strong> the way we ask Claude Haiku 5.5. Asked that way, Luna becomes a top-tier judge, at a general model's price in speed and repeatability.</p>
 
@@ -140,6 +140,25 @@
       <li><strong>Terra is steadier and more expensive, not better.</strong> It is within noise of the leaders on 38 wine questions, behind Luna and Nimble on the direct score by about 0.16, and level with Jev on mail. It is the most repeatable of the general models (36% identical, 5% of argmaxes flipped) and tops JevBench at 230 of 231. It costs about 40× Jev per mail request.</li>
       <li><strong>Both answer the one-option Choice</strong> the decision endpoints reject, and both went 12/12 on the page chooser in both runs.</li>
     </ul>
+
+    <h3 id="effort-none">Does effort <code>none</code> turn them into decision models? Only halfway</h3>
+    <p>Effort <code>none</code> is the one setting at which both models return token log-probabilities. So on October 28 we asked each two more ways. The first used effort <code>none</code> with stated numbers, as before. The second also measured: each answer became a single code (yes/no, a letter, a digit), and its probabilities were read from the log-probabilities of that token, the way a decision model reports them.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Luna, asked…</th><th class="num">Wine, direct score (held-out / fresh)</th><th class="num">Wine, 38 questions (610 wines)</th><th class="num">Re-asks identical</th><th class="num">Mail: deadline Choice right</th><th class="num">Mail sorter (misses)</th></tr></thead>
+      <tbody>
+        <tr><td>Through the Decisions API</td><td class="num">2.23 / 2.07</td><td class="num">1.85</td><td class="num best">100%</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>Haiku-style, effort <code>low</code></td><td class="num best">1.82 / 1.62</td><td class="num best">1.79</td><td class="num">16%</td><td class="num">69%</td><td class="num best">59.0% (1)</td></tr>
+        <tr><td>Haiku-style, effort <code>none</code></td><td class="num">1.87 / 1.67</td><td class="num">1.81</td><td class="num">17%</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>Effort <code>none</code>, measured log-probabilities</td><td class="num">2.23 / 2.07</td><td class="num">1.85</td><td class="num">81%</td><td class="num best">78%</td><td class="num">50.8% (2)</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>Effort <code>none</code> by itself changes nothing.</strong> Neither model was reasoning much at <code>low</code>, and the scores are within noise of each other (Terra's direct score: 2.08 at <code>low</code>, 2.08 at <code>none</code>).</li>
+      <li><strong>Measuring makes them repeatable, not better.</strong> Re-asks come back identical about 80% of the time instead of 16–36%. But the measured probabilities are spiky: over half of Luna's answers and three quarters of Terra's put at least 0.99 on one level, where Jev almost never does. Spiky answers lose the gradations that thresholds and rankings need. Luna's direct wine score got 0.37 worse and Terra's 0.45 worse (Terra 2.53, the worst here). Its mail AUCs fell from 0.98–0.999 to 0.91–0.97, and its sorter set aside 50.8% with two misses.</li>
+      <li><strong>The top answer did get better.</strong> Measured Luna named the right deadline class 78% of the time, the best we have measured (Jev 43%, Nimble 67%). If a pipeline only takes the top answer and never thresholds, this mode is accurate, repeatable and cheap (about 3× Jev per mail request).</li>
+      <li><strong>It isn't the Decisions API, though it scores like it.</strong> Measured Luna's wine errors equal the Decisions API's on every arm. But the two picked the same top level on only 73% of wines, and the Decisions API spreads its probability the way Jev does. OpenAI's endpoint does more than read raw log-probabilities, perhaps calibrating them.</li>
+    </ul>
+    <p>Total for these runs: $5.52. Details and every number are in the experiment README (<code>experiments/openai-faux</code>).</p>
 
     <h2>What this changes</h2>
     <ol>

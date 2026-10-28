@@ -351,3 +351,19 @@ pre.pc .kw { font-weight: 600; color: var(--ink); }
 .diagram .grid { stroke: var(--line); stroke-width: 1.2; }
 .diagram .band-watch { fill: var(--t-jev-soft); }
 .diagram .line-esc { stroke: var(--t-llm); stroke-width: 2.5; }
+
+/* Wine dot plot on nimble.html. Series colors validated with the dataviz validator against --bg in each mode. */
+.wine-chart { --w-q: #1baf7a; --w-d: #eb6834; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wine-chart { --w-q: #199e70; --w-d: #d95926; } }
+:root[data-theme="dark"] .wine-chart { --w-q: #199e70; --w-d: #d95926; }
+.diagram .wine-chart .grid { stroke: var(--line); stroke-width: 1; }
+.diagram .wine-chart .link { stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; opacity: .45; }
+.diagram .wine-chart .m-q { fill: var(--w-q); stroke: var(--bg-raised); stroke-width: 2; }
+.diagram .wine-chart .m-d { fill: var(--w-d); stroke: var(--bg-raised); stroke-width: 2; }
+.diagram .wine-chart .hit { fill: transparent; }
+.diagram .wine-chart .pt { cursor: default; }
+.diagram .wine-chart .pt:hover .m-q, .diagram .wine-chart .pt:hover .m-d { stroke: var(--ink); }
+.diagram .wine-chart .hero-band { fill: var(--bg-sunk); }
+.diagram .wine-chart .wine-legend text { fill: var(--ink-soft); }
+.diagram.scroll-x { overflow-x: auto; }
+.diagram.scroll-x .wine-chart { min-width: 600px; }

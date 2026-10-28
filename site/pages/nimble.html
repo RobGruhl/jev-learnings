@@ -21,6 +21,67 @@
     </table></div>
     <p>Total spend for the day: $1.03 for Nimble (9,253 wine and page calls, 8,300 mail calls, 231 JevBench tasks) and $29.6 for the two OpenAI models, $24 of it Terra.</p>
 
+    <h2 id="wine-chart">Wine, at a glance</h2>
+    <p>Each row is one model. The circle is the error when 38 small questions feed a fitted model; the diamond is the error when the model is simply asked for the score. Both are fit on 1,200 development wines and scored once on 800 held-out wines. Hover a mark for its value; the table below has every number.</p>
+    <div class="diagram scroll-x">
+<svg viewBox="0 0 720 404" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="wine-title wine-desc" class="wine-chart">
+<title id="wine-title">Wine score error on 800 held-out wines, by model</title>
+<desc id="wine-desc">Dot plot of RMSE in critic points, lower is better, for two ways of using each model: 38 questions feeding a CatBoost model, and asking for the score directly. Nimble v4-max is lowest on 38 questions (1.66) and second lowest asking directly (1.83, behind GPT-6 Luna asked Haiku-style at 1.82). Exact values are in the scoreboard table below.</desc>
+<g class="wine-legend" font-size="13"><circle cx="228" cy="20" r="5" class="m-q"/><text x="240" y="24">38 questions → CatBoost</text><path d="M428,14 l6,6 l-6,6 l-6,-6 z" class="m-d"/><text x="440" y="24">Ask for the score directly</text></g>
+<line x1="222.0" y1="50" x2="222.0" y2="340" class="grid"/>
+<text x="222.0" y="358" text-anchor="middle" font-size="12" class="muted">1.6</text>
+<line x1="290.3" y1="50" x2="290.3" y2="340" class="grid"/>
+<text x="290.3" y="358" text-anchor="middle" font-size="12" class="muted">1.7</text>
+<line x1="358.6" y1="50" x2="358.6" y2="340" class="grid"/>
+<text x="358.6" y="358" text-anchor="middle" font-size="12" class="muted">1.8</text>
+<line x1="426.9" y1="50" x2="426.9" y2="340" class="grid"/>
+<text x="426.9" y="358" text-anchor="middle" font-size="12" class="muted">1.9</text>
+<line x1="495.1" y1="50" x2="495.1" y2="340" class="grid"/>
+<text x="495.1" y="358" text-anchor="middle" font-size="12" class="muted">2.0</text>
+<line x1="563.4" y1="50" x2="563.4" y2="340" class="grid"/>
+<text x="563.4" y="358" text-anchor="middle" font-size="12" class="muted">2.1</text>
+<line x1="631.7" y1="50" x2="631.7" y2="340" class="grid"/>
+<text x="631.7" y="358" text-anchor="middle" font-size="12" class="muted">2.2</text>
+<line x1="700.0" y1="50" x2="700.0" y2="340" class="grid"/>
+<text x="700.0" y="358" text-anchor="middle" font-size="12" class="muted">2.3</text>
+<text x="461" y="382" text-anchor="middle" font-size="13" class="muted">RMSE in critic points on 800 held-out wines · lower is better</text>
+<rect x="8" y="47" width="704" height="34" rx="8" class="hero-band"/>
+<text x="208" y="69" text-anchor="end" font-size="14" font-weight="700">Nimble v4-max</text>
+<line x1="260.9" y1="64" x2="379.7" y2="64" class="link"/>
+<g class="pt"><circle cx="260.9" cy="64" r="11" class="hit"/><circle cx="260.9" cy="64" r="5.5" class="m-q"/><title>Nimble v4-max: 38 questions 1.66</title></g>
+<g class="pt"><circle cx="379.7" cy="64" r="11" class="hit"/><path d="M379.7,57 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Nimble v4-max: direct score 1.83</title></g>
+<text x="248.9" y="69" text-anchor="end" font-size="12" font-weight="600">1.66</text>
+<text x="392.7" y="69" font-size="12" font-weight="600">1.83</text>
+<text x="208" y="105" text-anchor="end" font-size="14">Kev-27B (rented H100)</text>
+<line x1="297.1" y1="100" x2="549.1" y2="100" class="link"/>
+<g class="pt"><circle cx="297.1" cy="100" r="11" class="hit"/><circle cx="297.1" cy="100" r="5.5" class="m-q"/><title>Kev-27B (rented H100): 38 questions 1.71</title></g>
+<g class="pt"><circle cx="549.1" cy="100" r="11" class="hit"/><path d="M549.1,93 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Kev-27B (rented H100): direct score 2.08</title></g>
+<text x="208" y="141" text-anchor="end" font-size="14">GPT-6 Luna, Haiku-style</text>
+<line x1="299.8" y1="136" x2="375.6" y2="136" class="link"/>
+<g class="pt"><circle cx="299.8" cy="136" r="11" class="hit"/><circle cx="299.8" cy="136" r="5.5" class="m-q"/><title>GPT-6 Luna, Haiku-style: 38 questions 1.71</title></g>
+<g class="pt"><circle cx="375.6" cy="136" r="11" class="hit"/><path d="M375.6,129 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>GPT-6 Luna, Haiku-style: direct score 1.82</title></g>
+<text x="208" y="177" text-anchor="end" font-size="14">GPT-6 Luna, Decisions API</text>
+<line x1="306.0" y1="172" x2="649.5" y2="172" class="link"/>
+<g class="pt"><circle cx="306.0" cy="172" r="11" class="hit"/><circle cx="306.0" cy="172" r="5.5" class="m-q"/><title>GPT-6 Luna, Decisions API: 38 questions 1.72</title></g>
+<g class="pt"><circle cx="649.5" cy="172" r="11" class="hit"/><path d="M649.5,165 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>GPT-6 Luna, Decisions API: direct score 2.23</title></g>
+<text x="208" y="213" text-anchor="end" font-size="14">Jev 1.13 (hosted)</text>
+<line x1="324.4" y1="208" x2="635.1" y2="208" class="link"/>
+<g class="pt"><circle cx="324.4" cy="208" r="11" class="hit"/><circle cx="324.4" cy="208" r="5.5" class="m-q"/><title>Jev 1.13 (hosted): 38 questions 1.75</title></g>
+<g class="pt"><circle cx="635.1" cy="208" r="11" class="hit"/><path d="M635.1,201 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Jev 1.13 (hosted): direct score 2.21</title></g>
+<text x="208" y="249" text-anchor="end" font-size="14">Claude Haiku 5.5</text>
+<line x1="344.2" y1="244" x2="478.1" y2="244" class="link"/>
+<g class="pt"><circle cx="344.2" cy="244" r="11" class="hit"/><circle cx="344.2" cy="244" r="5.5" class="m-q"/><title>Claude Haiku 5.5: 38 questions 1.78</title></g>
+<g class="pt"><circle cx="478.1" cy="244" r="11" class="hit"/><path d="M478.1,237 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Claude Haiku 5.5: direct score 1.98</title></g>
+<text x="208" y="285" text-anchor="end" font-size="14">Strands Decider 2B</text>
+<line x1="428.9" y1="280" x2="594.2" y2="280" class="link"/>
+<g class="pt"><circle cx="428.9" cy="280" r="11" class="hit"/><circle cx="428.9" cy="280" r="5.5" class="m-q"/><title>Strands Decider 2B: 38 questions 1.90</title></g>
+<g class="pt"><circle cx="594.2" cy="280" r="11" class="hit"/><path d="M594.2,273 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>Strands Decider 2B: direct score 2.15</title></g>
+<text x="208" y="321" text-anchor="end" font-size="14">GPT-6.1 Terra, Haiku-style</text>
+<text x="226" y="321" font-size="12" class="muted">38 questions: subset only</text>
+<g class="pt"><circle cx="465.1" cy="316" r="11" class="hit"/><path d="M465.1,309 l7,7 l-7,7 l-7,-7 z" class="m-d"/><title>GPT-6.1 Terra, Haiku-style: direct score 1.96</title></g>
+</svg>
+    </div>
+
     <h2>The scoreboard</h2>
     <p>Bold is the best in each row. Wine is RMSE in critic points (lower is better); mail concepts are the best question's AUC (higher is better).</p>
     <div class="table-wrap"><table>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opus runs the search · Decision Tier</title>
+<meta name="description" content="An Opus orchestrator against a prescriptive pipeline, what fooled us, and what scale would change.">
+<meta property="og:title" content="Opus runs the search · Decision Tier">
+<meta property="og:description" content="An Opus orchestrator against a prescriptive pipeline, what fooled us, and what scale would change.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/search-opus.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Corpus search</p><ul><li><a href="search.html">1 · The testbed</a></li><li><a href="search-reading.html">2 · Let the model read</a></li><li><a href="search-loop.html">3 · The loop, built</a></li><li><a href="search-opus.html" aria-current="page">4 · Opus runs the search</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="nimble.html">Nimble takes the lead</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 4 of 4 · the orchestrator and the limits</p>
+    <h1>Opus runs the search</h1>
+    <p class="lede">The pipeline in part 3 is prescriptive: the same steps for every question. What if the LLM chose its own steps instead? We gave Opus a toolbox and a page of findings, then let it decide what to run and when to stop. It tied the pipeline, on noticeably different facts, and that points at the next test.</p>
+
+    <h2>The setup</h2>
+    <p>Each of the 24 questions got a fresh Opus session with one spending cap, $0.75 of Jev. The prompt listed the tools with their costs and speed, and what testing had found about each one. It said these were findings, not rules, and asked Opus to use as few steps as would give a good answer. Answers ran through the same blind scoring as every other arm.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tool</th><th>Tier</th><th>What it does</th><th class="num">Cost</th><th class="num">Questions used on, of 24</th></tr></thead>
+      <tbody>
+        <tr><td>Grep</td><td><span class="tag code">Code</span></td><td>Exact pattern over titles and text</td><td class="num">Free</td><td class="num">24</td></tr>
+        <tr><td>Read</td><td><span class="tag code">Code</span></td><td>Prints paragraphs with neighbours</td><td class="num">Free</td><td class="num">24</td></tr>
+        <tr><td>Draft-aware reread</td><td><span class="tag jev">Jev</span></td><td>The <a href="search-loop.html#statements">second statement</a>, with a draft in the state</td><td class="num">$0.02</td><td class="num">23</td></tr>
+        <tr><td>BM25</td><td><span class="tag code">Code</span></td><td>Keyword search</td><td class="num">Free</td><td class="num">22</td></tr>
+        <tr><td>Full read</td><td><span class="tag jev">Jev</span></td><td>Any statement over every paragraph</td><td class="num">$0.23–0.29</td><td class="num">20</td></tr>
+        <tr><td>Blend</td><td><span class="tag code">Code</span></td><td>Combines saved rankings</td><td class="num">Free</td><td class="num">19</td></tr>
+        <tr><td>Facet focus</td><td><span class="tag jev">Jev</span></td><td>A ranking for one part of the question</td><td class="num">Varies</td><td class="num">3</td></tr>
+        <tr><td>Title routing</td><td><span class="tag jev">Jev</span></td><td>Judges each document by its title</td><td class="num">$0.01</td><td class="num">0</td></tr>
+        <tr><td>Passage growth</td><td><span class="tag jev">Jev</span></td><td>Decides where a passage ends</td><td class="num">$0.01</td><td class="num">0</td></tr>
+      </tbody>
+    </table></div>
+    <p>Opus also limited Jev by date often, and the prompt had warned that sources are full of older look-alikes. On 20 of 24 questions it read neighbouring paragraphs itself and never used growth, so it took over a job Jev does in the pipeline.</p>
+
+    <h2 id="tie">A tie, on different facts</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th class="num">Facts of 148</th><th class="num">Median words</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline with a second pass, Sonnet writes</td><td class="num best">116</td><td class="num">675</td></tr>
+        <tr><td>Same evidence, Opus writes</td><td class="num">115</td><td class="num">560</td></tr>
+        <tr><td>Opus chooses its own search</td><td class="num best">116</td><td class="num best">488</td></tr>
+      </tbody>
+    </table></div>
+    <p>Against the Opus-written pipeline, the orchestrator is +0.7 points [−8.8, 9.4], better on 9 questions and worse on 7. That wide interval is the finding, because the two approaches win on different questions. Here is the orchestrator against the Sonnet-written pipeline:</p>
+    <div class="bar100" role="img" aria-label="Of 148 facts, 100 stated by both, 16 only by the orchestrator, 16 only by the pipeline, 16 by neither.">
+      <span class="jev" style="width:67.6%" title="Both: 100"></span><span class="llm" style="width:10.8%" title="Only the orchestrator: 16"></span><span class="code" style="width:10.8%" title="Only the pipeline: 16"></span><span style="width:10.8%;background:var(--bg-sunk)" title="Neither: 16"></span>
+    </div>
+    <div class="tier-legend" aria-label="Legend for the bar above">
+      <span><span class="tag jev">Both</span> 100 facts</span>
+      <span><span class="tag llm">Only the orchestrator</span> 16 facts</span>
+      <span><span class="tag code">Only the pipeline</span> 16 facts</span>
+      <span><span class="tag">Neither</span> 16 facts</span>
+    </div>
+    <p><strong>Together they reach 132 of 148 (89%).</strong> We haven't written a merged answer yet, so that's a ceiling and not a result. The 16 facts neither found haven't been checked one by one. Some of this difference is ordinary noise, because repeat runs of one design flip 16 to 20% of verdicts. Still, the two differ on 32 facts, against 13 between the pipeline and its own third-pass arm. That hints that diversity is worth more than autonomy, but it doesn't prove it.</p>
+    <p>Opus's answers also stated as many facts in about 28% fewer words than Sonnet's. All writers had a limit of about 500 words, and only the orchestrator stayed near it, so a strictly enforced limit could change these totals.</p>
+
+    <h2 id="cost">What each one costs</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Approach</th><th class="num">Cost a question</th><th>Basis</th><th>Where it goes</th><th>Time</th></tr></thead>
+      <tbody>
+        <tr><td>First stack</td><td class="num best">$0.10</td><td>Measured</td><td>Sonnet, Haiku, some Jev</td><td>14 s</td></tr>
+        <tr><td>Pipeline with second pass</td><td class="num">~$0.40</td><td>Estimate</td><td>Adds a $0.23 full read, a $0.02 reread and a second writer</td><td>Not timed</td></tr>
+        <tr><td>Opus orchestrator</td><td class="num">~$1.30</td><td>Estimate</td><td>~$0.41 Jev, ~$0.90 Opus with prompt caching</td><td>73 s from first to last tool call, about 17 s of it in tools</td></tr>
+      </tbody>
+    </table></div>
+    <p>The orchestrator's Jev median is $0.20 of real spend, or about $0.41 with full reads served from cache priced normally. Its Opus cost comes from 22 run transcripts: a median of about 750k input tokens, mostly cache reads, and 9.4k output tokens. That assumes standard cache pricing, and without caching a run would cost about $3.60. The pipeline as scored used the $0.29 reread, so it would be nearer $0.67; the ~$0.40 assumes the $0.02 reread. Opus ran as subagents, so its time isn't API latency, and neither total has been measured end to end. The pipeline is the better default on cost, at about a third of the price. The orchestrator is a candidate for the questions that matter most.</p>
+
+    <h2 id="writing-it">Writing a useful orchestrator prompt</h2>
+    <p>These are impressions from 24 runs, not tested comparisons.</p>
+    <ul>
+      <li><strong>Give it costs and evidence, not orders.</strong> Our prompt said what each tool had been worth and left the choice to Opus. It used different mixes on different questions.</li>
+      <li><strong>Give it a working statement to copy.</strong> The prompt held the exact reread statement and said which versions had failed, and Opus used the reread on 23 of 24 questions, more than any other Jev step.</li>
+      <li><strong>Say when to stop.</strong> "Stop when another step would not change the answer" worked. It stopped on its own every time, within the cap.</li>
+      <li><strong>Make every call loggable.</strong> A small command-line toolbox gave each session a spend cap and a log of every step, time and cost.</li>
+      <li><strong>Remember what it can't discover.</strong> Opus used what the prompt recommended. This wasn't an independent rediscovery of the second pass.</li>
+    </ul>
+
+    <h2 id="fooled">What fooled us</h2>
+    <p>These matter more than any single number here. All of them would have produced a confident wrong claim.</p>
+    <div class="tcards">
+      <div class="tcard llm"><span class="tag llm">Selection</span><h3>The winner that wasn't</h3><p>Over 40 variants on 16 questions flatter the best one: 69 against 52 became 26 against 27 on held-out questions. With a paired SD near 24 points, 16 questions detect gains of about 15 points and 8 detect about 25.</p></div>
+      <div class="tcard llm"><span class="tag llm">Judges</span><h3>Position beat quality</h3><p>A two-way judge favored the answer shown second in 32 of 35 verdicts. Score claims one at a time, and rotate order if you must compare.</p></div>
+      <div class="tcard llm"><span class="tag llm">Graders</span><h3>Two graders, two scales</h3><p>On the same 192 paragraphs, one grader marked 72 useful and another 52. A comparison that mixed them was thrown out, and 4,128 paragraphs were regraded by one grader.</p></div>
+      <div class="tcard code"><span class="tag code">Code</span><h3>Silent gaps</h3><p>One wave returned 4,624 of 4,919 answers with no error, at full billed tokens. A partial wave must be an error. Count what comes back.</p></div>
+      <div class="tcard code"><span class="tag code">Code</span><h3>A rested burst</h3><p>"2 s for the corpus" was one rested pass. Sustained back-to-back passes took 7 to 12 s. Quote the rate you can hold.</p></div>
+      <div class="tcard jev"><span class="tag jev">Jev</span><h3>A lenient measure</h3><p>On the textbooks, Jev's top 40 looked complete for all 45 questions, because one paragraph from a chapter counted as reaching it. Scored fact by fact on the retailer corpus, the top 40 held 96 of 148.</p></div>
+    </div>
+
+    <h2 id="scale">What scale would change</h2>
+    <p>The corpus here tests messy sources and unseen information. It doesn't test scale. A full read grows in step with the corpus:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Paragraphs</th><th class="num">Full read</th><th class="num">At ~600k tokens/s</th><th class="num">At the documented 100k tokens/s</th></tr></thead>
+      <tbody>
+        <tr><td>28,167 (measured)</td><td class="num">$0.233</td><td class="num">7–12 s (measured)</td><td class="num">about 56 s</td></tr>
+        <tr><td>280,000 (projected)</td><td class="num">about $2.30</td><td class="num">about 90 s</td><td class="num">about 9 minutes</td></tr>
+        <tr><td>1,000,000 (projected)</td><td class="num">about $8</td><td class="num">over 5 minutes</td><td class="num">about 33 minutes</td></tr>
+      </tbody>
+    </table></div>
+    <p>The 600k rate came from short passes with hundreds of throttles and has never been held for minutes, so it's the optimistic case. A prefilter probably has to return on a very large corpus. Our evidence suggests it shouldn't be plain keyword search on the question's words. Options to test are Jev on document summaries, BM25 with Sonnet's terms plus a wide per-source reach, or paragraph-level results shared across similar questions. On a textbook corpus, summary routing kept most of what a full read found, but on this corpus title routing didn't help. Summaries haven't been tested here. Paid rate limits could change the time column a lot, and not the dollars. Hosted <a href="nimble.html">Nimble</a> takes Jev's request shape at about the same price, but it hasn't been tested on this work.</p>
+
+    <h2>What would settle it</h2>
+    <ol>
+      <li><strong>Fix the sources.</strong> Rebuild tables and transcripts, then rerun the baselines.</li>
+      <li><strong>Use fresh questions.</strong> 40 or more, frozen before any run.</li>
+      <li><strong>Merge the two searches.</strong> Run the pipeline and the orchestrator side by side and write one answer. This is the strongest idea we have left.</li>
+      <li><strong>Time it live.</strong> Measure the recipe's real latency and cost, and push the LLM-alone arm to search harder.</li>
+      <li><strong>Grow the corpus.</strong> Test a prefilter at ten times this size.</li>
+    </ol>
+    <p>All the numbers and limits are in <a href="https://github.com/RobGruhl/jev-learnings/blob/main/corpus-search.md"><code>corpus-search.md</code></a>. The experiments on this corpus cost about $120 in metered spend, not counting subagent work on a subscription. The corpus text and experiment code stay private, because the text is other people's copyrighted work.</p>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="search-loop.html"><span>Previous</span>The loop, built</a><a class="pager-next" href="compare.html"><span>Next</span>Four ways compared</a></nav>
+    <footer class="footer">
+      <p>Findings from three projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days, and a search over public documents. Generalized rates, AUCs and patterns only; no mail, no personal data, no corpus text. Measured September–November 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

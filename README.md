@@ -1,8 +1,8 @@
 # jev-learnings
 
-What we learned building with Jev, TypeSafe's judgment model, in two projects. One was an email first pass over a personal inbox. The other was an agent that plays the idle game Melvor Idle through a web browser for days at a time. Both use Jev the same way: as a cheap, fast judgment tier between deterministic code and an expensive LLM.
+What we learned building with Jev, TypeSafe's judgment model, in three projects. One was an email first pass over a personal inbox. Another was an agent that plays the idle game Melvor Idle through a web browser for days at a time. The third was a search over public documents that answers hard questions no single document answers. All three use Jev the same way: as a cheap, fast judgment tier between deterministic code and an expensive LLM.
 
-This repo holds only generalized findings: rates, AUCs and patterns. It contains no mail, no personal data and no game save.
+This repo holds only generalized findings: rates, AUCs and patterns. It contains no mail, no personal data, no game save and no corpus text.
 
 ## The website: Decision Tier
 
@@ -10,7 +10,7 @@ This repo holds only generalized findings: rates, AUCs and patterns. It contains
 
 - **Learn:** [ELI5](https://robgruhl.github.io/jev-learnings/eli5.html), [101](https://robgruhl.github.io/jev-learnings/101.html), [201](https://robgruhl.github.io/jev-learnings/201.html), [301](https://robgruhl.github.io/jev-learnings/301.html).
 - **Architecture:** [the cascade](https://robgruhl.github.io/jev-learnings/cascade.html) and [novelty and doubt](https://robgruhl.github.io/jev-learnings/novelty-and-doubt.html).
-- **Case studies:** the Melvor agent in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/melvor.html), [why a game](https://robgruhl.github.io/jev-learnings/melvor-why.html), [the cascade, built](https://robgruhl.github.io/jev-learnings/melvor-cascade.html) with color-coded pseudo-code, and [push-downs](https://robgruhl.github.io/jev-learnings/melvor-pushdowns.html) (65 resolved escalations and where each fix landed). The email first pass in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/email.html), [asking the right questions](https://robgruhl.github.io/jev-learnings/email-questions.html), [the sorter, built](https://robgruhl.github.io/jev-learnings/email-sorter.html) and [around the sorter](https://robgruhl.github.io/jev-learnings/email-beyond.html), counts and rates only.
+- **Case studies:** the Melvor agent in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/melvor.html), [why a game](https://robgruhl.github.io/jev-learnings/melvor-why.html), [the cascade, built](https://robgruhl.github.io/jev-learnings/melvor-cascade.html) with color-coded pseudo-code, and [push-downs](https://robgruhl.github.io/jev-learnings/melvor-pushdowns.html) (65 resolved escalations and where each fix landed). The email first pass in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/email.html), [asking the right questions](https://robgruhl.github.io/jev-learnings/email-questions.html), [the sorter, built](https://robgruhl.github.io/jev-learnings/email-sorter.html) and [around the sorter](https://robgruhl.github.io/jev-learnings/email-beyond.html), counts and rates only. Searching a corpus in four pages: [the testbed](https://robgruhl.github.io/jev-learnings/search.html) with a search video, [let the model read](https://robgruhl.github.io/jev-learnings/search-reading.html), [the loop, built](https://robgruhl.github.io/jev-learnings/search-loop.html) with the exact statements, and [Opus runs the search](https://robgruhl.github.io/jev-learnings/search-opus.html).
 - **Evidence:** [four ways compared](https://robgruhl.github.io/jev-learnings/compare.html) (Jev, OpenAI's Decisions API, open-weight decision models, Claude Haiku 5.5), [open weights caught up](https://robgruhl.github.io/jev-learnings/open-weights.html) (six 26–27B open models against Jev, October 14), [Nimble takes the lead](https://robgruhl.github.io/jev-learnings/nimble.html) (Bespoke Labs' hosted Nimble, and GPT-6 Luna and Terra asked like Haiku, October 27), [the cost ladder](https://robgruhl.github.io/jev-learnings/cost.html) with a calculator, and an [October 2026 landscape refresh](https://robgruhl.github.io/jev-learnings/landscape.html).
 - **Build:** [the Decision Skeleton](https://robgruhl.github.io/jev-learnings/build.html), a facilitated Claude Code tutorial in [`tutorial/`](tutorial/101-decision-skeleton.md). Run `cd tutorial && claude` to start it.
 
@@ -28,7 +28,7 @@ The song is Suno-generated (voice and piano). The animation was made with Claude
 
 [**What Are We Asking For? (Name the Job, Then Light the Spark)**](docs/media/what-are-we-asking-for-rock-540p.mp4) is the pop-punk version: a 3¼-minute karaoke video (540p) with new lyrics on the same lesson, set in a mid-2000s rock club. Clawd is the frontman (the language model), a drum machine plays the code, a guitar tuner that can only snap to the options it was given plays the decision model, and the stage manager makes the human call on the pyro. The chorus: *name the job before we light the spark, and let the real world keep the score.* The song is Suno-generated, the animation was made with Claude Code on the same kit, and the thumbnail was made with gpt-image-2.
 
-## The shape both projects converged on
+## The shape the first two projects converged on
 
 | Tier | Speed | Job | Passes up when |
 | --- | --- | --- | --- |
@@ -40,6 +40,7 @@ The song is Suno-generated (voice and piano). The animation was made with Claude
 
 ## Read next
 
+- [corpus-search.md](corpus-search.md): using code, Jev and an LLM to find information and answer hard questions across a corpus. A full Jev read, the draft-aware second pass, an Opus orchestrator, and what fooled us.
 - [cascade.md](cascade.md): running Jev inside a code → Jev → LLM → human cascade. What escalates, what doesn't, and how each escalation becomes a lower-tier fix.
 - [novelty-and-doubt.md](novelty-and-doubt.md): the decision model's own escalation signals. What `novel_situation` and `doubt_action` each catch, what the readings under the threshold mean, and what doubt can't see.
 - [questions.md](questions.md): how to phrase questions for Jev. Choices that name near misses, exact Nouls, when not to decompose.

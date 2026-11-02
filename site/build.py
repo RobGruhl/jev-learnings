@@ -29,6 +29,10 @@ PAGES = [
     ("email-questions.html", "2 · Asking the right questions", "Case", "Asking the right questions", "What Jev can judge on real mail, the phrasing ladders, and the two things no wording fixes."),
     ("email-sorter.html", "3 · The sorter, built", "Case", "The email sorter, built", "From hand thresholds to a learned sorter over Jev's answers, a test on a new window, and why facts beat more questions."),
     ("email-beyond.html", "4 · Around the sorter", "Case", "Around the sorter", "Unsubscribing at the source, Jev as a browser step chooser, making done stick, the owner's rulings and who does what."),
+    ("search.html", "1 · The testbed", "Case", "Searching a corpus, the testbed", "Using a decision model to answer hard questions across 28,167 paragraphs of unseen public documents: the corpus, the scoring and the ten findings."),
+    ("search-reading.html", "2 · Let the model read", "Case", "Let the model read", "A full decision-model read for 23 cents, why keyword gates lose facts, and why reading further beats rewording."),
+    ("search-loop.html", "3 · The loop, built", "Case", "The loop, built", "The best search recipe: the exact statements, the draft-aware second pass, passage growth, and where the sources fail."),
+    ("search-opus.html", "4 · Opus runs the search", "Case", "Opus runs the search", "An Opus orchestrator against a prescriptive pipeline, what fooled us, and what scale would change."),
     ("compare.html", "Four ways compared", "Data", "Four ways compared", "Jev, OpenAI's Decisions API, open-weight decision models and Claude Haiku 5.5 on the same benchmarks."),
     ("open-weights.html", "Open weights caught up", "Data", "Open weights caught up", "Six 26–27B open decision models against hosted Jev on the same private mail, wine and page harnesses, October 14, 2026."),
     ("nimble.html", "Nimble takes the lead", "Data", "Nimble takes the lead", "Bespoke Labs' hosted Nimble v4-max, and OpenAI's Luna and Terra asked like Haiku, against Jev on the same private harnesses, October 27, 2026."),
@@ -42,6 +46,7 @@ NAV_GROUPS = [
     ("Architecture", ["cascade.html", "novelty-and-doubt.html"]),
     ("Case study: Melvor", ["melvor.html", "melvor-why.html", "melvor-cascade.html", "melvor-pushdowns.html"]),
     ("Case study: Email", ["email.html", "email-questions.html", "email-sorter.html", "email-beyond.html"]),
+    ("Case study: Corpus search", ["search.html", "search-reading.html", "search-loop.html", "search-opus.html"]),
     ("Evidence", ["compare.html", "open-weights.html", "nimble.html", "cost.html", "landscape.html"]),
     ("Build", ["build.html"]),
 ]

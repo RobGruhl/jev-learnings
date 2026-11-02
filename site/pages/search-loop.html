@@ -1,0 +1,95 @@
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 3 of 4 · the loop, built</p>
+    <h1>The loop, built</h1>
+    <p class="lede">An open question is hard to judge paragraphs against, because you don't yet know what the answer looks like. A draft answer fixes that. Handing Jev the question and a first draft, then asking how each paragraph relates to that draft, gave the strongest gain we measured in the pipeline. So the best recipe isn't a funnel from code to Jev to LLM. The LLM sits in the middle and sends Jev back once.</p>
+
+    <h2>The recipe</h2>
+    <ol class="flow">
+      <li class="fstep jev"><span class="tag jev">Jev</span><span class="tag code">Code</span><strong>Read everything</strong><p>Jev scores every paragraph with the <code>rely</code> statement. Code adds a grep sweep for the names in the question.</p></li>
+      <li class="fstep jev"><span class="tag jev">Jev</span><strong>Grow passages</strong><p>For each top paragraph, Jev decides how far the passage runs, up to three rounds each way.</p></li>
+      <li class="fstep llm"><span class="tag llm">LLM</span><strong>Write a draft</strong><p>Sonnet answers from those passages.</p></li>
+      <li class="fstep jev"><span class="tag jev">Jev</span><span class="tag code">Code</span><strong>Reread with the draft</strong><p>Jev rereads the top 2,000 with the draft in its state. Code blends the two rankings and drops what was already read.</p></li>
+      <li class="fstep llm"><span class="tag llm">LLM</span><strong>Write the answer</strong><p>The top 20 to 40 new paragraphs are grown and added, and Sonnet writes the final answer. Then stop.</p></li>
+    </ol>
+<pre class="pc"><code><span class="l jev">rely   = jev(every paragraph, RELY, question)        <span class="cm"># $0.233 for 28,167 paragraphs</span></span><span class="l code">names  = grep(names in the question)                 <span class="cm"># free, catches exact mentions</span></span><span class="l jev">first  = grow(top(rely) + names)                     <span class="cm"># Jev decides each passage boundary</span></span><span class="l llm">draft  = write(question, first)</span><span class="l jev">second = jev(top 2,000 of rely, SECOND, question + draft)   <span class="cm"># about $0.02</span></span><span class="l code">blend  = sum over both rankings of 1 / (60 + rank)   <span class="cm"># reciprocal rank fusion</span></span><span class="l code">new    = top 20 to 40 of blend, minus first</span><span class="l jev">more   = grow(new)</span><span class="l llm">answer = write(question, first + more)</span><span class="l code"><span class="cm"># no third pass: it adds nothing</span></span></code></pre>
+
+    <div class="callout warn"><p><strong>Assembled, not yet scored as a whole.</strong> Each piece below was tested, but not this exact sequence. The answer test started from the keyword-gated first pass in <a href="search.html#versus">part 1</a>, then added paragraphs from the full-read blend. This full-read-first version has run on one real question and was not scored against gold. Reading everything first should help, based on <a href="search-reading.html#gate">part 2</a>, but that's an inference.</p></div>
+
+    <h2 id="statements">The two statements, verbatim</h2>
+    <p>The first pass asks about the question. The second asks about the draft:</p>
+<pre style="white-space:pre-wrap"><code>This paragraph states something an answer to the question in `question` would rely on.
+
+Compared with the answer in `answer`, this paragraph adds something missing, contradicts or corrects it, or expands on it, in a way that matters for the question in `question`.</code></pre>
+    <p>Strip citations from the draft before it goes in the state. The combined statement matters: single statements about adding, correcting or expanding did little, and "corrects" alone lost ground on held-out questions. Blending matters too: the combined statement alone found 21 missed facts where the blend found 28.</p>
+
+    <h2 id="second-pass">What the second pass found</h2>
+    <p>The baseline here is the obvious alternative: just read further down the same list. All 4,128 paragraphs on any method's list were graded together by one grader, blind to method. "Missed" means facts the first answer didn't state.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Paragraphs added</th><th class="num">Missed facts found of 65, reading further</th><th class="num">Missed facts found, blend</th><th class="num">Questions better / worse</th></tr></thead>
+      <tbody>
+        <tr><td>20</td><td class="num">15</td><td class="num best">28</td><td class="num">10 / 0</td></tr>
+        <tr><td>40</td><td class="num">20</td><td class="num best">31</td><td class="num">10 / 2</td></tr>
+        <tr><td>60</td><td class="num">24</td><td class="num best">32</td><td class="num">7 / 2</td></tr>
+      </tbody>
+    </table></div>
+    <p>Replaying the saved scores, rereading only the top 2,000 found as many missed facts as rereading the full corpus, for about $0.02 against $0.29. Then we tested real answers, with one writer and one scorer across all arms. This test started from the keyword-gated first pass, used a saved first answer as the draft, and used the full $0.29 reread:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Evidence given to the writer</th><th class="num">Facts stated of 148</th></tr></thead>
+      <tbody>
+        <tr><td>First-pass evidence</td><td class="num">103</td></tr>
+        <tr><td>Plus the next 20 on the list</td><td class="num">108</td></tr>
+        <tr><td><strong>Plus 20 from the draft-aware blend</strong></td><td class="num best">116</td></tr>
+        <tr><td>Plus 20 more from a third pass</td><td class="num">115</td></tr>
+        <tr><td>Second pass, plus 20 from search terms the writer suggested</td><td class="num">118</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>The second pass helps.</strong> +8.8 points [4.5, 12.9] against the first, 13 questions better and 1 worse, p .002. It held on tuning (+8.4) and held-out (+9.5) questions.</li>
+      <li><strong>Its edge over reading further is unsettled.</strong> +5.3 [−0.2, 11.1], and +1.4 on tuning against +13.1 held out.</li>
+      <li><strong>A third pass doesn't.</strong> −0.8 [−4.7, 3.2]. Suggested terms reached new paragraphs, but +1.3 [−3.3, 6.0] is within noise.</li>
+      <li><strong>The draft seems to matter.</strong> Earlier second waves with no draft barely helped: aiming at gaps added 1.7 points of evidence, and letting an LLM aim it added 1 more for 1.6M extra tokens. Those used a different stack and an evidence-only measure, and this +8.8 also includes the gain from reaching the full read, so we can't separate the two.</li>
+      <li><strong>It has a cost.</strong> A second writer call roughly doubles latency unless the first draft is quick. The recipe hasn't been timed end to end.</li>
+    </ul>
+    <div class="callout warn"><p>These totals can't be compared with the 27 of 51 in <a href="search.html#versus">part 1</a>. Writers here ran to about 670 words against a 500-word limit, and the scorer changed. Comparisons between arms in one table hold.</p></div>
+
+    <h2 id="growth">Passages: let Jev find the edges</h2>
+    <p>A hot paragraph doesn't automatically pull in its neighbours. Jev decides each boundary. Across the first-pass runs, 960 hot paragraphs became 858 passages of 2.95 paragraphs on average, and 32% stayed single. Turning growth off lost 13.4 points of evidence.</p>
+    <p>Fixed neighbours are the tempting alternative, and they aren't the main problem. Always adding one paragraph each side would add about 67 paragraphs and 33k characters to each answer. Here's where the 36 facts missing from first-pass evidence were (112 of the 148 were already in):</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Where the missing fact was</th><th class="num">Facts</th></tr></thead>
+      <tbody>
+        <tr><td>Next to the evidence</td><td class="num">3</td></tr>
+        <tr><td>Two paragraphs away</td><td class="num">4</td></tr>
+        <tr><td>Further along the same document</td><td class="num">7</td></tr>
+        <tr><td><strong>In a document with no evidence yet</strong></td><td class="num best">16</td></tr>
+        <tr><td>No graded paragraph</td><td class="num">6</td></tr>
+      </tbody>
+    </table></div>
+    <p>Reading a new document finds more than reading around the one you have.</p>
+
+    <h2 id="enough">Knowing when to stop</h2>
+    <p>The natural router is a question to Jev: is this evidence enough? On the textbook corpus it barely noticed when a whole intended source was removed: pooled AUC about 0.55, with a median drop of 0.013 against a between-question spread of 0.123. Scores for each part of the question can point at a gap once one exists, but only with a full copy to compare against, which production doesn't have. So we don't route on sufficiency. One second pass, then stop, was the rule that held up. In <a href="search-opus.html">part 4</a>, Opus stopped when results stopped being new, which is a different test that works for an LLM reading the results.</p>
+
+    <h2 id="sources">The sources are now the constraint</h2>
+    <p>Why do useful paragraphs rank low? Opus read about 180 of them and gave a rough count:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Reason</th><th class="num">Share</th></tr></thead>
+      <tbody>
+        <tr><td>Table rows or footnotes with their headers cut off</td><td class="num">35%</td></tr>
+        <tr><td>Answers a late part of a many-part question</td><td class="num">20%</td></tr>
+        <tr><td>Spoken or garbled transcript</td><td class="num">17%</td></tr>
+        <tr><td>Refers to the subject only indirectly</td><td class="num">10%</td></tr>
+      </tbody>
+    </table></div>
+    <p>Most of that concerns what Jev is shown, not how it's asked, which is why wording did so little. An audit of paragraph structure agrees:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Source</th><th class="num">Split mid-sentence</th><th class="num">Other unfinished endings</th><th>Read</th></tr></thead>
+      <tbody>
+        <tr><td>Wire releases</td><td class="num">0.1%</td><td class="num">2.2%</td><td>Clean</td></tr>
+        <tr><td>Press room</td><td class="num">0.8%</td><td class="num">26.8%</td><td>Flattened tables and contact lines</td></tr>
+        <tr><td>Partner filings</td><td class="num">0.2%</td><td class="num">16.9%</td><td>Table rows lose column headers; stale section headings</td></tr>
+        <tr><td>Podcast transcripts</td><td class="num">7.0%</td><td class="num">1.1%</td><td>No speakers or headings; misheard names</td></tr>
+      </tbody>
+    </table></div>
+    <p>The same rule holds as in the <a href="cascade.html">cascade</a>: a decision model judges what's in front of it. It can't recover a column header that isn't in the state. Rebuilding tables and transcripts is the next step, and it changes every paragraph id, so baselines must be rerun.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="search-opus.html">Opus runs the search</a>: what happens when the LLM chooses its own steps.</p></div>

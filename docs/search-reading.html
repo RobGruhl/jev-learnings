@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let the model read · Decision Tier</title>
+<meta name="description" content="A full decision-model read for 23 cents, why keyword gates lose facts, and why reading further beats rewording.">
+<meta property="og:title" content="Let the model read · Decision Tier">
+<meta property="og:description" content="A full decision-model read for 23 cents, why keyword gates lose facts, and why reading further beats rewording.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://robgruhl.github.io/jev-learnings/search-reading.html">
+<meta property="og:image" content="https://robgruhl.github.io/jev-learnings/assets/img/hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>
+  try { var t = localStorage.getItem("dt-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+</head>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html"><img src="assets/favicon.svg" alt="" width="28" height="28"><span>Decision Tier</span></a>
+  <div class="topbar-actions">
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav">Menu</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="sidenav" class="sidenav" aria-label="Site">
+    <a class="nav-start" href="index.html">Start here</a>
+    <div class="nav-group"><p class="nav-head">Learn</p><ul><li><a href="eli5.html">Explain like I&#x27;m five</a></li><li><a href="101.html">101 · What it is</a></li><li><a href="201.html">201 · Asking well</a></li><li><a href="301.html">301 · Engineering</a></li></ul></div><div class="nav-group"><p class="nav-head">Architecture</p><ul><li><a href="cascade.html">The cascade</a></li><li><a href="novelty-and-doubt.html">Novelty &amp; doubt</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Melvor</p><ul><li><a href="melvor.html">1 · The testbed</a></li><li><a href="melvor-why.html">2 · Why a game?</a></li><li><a href="melvor-cascade.html">3 · The cascade, built</a></li><li><a href="melvor-pushdowns.html">4 · Push-downs</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Email</p><ul><li><a href="email.html">1 · The testbed</a></li><li><a href="email-questions.html">2 · Asking the right questions</a></li><li><a href="email-sorter.html">3 · The sorter, built</a></li><li><a href="email-beyond.html">4 · Around the sorter</a></li></ul></div><div class="nav-group"><p class="nav-head">Case study: Corpus search</p><ul><li><a href="search.html">1 · The testbed</a></li><li><a href="search-reading.html" aria-current="page">2 · Let the model read</a></li><li><a href="search-loop.html">3 · The loop, built</a></li><li><a href="search-opus.html">4 · Opus runs the search</a></li></ul></div><div class="nav-group"><p class="nav-head">Evidence</p><ul><li><a href="compare.html">Four ways compared</a></li><li><a href="open-weights.html">Open weights caught up</a></li><li><a href="nimble.html">Nimble takes the lead</a></li><li><a href="cost.html">Cost ladder</a></li><li><a href="landscape.html">Landscape · Oct 2026</a></li></ul></div><div class="nav-group"><p class="nav-head">Build</p><ul><li><a href="build.html">Build your own</a></li></ul></div>
+    <p class="nav-foot"><a href="https://github.com/RobGruhl/jev-learnings">Source on GitHub</a></p>
+  </nav>
+  <main id="main" class="content">
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 2 of 4 · reading the corpus</p>
+    <h1>Let the model read</h1>
+    <p class="lede">The usual design puts keyword search first, because reading everything sounds too expensive. A decision model changes that. Jev read every paragraph in the corpus for 23 cents, and on the question we traced, that showed where facts had been lost: at the keyword gate, before any model saw them. After that, the main lesson was about depth. Reading further down a list moved results far more than rewording the question.</p>
+
+    <h2>A full read is affordable</h2>
+    <div class="statrow">
+      <div class="stat"><div class="k">One full read</div><div class="v">$0.233</div><div class="s">28,167 paragraphs, one Noul each</div></div>
+      <div class="stat"><div class="k">Tokens</div><div class="v">5.56M</div><div class="s">about 140 calls</div></div>
+      <div class="stat"><div class="k">Rested</div><div class="v">~2 s</div><div class="s">a burst, with no throttles</div></div>
+      <div class="stat"><div class="k">Back to back</div><div class="v">7–12 s</div><div class="s">hundreds of throttles, ~600k tokens/s</div></div>
+    </div>
+    <div class="callout warn"><p><strong>Don't plan on the burst.</strong> The 2 s figure is a rested account. The account's documented limit is 100,000 tokens a second, which would make this read about 56 s. We measured far above that and can't explain why. Budget for the sustained rate, and treat your rate limit as part of the design.</p></div>
+
+    <h2 id="gate">Keyword gates can lose facts</h2>
+    <p>A trace of one weak answer showed the leak. BM25 had reached only 6 to 12% of the podcast paragraphs, because spoken paragraphs often never name their subject. When Jev read everything, the seven fact paragraphs ranked 1, 2, 4, 34, 52, 73 and 134. Here is how many of the 148 gold facts each list was credited with over all 24 questions. Read the two groups separately:</p>
+    <div class="diagram scroll-x">
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="reach-title reach-desc">
+<title id="reach-title">Facts reached by each list, of 148</title>
+<desc id="reach-desc">Horizontal bars. BM25 top 5,000, as floors: at least 99 with question words only, at least 117 with Haiku's terms, at least 124 with Sonnet's terms. Jev full read top 40 96, top 60 109, top 100 113, top 250 129.</desc>
+<line x1="230" y1="14" x2="230" y2="306" class="grid"/>
+<line x1="350" y1="14" x2="350" y2="306" class="grid"/>
+<line x1="470" y1="14" x2="470" y2="306" class="grid"/>
+<line x1="590" y1="14" x2="590" y2="306" class="grid"/>
+<line x1="674" y1="14" x2="674" y2="306" class="grid"/>
+<text x="230" y="324" text-anchor="middle" font-size="12" class="muted">0</text>
+<text x="350" y="324" text-anchor="middle" font-size="12" class="muted">40</text>
+<text x="470" y="324" text-anchor="middle" font-size="12" class="muted">80</text>
+<text x="590" y="324" text-anchor="middle" font-size="12" class="muted">120</text>
+<text x="674" y="324" text-anchor="middle" font-size="12" class="muted">148</text>
+<text x="218" y="30" text-anchor="end" font-size="13">BM25 5,000, question only</text>
+<rect x="230" y="16" width="297" height="22" rx="4" class="f-code"><title>BM25 top 5,000, question words only: 99 facts</title></rect>
+<text x="535" y="32" font-size="13" font-weight="600">≥99</text>
+<text x="218" y="70" text-anchor="end" font-size="13">BM25 5,000, Haiku's terms</text>
+<rect x="230" y="56" width="351" height="22" rx="4" class="f-code"><title>BM25 top 5,000 with Haiku's terms: 117 facts</title></rect>
+<text x="589" y="72" font-size="13" font-weight="600">≥117</text>
+<text x="218" y="110" text-anchor="end" font-size="13">BM25 5,000, Sonnet's terms</text>
+<rect x="230" y="96" width="372" height="22" rx="4" class="f-code"><title>BM25 top 5,000 with Sonnet's terms: 124 facts</title></rect>
+<text x="610" y="112" font-size="13" font-weight="600">≥124</text>
+<text x="218" y="166" text-anchor="end" font-size="13">Jev full read, top 40</text>
+<rect x="230" y="152" width="288" height="22" rx="4" class="f-jev"><title>Jev full read, top 40: 96 facts</title></rect>
+<text x="526" y="168" font-size="13" font-weight="600">96</text>
+<text x="218" y="206" text-anchor="end" font-size="13">Jev full read, top 60</text>
+<rect x="230" y="192" width="327" height="22" rx="4" class="f-jev"><title>Jev full read, top 60: 109 facts</title></rect>
+<text x="565" y="208" font-size="13" font-weight="600">109</text>
+<text x="218" y="246" text-anchor="end" font-size="13">Jev full read, top 100</text>
+<rect x="230" y="232" width="339" height="22" rx="4" class="f-jev"><title>Jev full read, top 100: 113 facts</title></rect>
+<text x="577" y="248" font-size="13" font-weight="600">113</text>
+<text x="218" y="286" text-anchor="end" font-size="13">Jev full read, top 250</text>
+<rect x="230" y="272" width="387" height="22" rx="4" class="f-jev"><title>Jev full read, top 250: 129 facts</title></rect>
+<text x="625" y="288" font-size="13" font-weight="600">129</text>
+</svg>
+    </div>
+    <div class="callout warn"><p><strong>The BM25 bars are floors, so don't compare them with Jev's.</strong> Only graded paragraphs could count, and the grading pool came mostly from Jev's lists: 95 to 97% of each BM25 list was never graded. Jev's top 250 was fully graded. The BM25 bars do compare fairly with each other: better search terms clearly helped.</p></div>
+    <p>So this chart can't say Jev's top 250 beats BM25's top 5,000. The firmer evidence is the trace above, plus what 5,000 means in practice: at that depth, a keyword list still leaves Jev to read about a fifth of the corpus. Keyword search is free, and it finds exact names that Jev may rank low. We now use it as a second list rather than as a gate, but that choice still needs a blind test on fresh questions.</p>
+
+    <h2>What each tier ended up doing</h2>
+    <div class="tcards">
+      <div class="tcard code"><span class="tag code">Code</span><h3>Exact and free</h3><p>Grep for names, date filters, deduplication, blending rankings, tracking what's been read and what it cost. Reliable when it adds to a list, risky when it removes from one.</p></div>
+      <div class="tcard jev"><span class="tag jev">Jev</span><h3>Judgment at scale</h3><p>One statement about each paragraph, then rank by score. Also decides where a passage ends, and rereads with a draft in hand.</p></div>
+      <div class="tcard llm"><span class="tag llm">LLM</span><h3>Reasoning and prose</h3><p>Writes the draft and the answer, and can choose the search. Most of the time goes here: about 10 of the stack's 14 s.</p></div>
+    </div>
+
+    <h2 id="depth">Reading further beats rewording</h2>
+    <p>Jev's top list took the same statement each time:</p>
+<pre><code>This paragraph states something an answer to the question in `question` would rely on.</code></pre>
+    <p>We tested 16 ways of asking, and Opus proposed six more after reading low-ranked useful paragraphs. Opus graded 8,363 paragraphs blind to rank. Rerunning the same wording moves results about 1 point, so that's the noise floor.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th><code>rely</code> list</th><th class="num">Facts of 148</th><th class="num">Useful, tuning</th><th class="num">Useful, held out</th></tr></thead>
+      <tbody>
+        <tr><td>Top 40</td><td class="num">96</td><td class="num">34.7%</td><td class="num">39.6%</td></tr>
+        <tr><td>Top 60</td><td class="num">109</td><td class="num">42.7%</td><td class="num">51.2%</td></tr>
+        <tr><td>Top 100</td><td class="num">113</td><td class="num">53.3%</td><td class="num">69.0%</td></tr>
+        <tr><td>Top 250</td><td class="num best">129</td><td class="num">not measured</td><td class="num">not measured</td></tr>
+      </tbody>
+    </table></div>
+    <p>"Useful" is the share of all useful paragraphs in the graded pool that the list reached. No wording reliably improved the top 40. Most wordings that gained on tuning questions lost the gain on held-out ones. Only <code>rely</code> plus a graded Score held on both, and only by +4.3 and +2.1 points at top 100. That differs from <a href="email-questions.html">email</a>, where wording moved accuracy a lot. Our best guess is that a ranking cares less about the wording, and that most misses here come from what Jev is shown. We haven't tested that explanation.</p>
+    <p>Wording also changes the score scale. On the textbooks, the share of paragraphs scoring 0.5 or more ran from 0.8% to 12.9% across wordings. A fixed "hot" threshold belongs to one wording, so use ranks.</p>
+
+    <h2 id="blends">Many wordings at once</h2>
+    <p>Jev can ask many questions about one paragraph in one request, so we tested blends of 22 ways of asking on each question's top 2,000. Change in useful paragraphs against <code>rely</code>, over all 24 questions:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Blend</th><th class="num">Top 40</th><th class="num">Top 100</th><th class="num">Questions at 100</th><th class="num">Facts at 40 / 100</th></tr></thead>
+      <tbody>
+        <tr><td><code>rely</code> alone</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">96 / 113</td></tr>
+        <tr><td>Max of all</td><td class="num">+2.4 [0.4, 4.7]</td><td class="num">+4.1 [1.6, 6.8]</td><td class="num">+16/−5</td><td class="num">97 / 114</td></tr>
+        <tr><td>Mean of logits</td><td class="num">+1.6 [−0.1, 3.7]</td><td class="num">+5.7 [3.0, 8.9]</td><td class="num">+18/−2</td><td class="num">96 / 121</td></tr>
+        <tr><td>Logistic, leave one question out</td><td class="num">+1.9 [−0.1, 4.1]</td><td class="num">+7.0 [3.7, 10.6]</td><td class="num">+16/−5</td><td class="num">98 / 121</td></tr>
+        <tr><td>CatBoost, leave one question out</td><td class="num best">+3.1 [0.8, 5.7]</td><td class="num best">+9.2 [5.5, 13.9]</td><td class="num best">+19/−3</td><td class="num best">109 / 124</td></tr>
+      </tbody>
+    </table></div>
+    <p>Blending helps modestly, mostly past the top 40. Max was less steady than mean. CatBoost won, but it also saw source, length, digit share and heading, so not all of its gain comes from the wordings, and it would need refitting on another corpus. Trained on 16 questions and judged on the other 8, it gained +1.1 at top 40 and +4.1 at top 100. Twenty wordings cost about $0.34 a question on the top 2,000. That's the same lesson as the <a href="email-sorter.html">email sorter</a>: answers work well as features, at a price.</p>
+
+    <h2>Which LLM for which step?</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Step</th><th>Haiku 5.5</th><th>Sonnet 5.5</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Search terms for BM25, facts in top 5,000 (floors)</td><td class="num">≥117</td><td class="num best">≥124</td><td>Sonnet, +8.2 points [2.5, 13.8] of useful paragraphs, +16/−6. Question words alone: at least 99</td></tr>
+        <tr><td>Splitting a question into parts, facts at top 100</td><td class="num">118</td><td class="num">120</td><td>A tie</td></tr>
+        <tr><td>Writing the answer</td><td class="num">−13 points</td><td class="num best">baseline</td><td>Sonnet: a Haiku writer lost 13 points and took longer overall</td></tr>
+      </tbody>
+    </table></div>
+    <p>Better terms only matter if BM25 stays as a gate. A full Jev read doesn't depend on them.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="search-loop.html">The loop, built</a>: the recipe, and the second pass that made the biggest difference.</p></div>
+
+<nav class="pager" aria-label="Page navigation"><a class="pager-prev" href="search.html"><span>Previous</span>Searching a corpus, the testbed</a><a class="pager-next" href="search-loop.html"><span>Next</span>The loop, built</a></nav>
+    <footer class="footer">
+      <p>Findings from three projects that ran a decision model between code and an LLM: an email first pass over a personal inbox, a long-running browser agent that ran production jobs, restocked supplies and managed limited storage for days, and a search over public documents. Generalized rates, AUCs and patterns only; no mail, no personal data, no corpus text. Measured September–November 2026; prices as of October 12, 2026.</p>
+      <p>Text © Rob Gruhl, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Illustrations made with gpt-image-2. Built with Claude Code.</p>
+      <p>Sister site: <a href="https://robgruhl.github.io/claude-mod-learnings/">Hook Chain, a field guide to Claude Code mods</a>.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

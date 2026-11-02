@@ -1,6 +1,6 @@
-    <p class="eyebrow"><span class="badge case">Case study</span> Part 4 of 4 · the orchestrator and the limits</p>
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 5 of 6 · the orchestrator and the limits</p>
     <h1>Opus runs the search</h1>
-    <p class="lede">The pipeline in part 3 is prescriptive: the same steps for every question. What if the LLM chose its own steps instead? We gave Opus a toolbox and a page of findings, then let it decide what to run and when to stop. It tied the pipeline, on noticeably different facts, and that points at the next test.</p>
+    <p class="lede">The pipeline in part 4 is prescriptive: the same steps for every question. What if the LLM chose its own steps instead? We gave Opus a toolbox and a page of findings, then let it decide what to run and when to stop. It tied the pipeline, on noticeably different facts, and that points at the next test.</p>
 
     <h2>The setup</h2>
     <p>Each of the 24 questions got a fresh Opus session with one spending cap, $0.75 of Jev. The prompt listed the tools with their costs and speed, and what testing had found about each one. It said these were findings, not rules, and asked Opus to use as few steps as would give a good answer. Answers ran through the same blind scoring as every other arm.</p>
@@ -95,3 +95,5 @@
       <li><strong>Grow the corpus.</strong> Test a prefilter at ten times this size.</li>
     </ol>
     <p>All the numbers and limits are in <a href="https://github.com/RobGruhl/jev-learnings/blob/main/corpus-search.md"><code>corpus-search.md</code></a>. The experiments on this corpus cost about $120 in metered spend, not counting subagent work on a subscription. The corpus text and experiment code stay private, because the text is other people's copyrighted work.</p>
+
+    <div class="callout note"><p><strong>Next:</strong> <a href="search-stories.html">Successes and failures, in sequence</a>: six episodes from this project as sequence diagrams.</p></div>

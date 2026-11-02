@@ -1,4 +1,4 @@
-    <p class="eyebrow"><span class="badge case">Case study</span> Part 3 of 4 · the loop, built</p>
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 4 of 6 · the loop, built</p>
     <h1>The loop, built</h1>
     <p class="lede">An open question is hard to judge paragraphs against, because you don't yet know what the answer looks like. A draft answer fixes that. Handing Jev the question and a first draft, then asking how each paragraph relates to that draft, gave the strongest gain we measured in the pipeline. So the best recipe isn't a funnel from code to Jev to LLM. The LLM sits in the middle and sends Jev back once.</p>
 
@@ -67,7 +67,7 @@ Compared with the answer in `answer`, this paragraph adds something missing, con
     <p>Reading a new document finds more than reading around the one you have.</p>
 
     <h2 id="enough">Knowing when to stop</h2>
-    <p>The natural router is a question to Jev: is this evidence enough? On the textbook corpus it barely noticed when a whole intended source was removed: pooled AUC about 0.55, with a median drop of 0.013 against a between-question spread of 0.123. Scores for each part of the question can point at a gap once one exists, but only with a full copy to compare against, which production doesn't have. So we don't route on sufficiency. One second pass, then stop, was the rule that held up. In <a href="search-opus.html">part 4</a>, Opus stopped when results stopped being new, which is a different test that works for an LLM reading the results.</p>
+    <p>The natural router is a question to Jev: is this evidence enough? On the textbook corpus it barely noticed when a whole intended source was removed: pooled AUC about 0.55, with a median drop of 0.013 against a between-question spread of 0.123. Scores for each part of the question can point at a gap once one exists, but only with a full copy to compare against, which production doesn't have. So we don't route on sufficiency. One second pass, then stop, was the rule that held up. In <a href="search-opus.html">part 5</a>, Opus stopped when results stopped being new, which is a different test that works for an LLM reading the results.</p>
 
     <h2 id="sources">The sources are now the constraint</h2>
     <p>Why do useful paragraphs rank low? Opus read about 180 of them and gave a rough count:</p>

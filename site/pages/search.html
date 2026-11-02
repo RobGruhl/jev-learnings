@@ -1,6 +1,6 @@
-    <p class="eyebrow"><span class="badge case">Case study</span> Part 1 of 4 · the testbed · measured October 31 to November 1, 2026</p>
+    <p class="eyebrow"><span class="badge case">Case study</span> Part 1 of 6 · the testbed · measured October 31 to November 1, 2026</p>
     <h1>Searching a corpus, the testbed</h1>
-    <p class="lede">The third project asks a different question from the first two. Instead of judging one message or one game state, can a decision model help answer a hard question that no single document answers? That means finding and reading scattered sources, quickly and cheaply, in material the LLM has never seen. This four-part case study shows what we built, what moved the results, and what fooled us. It uses public documents about one large retailer, and it reports numbers and our own prompts only. No corpus text appears here.</p>
+    <p class="lede">The third project asks a different question from the first two. Instead of judging one message or one game state, can a decision model help answer a hard question that no single document answers? That means finding and reading scattered sources, quickly and cheaply, in material the LLM has never seen. This six-part case study shows what we built, what moved the results, and what fooled us. It uses public documents about one large retailer, and it reports numbers and our own prompts only. No corpus text appears here.</p>
 
     <div class="tier-legend" aria-label="Color code used in this case study">
       <span><span class="tag code">Code</span> deterministic code: keyword search, grep, date filters, blending, bookkeeping</span>
@@ -11,8 +11,10 @@
     <div class="cards">
       <a class="card" href="search.html"><span class="tag">Part 1</span><h3>The testbed</h3><p>The corpus, how answers were scored, and how the stack did against an LLM alone.</p></a>
       <a class="card" href="search-reading.html"><span class="tag">Part 2</span><h3>Let the model read</h3><p>A full read for 23 cents, why keyword gates lose facts, and why depth beats wording.</p></a>
-      <a class="card" href="search-loop.html"><span class="tag">Part 3</span><h3>The loop, built</h3><p>The best recipe, the exact statements, the second pass, and where the sources fail us.</p></a>
-      <a class="card" href="search-opus.html"><span class="tag">Part 4</span><h3>Opus runs the search</h3><p>An orchestrator against the pipeline, what fooled us, and what scale would change.</p></a>
+      <a class="card" href="search-wording.html"><span class="tag">Part 3</span><h3>Wording and blending</h3><p>22 ways of asking, ten ways to blend them, and the draft-aware reread, which gave the clearest gain in answers.</p></a>
+      <a class="card" href="search-loop.html"><span class="tag">Part 4</span><h3>The loop, built</h3><p>The best recipe, the exact statements, the second pass, and where the sources fail us.</p></a>
+      <a class="card" href="search-opus.html"><span class="tag">Part 5</span><h3>Opus runs the search</h3><p>An orchestrator against the pipeline, what fooled us, and what scale would change.</p></a>
+      <a class="card" href="search-stories.html"><span class="tag">Part 6</span><h3>Successes and failures</h3><p>Six episodes as sequence diagrams: who asked what, and where it went right or wrong.</p></a>
     </div>
 
     <div class="callout note"><p><strong>The short answer: yes, but as a loop rather than a one-way funnel.</strong> Jev should read everything, code should add exact lookups and blending, and the LLM should write a draft that sends Jev back for one more pass.</p></div>
@@ -30,7 +32,7 @@
       <li><strong>Don't rely on an "is this enough?" gate.</strong> It barely noticed when a whole source was removed.</li>
       <li><strong>Evaluation fooled us repeatedly.</strong> A design that won 69 to 52 on tuning questions lost 26 to 27 on held-out ones.</li>
     </ol>
-    <div class="callout warn"><p><strong>How far to trust these.</strong> Only finding 1 and part of the blending result come from questions set aside for testing, and all 24 questions have now been inspected. Treat findings 3 to 7 as directional until they run on 40 or more fresh questions. This corpus also isn't very large: <a href="search-opus.html#scale">part 4</a> covers what scale would change.</p></div>
+    <div class="callout warn"><p><strong>How far to trust these.</strong> Only finding 1 and part of the blending result come from questions set aside for testing, and all 24 questions have now been inspected. Treat findings 3 to 7 as directional until they run on 40 or more fresh questions. This corpus also isn't very large: <a href="search-opus.html#scale">part 5</a> covers what scale would change.</p></div>
 
     <h2>The corpus</h2>
     <p>The sources run from 2002 to October 2026: real, messy and in two languages. They hold information outside an LLM's memory, which the earlier test on open textbooks could not promise. Most questions need two or more source types, and a few need a release, a partner filing and a podcast episode together.</p>

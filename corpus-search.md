@@ -1,6 +1,6 @@
 # Searching a corpus with code, a decision model and an LLM
 
-What we learned using Jev to find information and answer questions across a corpus: which tier does what, what moved results, what did not, and how far to trust it. The site's [four-page case study](https://robgruhl.github.io/jev-learnings/search.html) has the same findings with charts, the search video and pseudo-code.
+What we learned using Jev to find information and answer questions across a corpus: which tier does what, what moved results, what did not, and how far to trust it. The site's [six-page case study](https://robgruhl.github.io/jev-learnings/search.html) has the same findings with charts, the search video and pseudo-code.
 
 The main test corpus is public sources about one large retailer: 1,955 documents and 28,167 searchable paragraphs, from 2002 to October 2026. It holds press releases, wire releases, a partner's filings and calls (some in a second language) and machine transcripts of a podcast. An earlier run used 200 open textbook chapters (20,585 paragraphs). Experiment code and corpus text stay in a private repo, because the text is other people's copyrighted work. This page holds numbers, patterns and our own prompts only.
 
@@ -65,7 +65,7 @@ Blending many wordings for the same paragraph helps modestly, mostly past the to
 | Logistic, out of sample | +1.9 | +7.0 | 98 / 121 |
 | CatBoost, out of sample | +3.1 | +9.2 | 109 / 124 |
 
-CatBoost also saw source, length, digit share and heading, and would need refitting on another corpus. Trained on 16 questions and judged on the other 8, it gained +1.1 at top 40 and +4.1 at top 100. Twenty wordings cost about $0.34 a question on the top 2,000.
+CatBoost also saw source, length, digit share and heading, and would need refitting on another corpus. Trained on 16 questions and judged on the other 8, it gained +1.1 at top 40 and +4.1 at top 100. The 20 extra wordings cost about $0.41 a question on the top 2,000, about 2 cents each.
 
 **5. A draft answer makes Jev a much better second reader.** This was the strongest pipeline gain. Give Jev the question and a first answer, ask how each paragraph relates to that answer, and blend the result with the first ranking by reciprocal rank.
 
@@ -152,6 +152,159 @@ Wording cannot fix what Jev is not shown. Rebuilding tables and transcripts is t
 - Times are one machine, one account and sequential runs. Subagent time is not API latency.
 - 28,000 paragraphs is not very large. At 1M paragraphs, a full read projects to about $8 and takes over 5 minutes at the 600k tokens a second we saw on short passes, or about 33 minutes at the documented limit. So a prefilter probably has to return. How to build that prefilter without losing what BM25 loses is the biggest open question.
 - Hosted Nimble takes Jev's request shape and costs about the same, but it has not been tested on this work.
+
+## Wording and blending, in detail
+
+The site's [wording and blending page](https://robgruhl.github.io/jev-learnings/search-wording.html) has every statement verbatim with its results. In brief:
+
+- **22 ways of asking.** Besides `rely`, eight came from the repo's existing wording list (four of them compared on the textbooks), seven were added for this test (including a graded Score, a four-way Choice and two that show the previous paragraph), and Opus proposed six after studying what `rely` ranked badly. Each reranked `rely`'s top 2,000; Opus graded 8,363 paragraphs blind to rank. Asking `rely` again moves about one point.
+- **Tuning winners didn't hold.** At top 100, `rely` plus not-boilerplate gained +7.9 on tuning questions and +0.6 held out; four-way Choice +7.7 and −0.7; graded Score +6.4 and +0.5. Opus's indirect-match did the reverse, −0.7 and +4.6. Of the single wordings and ten pairings with `rely`, only `rely` plus a graded Score, log-odds summed, had intervals above zero on both sets: +4.3 [2.5, 6.2] and +2.1 [0.5, 4.3].
+- **Why wording probably can't fix most misses** (Opus's rough shares on tuning questions; the explanation is untested). Of about 180 low-ranked useful paragraphs: 35% table rows or footnotes with headers cut off, 20% late parts of multi-part questions, 17% rough transcript, 10% indirect references. Of about 110 high-ranked useless ones: 27% background that names the right entities, 23% boilerplate, 18% the wrong period or instance, 12% method text or tables cut before the answer row, 11% the same keyword for another entity, 9% off-topic talk.
+
+Blends of 21 wordings (all but the one that failed as a ranker), scored one pass per wording and blended offline, all 24 questions, change in the share of useful paragraphs found, in percentage points, against `rely`. The learned blends were judged one question at a time, trained on the other 23:
+
+| Blend | How it works | Top 40 | Top 100 | Better / worse at 40 |
+|---|---|---|---|---|
+| Max of probabilities | Best answer from any wording | +2.4 [0.4, 4.7] | +4.1 [1.6, 6.8] | 10 / 9 |
+| Max of z-scores | Standardize, then best | +1.4 [−0.9, 4.0] | +5.7 [2.1, 10.3] | 7 / 11 |
+| Median of z-scores | Middle answer | +0.9 [−0.7, 2.8] | +4.9 [2.6, 7.3] | 9 / 6 |
+| Reciprocal rank | Sum of 1 / (60 + rank) | +1.0 [−0.4, 2.6] | +5.0 [2.6, 7.5] | 13 / 5 |
+| Mean of z-scores | Average after standardizing | +1.5 [−0.2, 3.5] | +5.5 [2.8, 8.7] | 14 / 5 |
+| Mean of log-odds | Average evidence | +1.6 [−0.1, 3.7] | +5.7 [3.0, 8.9] | 14 / 5 |
+| Mean of top 3 z-scores | Between max and mean | +1.0 [−1.0, 3.3] | +5.9 [2.7, 9.9] | 10 / 8 |
+| Logistic regression | Learned weights on z-scores | +1.9 [−0.1, 4.1] | +7.0 [3.7, 10.6] | 14 / 5 |
+| CatBoost ranker | YetiRank on z-scores plus source, length, digit share, heading | +3.1 [0.8, 5.7] | +9.2 [5.5, 13.9] | 14 / 5 |
+
+Trained on the 16 tuning questions and judged on the 8 held out, at top 100: mean of log-odds +2.8 [0.7, 6.0], reciprocal rank +2.8 [0.6, 6.1], logistic +4.3 [0.2, 8.9], CatBoost +4.1 [1.4, 7.2], `rely` plus two or four wordings chosen on tuning +1.2 and +1.3. CatBoost also saw source, length, digit share and heading and was never tested without them. Logistic weights (from the tuning-only fit) are not a ranking of wordings: "help" got −0.85 and "evidence" −0.73, probably because correlated wordings split the credit (not checked).
+
+The draft-aware second pass is a blend too. Missed gold facts found in 20 added paragraphs, of 65: reading further down `rely` 15, "corrects" alone 15, "adds" 18, "expands" 18, the max of those three 19, one combined statement 21, and the combined statement blended with `rely` by reciprocal rank 28. One statement naming all three beat the max of three on missed facts, though not on useful paragraphs, and blending with the old ranking beat replacing it. The blend was chosen after seeing the results of seven methods.
+
+Untried: putting the paragraph in the state and asking the wordings as questions (one paragraph of about 200 tokens plus 21 short statements, about 830 tokens, against 21 copies of the paragraph, about 4,200; but one request per paragraph), weighted reciprocal rank, choosing wordings per question, and blending across models.
+
+## Six episodes as sequence diagrams
+
+The site's [successes and failures page](https://robgruhl.github.io/jev-learnings/search-stories.html) draws these with the tier colors. Text versions:
+
+**1. Failed: "is this enough?"** (textbook corpus)
+
+```mermaid
+sequenceDiagram
+    participant C as Code
+    participant J as Jev
+    participant M as Measure
+    C->>J: full evidence: enough to answer?
+    J->>M: mean 0.766, SD between questions 0.123
+    C->>C: remove one intended chapter (77) or a placebo (76)
+    C->>J: the same statement
+    J->>M: median knockout drop 0.013 (placebo mean drop 0.005)
+    Note over C,M: Failed: pooled AUC 0.555 [0.51, 0.63]
+    C->>J: per part: does the evidence state this part?
+    J->>M: weakest part is the one that fell, 10 of 11 big gaps
+    Note over C,M: Points at the gap, but needs a full copy; as a gate AUC 0.533
+```
+
+**2. Failed: a tuning win that didn't hold**
+
+```mermaid
+sequenceDiagram
+    participant E as Experimenter
+    participant S as Stack
+    participant G as Grader
+    participant H as Held-out set
+    E->>S: five waves, over 40 variants, 16 questions
+    S->>G: evidence checks for all, answers for some
+    G->>E: part-balanced hot list: 69 vs 52 (one pass)
+    E->>S: rerun live, two passes
+    G->>E: 63 vs 54, +9.1 [2.8, 16.5]
+    E->>H: 8 questions no wave saw, two runs
+    H->>E: 26.0 vs 27.0 of 51
+    Note over E,H: Failed: no gain held out (69 to 63 looks like selection plus noise); defaults unchanged
+```
+
+**3. Worked: tracing one weak answer to the keyword gate**
+
+```mermaid
+sequenceDiagram
+    participant Hk as Haiku
+    participant C as Code
+    participant J as Jev
+    participant W as Sonnet
+    participant E as Experimenter
+    Hk->>C: search terms and parts
+    C->>C: BM25 keeps the best keyword hits (a gate)
+    C->>J: rely? for each kept paragraph
+    J->>C: scores; hot list of 60, grown by Jev
+    C->>W: evidence
+    Note over W,E: Failed: 2 of 7 facts
+    E->>C: where did each missing fact sit?
+    Note over Hk,J: Gold documents in evidence, paragraphs for 4 of 7 facts not; the untuned run through the same gate held most; BM25 reached 6-12% of podcast paragraphs
+    E->>J: read all 28,167 paragraphs, no gate
+    J->>E: about 2 s rested, $0.233
+    Note over J,E: Worked: fact paragraphs rank 1, 2, 4, 34, 52, 73, 134 (a later full read: 1 to about 180)
+```
+
+**4. Failed: hunting for a better wording**
+
+```mermaid
+sequenceDiagram
+    participant J as Jev
+    participant O as Opus
+    participant C as Code
+    participant H as Held-out set
+    C->>J: rely? for all paragraphs, 24 questions
+    J->>O: top 250 per question, graded blind
+    Note over J,C: Low-ranked useful: 35% headerless table rows, 20% late sub-parts, 17% transcript, 10% indirect
+    O->>J: six new wordings
+    C->>J: rerank top 2,000 with 21 other wordings
+    J->>O: each variant's top 100 graded too (8,363 in all)
+    C->>C: tuning, top 100: +7.9, +7.7, +6.4
+    C->>H: same wordings
+    H->>C: +0.6, -0.7, +0.5 (indirect-match: -0.7 tuning, +4.6 held out)
+    Note over J,H: Failed: no wording reliably improved the top 40
+```
+
+**5. Worked: a second pass that reads the draft**
+
+```mermaid
+sequenceDiagram
+    participant C as Code
+    participant J as Jev
+    participant W as Sonnet
+    participant G as Grader
+    C->>J: rely? for candidates
+    J->>C: ranked list
+    C->>W: hot list, grown
+    W->>C: first answer, saved from the stack's live run, becomes state
+    C->>J: question + answer: adds, corrects or expands? (every paragraph, $0.29)
+    J->>C: second ranking
+    C->>C: reciprocal-rank blend with rely, keep 20 new
+    C->>W: first evidence + 20 new
+    W->>G: second answer: 116 of 148
+    Note over C,G: Worked: 116 vs 103 from first-pass evidence alone, +8.8 [4.5, 12.9], 13 better, 1 worse
+    Note over C,G: vs reading 20 further down rely (108): +5.3 [-0.2, 11.1], not settled
+    W->>C: third pass with the second answer
+    Note over C,G: No gain: 115 of 148
+```
+
+Replaying saved scores, the combined statement on `rely`'s top 2,000 found the same facts as on every paragraph, for about $0.02.
+
+**6. Draw: Opus runs its own search** (one real run, 17 calls in about 50 s)
+
+```mermaid
+sequenceDiagram
+    participant O as Opus
+    participant C as Code tools
+    participant J as Jev tools
+    participant G as Grader
+    O->>J: full read with rely (cached)
+    O->>C: BM25; read 4, 4, 2 paragraphs, each with neighbours
+    O->>J: its own statement on 1,761 paragraphs
+    O->>C: read, grep x2, read
+    O->>J: draft-aware statement on 2,000
+    O->>C: blend, read, grep, BM25, grep, read
+    O->>G: the answer
+    Note over O,G: 116 of 148 each over 24 questions, 100 shared; union 132; est. about $1.30 vs about $0.67 for the pipeline as scored, not measured end to end
+```
 
 ## Next
 

@@ -367,3 +367,19 @@ pre.pc .kw { font-weight: 600; color: var(--ink); }
 .diagram .wine-chart .wine-legend text { fill: var(--ink-soft); }
 .diagram.scroll-x { overflow-x: auto; }
 .diagram.scroll-x .wine-chart { min-width: 600px; }
+
+/* Corpus-search sequence diagrams and wording charts (2026-11-02) */
+.diagram .halo { paint-order: stroke; stroke: var(--bg-raised); stroke-width: 5px; stroke-linejoin: round; }
+.diagram .diag { stroke: var(--ink-faint); stroke-width: 1.5; stroke-dasharray: 5 5; }
+.diagram .dot { fill: var(--t-jev); stroke: var(--bg-raised); stroke-width: 2; }
+.diagram .dot:hover { stroke: var(--ink); }
+.diagram .whisk { stroke: var(--t-jev); stroke-width: 2.5; stroke-linecap: round; opacity: .55; }
+.diagram.scroll-x .wscatter { min-width: 560px; }
+.wtable .stmt { font-size: 13px; color: var(--ink-soft); }
+.wtable .muted-s { font-size: 12px; color: var(--ink-faint); white-space: nowrap; }
+.wtable td:first-child { min-width: 300px; }
+.seq-key { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13.5px; color: var(--ink-soft); margin: 10px 0 4px; }
+.seq-key i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; margin-right: 6px; vertical-align: -2px; border: 1.5px solid; }
+.seq-key .ok i { background: var(--teal-soft); border-color: var(--teal); }
+.seq-key .bad i { background: var(--coral-soft); border-color: var(--coral); }
+.seq-key .mid i { background: var(--amber-soft); border-color: var(--amber); }
